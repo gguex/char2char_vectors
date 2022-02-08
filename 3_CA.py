@@ -8,6 +8,8 @@ from prince import CA
 
 # Corpus tsv path
 corpus_tsv_path = "corpora/Hamlet.tsv"
+# Global or per_act
+global_view = False
 
 # --- Preprocess dataframe
 
@@ -15,12 +17,12 @@ corpus_tsv_path = "corpora/Hamlet.tsv"
 corpus_df = pd.read_csv(corpus_tsv_path, sep="\t", index_col=0)
 
 # Make the list of important characters
+min_char_count = 20
 sent_char_count = corpus_df.groupby(["char_from"]).size()
-char_list = sent_char_count[sent_char_count > 20].index
+char_list = sent_char_count[sent_char_count > min_char_count].index
 
 # Reduce the corpus on the list of chars
 reduced_corpus_df = corpus_df[corpus_df["char_from"].isin(char_list) & corpus_df["char_to"].isin(char_list)]
-
 
 # Preprocess sentences function
 def process_sentence(sent):
@@ -40,21 +42,29 @@ def process_sentence(sent):
 corpus_sent_list = [process_sentence(sent) for sent in reduced_corpus_df["sentence"]]
 
 # Get all interactions per act
-count_act_interact_df = reduced_corpus_df.groupby(["act", "char_from", "char_to"]).count()
-act_interact_list = list(count_act_interact_df.index)
+if global_view:
+    count_act_interact_df = reduced_corpus_df.groupby(["char_from", "char_to"]).count()
+    act_interact_list = list(count_act_interact_df.index)
+else:
+    count_act_interact_df = reduced_corpus_df.groupby(["act", "char_from", "char_to"]).count()
+    act_interact_list = list(count_act_interact_df.index)
 
 # Make the corpus for act_interact
 act_interact_corpus = []
 act_interact_name_list = []
 for act_interact in act_interact_list:
     # get the
-    index_act_interact = np.where((reduced_corpus_df["act"] == act_interact[0]) &
-                                  (reduced_corpus_df["char_from"] == act_interact[1]) &
-                                  (reduced_corpus_df["char_to"] == act_interact[2]))[0]
+    if global_view:
+        index_act_interact = np.where((reduced_corpus_df["char_from"] == act_interact[0]) &
+                                      (reduced_corpus_df["char_to"] == act_interact[1]))[0]
+        act_interact_name_list.append(f"{act_interact[0]}_{act_interact[1]}")
+    else:
+        index_act_interact = np.where((reduced_corpus_df["act"] == act_interact[0]) &
+                                      (reduced_corpus_df["char_from"] == act_interact[1]) &
+                                      (reduced_corpus_df["char_to"] == act_interact[2]))[0]
+        act_interact_name_list.append(f"{act_interact[0]}_{act_interact[1]}_{act_interact[2]}")
     all_interact_sent_list = np.array(corpus_sent_list)[index_act_interact].tolist()
     act_interact_corpus.append(" ".join(all_interact_sent_list))
-    act_interact_name_list.append(f"{act_interact[0]}_{act_interact[1]}_{act_interact[2]}")
-
 
 # Build the document-term matrix
 vectorizer = CountVectorizer(stop_words=stopwords.words('english'))
@@ -62,14 +72,15 @@ dt_matrix = vectorizer.fit_transform(act_interact_corpus)
 corpus_voc = vectorizer.get_feature_names_out()
 
 # Make a threshold for the minimum vocabulary
-voc_threshold = 10
-occ_threshold = 10
+voc_threshold = 20
+occ_threshold = 20
 index_interact_ok = np.where(np.sum(dt_matrix, axis=1) >= voc_threshold)[0]
 dt_thr_matrix = dt_matrix[index_interact_ok, :]
 index_voc_ok = np.where(np.sum(dt_thr_matrix, axis=0) > occ_threshold)[1]
 dt_thr_matrix = dt_thr_matrix[:, index_voc_ok]
 corpus_thr_voc = corpus_voc[index_voc_ok]
 act_interact_thr_name_list = np.array(act_interact_name_list)[index_interact_ok]
+act_interact_thr_list = np.array(act_interact_list)[index_interact_ok]
 
 # ---- Make the CA
 
@@ -78,13 +89,49 @@ act_interact_df = pd.DataFrame(dt_thr_matrix.todense(), columns=corpus_thr_voc.t
                                index=act_interact_thr_name_list.tolist())
 
 # Perform Ca
-ca = CA(n_components=2)
+ca = CA()
 ca.fit(act_interact_df)
 
 # Get the coordinates
 interact_coord = ca.row_coordinates(act_interact_df)
 word_coord = ca.column_coordinates(act_interact_df)
 
+# Get Masses
+
+
 # ---- Plot it
 
 ca.plot_coordinates(act_interact_df)
+
+# Creating matrix
+cross_mat = np.array(act_interact_df)
+
+# Number of row and col
+n_row, n_col = cross_mat.shape
+min_rowcol = min(n_row, n_col)
+
+# Constructing independence table
+n = np.sum(cross_mat)
+f = cross_mat.sum(axis=1)
+f = f / sum(f)
+fs = cross_mat.sum(axis=0)
+fs = fs / sum(fs)
+indep_mat = np.outer(f, fs) * n
+quot_mat = cross_mat / indep_mat
+
+# Transformation of quotients
+beta = 1
+quot_trans = 1 / beta * (quot_mat ** beta - 1)
+
+# Scalar products matrix, eigen decomposition
+B = (quot_trans * fs) @ quot_trans.T
+K = np.outer(np.sqrt(f), np.sqrt(f)) * B
+val_p, vec_p = np.linalg.eig(K)
+idx = val_p.argsort()[::-1]
+val_p = np.abs(val_p[idx])[:min_rowcol]
+vec_p = vec_p[:, idx][:, :min_rowcol]
+
+# Row coordinates
+coord_row = np.outer(1 / np.sqrt(f), np.sqrt(val_p)) * vec_p
+# Col coordinates
+coord_col = (quot_trans.T * f) @ coord_row / np.sqrt(val_p)

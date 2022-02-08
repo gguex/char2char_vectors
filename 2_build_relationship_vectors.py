@@ -20,8 +20,9 @@ corpus_tsv_path = "corpora/Hamlet.tsv"
 corpus_df = pd.read_csv(corpus_tsv_path, sep="\t", index_col=0)
 
 # Make the list of important characters
+min_char_count = 20
 sent_char_count = corpus_df.groupby(["char_from"]).size()
-char_list = sent_char_count[sent_char_count > 20].index
+char_list = sent_char_count[sent_char_count > min_char_count].index
 
 # Reduce the corpus on the list of chars
 reduced_corpus_df = corpus_df[corpus_df["char_from"].isin(char_list)]
