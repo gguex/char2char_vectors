@@ -4,12 +4,15 @@ import re
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 from nltk.corpus import stopwords
-from prince import CA
+from local_functions import display_char_network
+import pickle
 
 # Corpus tsv path
 corpus_tsv_path = "corpora/Hamlet.tsv"
+# File for node position
+corpus_node_pos = "corpora/Hamlet.pkl"
 # Global or per_act
-global_view = False
+global_view = True
 
 # --- Preprocess dataframe
 
@@ -23,6 +26,7 @@ char_list = sent_char_count[sent_char_count > min_char_count].index
 
 # Reduce the corpus on the list of chars
 reduced_corpus_df = corpus_df[corpus_df["char_from"].isin(char_list) & corpus_df["char_to"].isin(char_list)]
+
 
 # Preprocess sentences function
 def process_sentence(sent):
@@ -72,11 +76,11 @@ dt_matrix = vectorizer.fit_transform(act_interact_corpus)
 corpus_voc = vectorizer.get_feature_names_out()
 
 # Make a threshold for the minimum vocabulary
-voc_threshold = 20
-occ_threshold = 20
-index_interact_ok = np.where(np.sum(dt_matrix, axis=1) >= voc_threshold)[0]
+min_words_per_char = 20
+min_occ_per_word = 10
+index_interact_ok = np.where(np.sum(dt_matrix, axis=1) >= min_words_per_char)[0]
 dt_thr_matrix = dt_matrix[index_interact_ok, :]
-index_voc_ok = np.where(np.sum(dt_thr_matrix, axis=0) > occ_threshold)[1]
+index_voc_ok = np.where(np.sum(dt_thr_matrix, axis=0) > min_occ_per_word)[1]
 dt_thr_matrix = dt_thr_matrix[:, index_voc_ok]
 corpus_thr_voc = corpus_voc[index_voc_ok]
 act_interact_thr_name_list = np.array(act_interact_name_list)[index_interact_ok]
@@ -87,22 +91,6 @@ act_interact_thr_list = np.array(act_interact_list)[index_interact_ok]
 # dataframe for ca
 act_interact_df = pd.DataFrame(dt_thr_matrix.todense(), columns=corpus_thr_voc.tolist(),
                                index=act_interact_thr_name_list.tolist())
-
-# Perform Ca
-ca = CA()
-ca.fit(act_interact_df)
-
-# Get the coordinates
-interact_coord = ca.row_coordinates(act_interact_df)
-word_coord = ca.column_coordinates(act_interact_df)
-
-# Get Masses
-
-
-# ---- Plot it
-
-ca.plot_coordinates(act_interact_df)
-
 # Creating matrix
 cross_mat = np.array(act_interact_df)
 
@@ -132,6 +120,34 @@ val_p = np.abs(val_p[idx])[:min_rowcol]
 vec_p = vec_p[:, idx][:, :min_rowcol]
 
 # Row coordinates
-coord_row = np.outer(1 / np.sqrt(f), np.sqrt(val_p)) * vec_p
+coord_row = np.real(np.outer(1 / np.sqrt(f), np.sqrt(val_p)) * vec_p)
 # Col coordinates
 coord_col = (quot_trans.T * f) @ coord_row / np.sqrt(val_p)
+
+# Row contrib ( 1 for sum(axis=0) )
+contrib_row = np.outer(f, 1 / val_p) * coord_row ** 2
+# Col contrib ( 1 for sum(axis=0) )
+contrib_col = np.outer(fs, 1 / val_p) * coord_col ** 2
+
+# Row cos2 ( 1 for sum(axis=1) )
+cos2_row = coord_row ** 2
+cos2_row = np.outer(1 / cos2_row.sum(axis=1), np.repeat(1, min_rowcol)) * cos2_row
+# Col cos2 (1 for sum(axis=1) )
+cos2_col = coord_col ** 2
+cos2_col = np.outer(1 / cos2_col.sum(axis=1), np.repeat(1, min_rowcol)) * cos2_col
+
+# ---- Display
+
+edge_weights = np.sum(dt_thr_matrix, axis=1).T.tolist()[0]
+
+with open(corpus_node_pos, "rb") as pkl_file:
+    node_pos = pickle.load(pkl_file)
+
+axis = 1
+display_char_network(act_interact_thr_list, coord_row[:, axis], cos2_row[:, axis], node_pos=node_pos)
+relation_df = pd.DataFrame({"Coord": coord_row[:, axis], "Contrib": contrib_row[:, axis], "Cos²": cos2_row[:, axis]},
+                           index=act_interact_thr_name_list)
+voc_df = pd.DataFrame({"Coord": coord_col[:, axis], "Contrib": contrib_col[:, axis], "Cos²": cos2_col[:, axis]},
+                      index=corpus_thr_voc.tolist())
+
+voc_df.to_csv(f"results/Hamlet_voc_df_factor{axis + 1}.csv")

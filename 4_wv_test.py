@@ -1,20 +1,23 @@
+import pickle
 import pandas as pd
 import string
 import re
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import numpy as np
 from nltk.corpus import stopwords
 from gensim.models import KeyedVectors
 import os
 from sklearn.metrics.pairwise import cosine_similarity
-import networkx as nx
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 from local_functions import display_char_network
+
+# --- Loading wordvector models
+home = os.path.expanduser("~")
+wv_model = KeyedVectors.load(f"{home}/Documents/data/pretrained_word_vectors/enwiki.model")
 
 # Corpus tsv path
 corpus_tsv_path = "corpora/Hamlet.tsv"
-
+# File for node position
+corpus_node_pos = "corpora/Hamlet.pkl"
 # Global or per_act
 global_view = True
 
@@ -24,7 +27,7 @@ global_view = True
 corpus_df = pd.read_csv(corpus_tsv_path, sep="\t", index_col=0)
 
 # Make the list of important characters
-min_char_count = 10
+min_char_count = 20
 sent_char_count = corpus_df.groupby(["char_from"]).size()
 char_list = sent_char_count[sent_char_count > min_char_count].index
 
@@ -75,15 +78,18 @@ for act_interact in act_interact_list:
 
 # Build the document-term matrix
 vectorizer = CountVectorizer(stop_words=stopwords.words('english'))
+# vectorizer = TfidfVectorizer(stop_words=stopwords.words('english'))
 dt_matrix = vectorizer.fit_transform(act_interact_corpus)
 corpus_voc = vectorizer.get_feature_names_out()
 
 # Make a threshold for the minimum vocabulary
-voc_threshold = 20
-occ_threshold = 20
-index_interact_ok = np.where(np.sum(dt_matrix, axis=1) >= voc_threshold)[0]
+min_words_per_char = 20
+min_occ_per_word = 10
+# min_words_per_char = 3
+# min_occ_per_word = 0.05
+index_interact_ok = np.where(np.sum(dt_matrix, axis=1) >= min_words_per_char)[0]
 dt_thr_matrix = dt_matrix[index_interact_ok, :]
-index_voc_ok = np.where(np.sum(dt_thr_matrix, axis=0) > occ_threshold)[1]
+index_voc_ok = np.where(np.sum(dt_thr_matrix, axis=0) > min_occ_per_word)[1]
 dt_thr_matrix = dt_thr_matrix[:, index_voc_ok]
 corpus_thr_voc = corpus_voc[index_voc_ok]
 act_interact_thr_name_list = np.array(act_interact_name_list)[index_interact_ok]
@@ -91,9 +97,7 @@ act_interact_thr_list = np.array(act_interact_list)[index_interact_ok]
 
 # ---- Make the embedding
 
-# Loading wordvector models
-home = os.path.expanduser("~")
-wv_model = KeyedVectors.load(f"{home}/Documents/data/pretrained_word_vectors/enwiki.model")
+# Getting wv model data
 wv_voc = wv_model.index_to_key
 wv_dim = wv_model.vector_size
 
@@ -113,7 +117,8 @@ for i, word in enumerate(corpus_thr_voc):
     voc_vectors[i, :] = wv_model.get_vector(word)
 
 # Making vectors for interaction
-interact_vectors = (dt_thr_matrix.todense() / np.sum(dt_thr_matrix, axis=1)) @ voc_vectors
+interact_vectors = (np.outer(1 / dt_thr_matrix.sum(axis=1), np.ones(dt_thr_matrix.shape[1]))
+                    * dt_thr_matrix.toarray()) @ voc_vectors
 
 # --- PLotting interaction
 
@@ -135,21 +140,19 @@ interact_vectors = (dt_thr_matrix.todense() / np.sum(dt_thr_matrix, axis=1)) @ v
 # --- Getting similarity
 
 direction_vector = wv_model.get_vector("love")
+push_vector = wv_model.get_vector("hatred")
 interaction_polarity_score = cosine_similarity(np.asarray(direction_vector.reshape(1, -1)),
+                                               np.asarray(interact_vectors))[0] - \
+                             cosine_similarity(np.asarray(push_vector.reshape(1, -1)),
                                                np.asarray(interact_vectors))[0]
 
 interact_polarity_df = pd.DataFrame({"polarity": interaction_polarity_score}, index=act_interact_thr_name_list)
 
-# second choice
-
-# direction_vector_2 = wv_model.get_vector("hatred")
-# interaction_polarity_score_2 = cosine_similarity(np.asarray((direction_vector - direction_vector_2).reshape(1, -1)),
-#                                                  np.asarray(interact_vectors))[0]
-#
-# interact_polarity_df_2 = pd.DataFrame({"polarity": interaction_polarity_score_2}, index=act_interact_thr_name_list)
-
-# --- Recreate interactions
+# --- Plot interactions
 
 edge_weights = np.sum(dt_thr_matrix, axis=1).T.tolist()[0]
 
-display_char_network(act_interact_thr_list, interaction_polarity_score, edge_weights)
+with open(corpus_node_pos, "rb") as pkl_file:
+    node_pos = pickle.load(pkl_file)
+
+display_char_network(act_interact_thr_list, interaction_polarity_score, edge_weights, node_pos=node_pos)

@@ -1,12 +1,15 @@
 import numpy as np
 import pandas as pd
 import networkx as nx
-import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.collections import PatchCollection
+from scipy.stats import rankdata
 
 
 def display_char_network(interact_list, edge_polarity_list, edge_weight_list, color="polarity", width="weight",
-                         node_min_width=50, node_max_width=1000, edge_min_width=0.2, edge_max_width=5,
-                         string_strength="weight", min_alpha=0.6, max_alpha=1, cmap=mpl.pyplot.cm.coolwarm):
+                         width_rank=False, node_min_width=50, node_max_width=1000, edge_min_width=0.2, edge_max_width=5,
+                         string_strength="weight", min_alpha=0.5, max_alpha=1, cmap=plt.cm.coolwarm,
+                         node_pos=None):
     """
     A function to diplay a graph between character interactions
 
@@ -23,6 +26,7 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
     :param string_strength:
     :param max_alpha:
     :param cmap:
+    :param node_pos:
     :return:
     """
 
@@ -72,17 +76,19 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
 
     # Computing node and edge widths
     if width == "polarity":
-        node_lambda = (node_polarity_list - min(node_polarity_list)) / \
-                      (max(node_polarity_list) - min(node_polarity_list))
+        node_unscaled_width_list = node_polarity_list
         edge_unscaled_width_list = np.array([G[u][v]["polarity"] for u, v in G.edges()])
     else:
-        node_lambda = (node_weight_list - min(node_weight_list)) / \
-                      (max(node_weight_list) - min(node_weight_list))
+        node_unscaled_width_list = node_weight_list
         edge_unscaled_width_list = np.array([G[u][v]["weight"] for u, v in G.edges()])
-
-    node_width_list = (1 - node_lambda) * node_min_width + node_lambda * node_max_width
+    if width_rank:
+        node_unscaled_width_list = rankdata(node_unscaled_width_list)
+        edge_unscaled_width_list = rankdata(edge_unscaled_width_list)
+    node_lambda = (node_unscaled_width_list - min(node_unscaled_width_list)) / \
+                  (max(node_unscaled_width_list) - min(node_unscaled_width_list))
     edge_lambda = (edge_unscaled_width_list - min(edge_unscaled_width_list)) / \
                   (max(edge_unscaled_width_list) - min(edge_unscaled_width_list))
+    node_width_list = (1 - node_lambda) * node_min_width + node_lambda * node_max_width
     edge_width_list = (1 - edge_lambda) * edge_min_width + edge_lambda * edge_max_width
 
     # Computing node and edge colors
@@ -99,7 +105,11 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
     # --- Plotting the graph
 
     # the positions of nodes
-    node_pos = nx.spring_layout(G, weight="string_strength")
+    if node_pos is None:
+        node_pos = nx.spring_layout(G, weight="string_strength")
+
+    # Starting the graph
+    plt.figure()
 
     # Create the nodes
     nodes = nx.draw_networkx_nodes(G,
@@ -112,7 +122,7 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
                                    vmax=max(edge_color_list),
                                    alpha=0.8)
     # Draw labels
-    labels = nx.draw_networkx_labels(G, pos=node_pos, font_size=10)
+    labels = nx.draw_networkx_labels(G, pos=node_pos, font_size=15, font_weight="bold")
     # Create the edges
     edges = nx.draw_networkx_edges(G,
                                    pos=node_pos,
@@ -126,10 +136,12 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
                                    alpha=edge_alpha_list,
                                    connectionstyle="arc3,rad=0.2")
 
-    pc = mpl.collections.PatchCollection(edges, cmap=cmap)
+    pc = PatchCollection(edges, cmap=cmap)
     pc.set_array(edge_color_list)
 
-    ax = mpl.pyplot.gca()
-    mpl.pyplot.colorbar(pc, ax=ax)
+    ax = plt.gca()
+    plt.colorbar(pc, ax=ax)
     ax.set_axis_off()
-    mpl.pyplot.show()
+    plt.show()
+
+    return node_pos
