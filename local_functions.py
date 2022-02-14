@@ -122,7 +122,7 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
                                    vmax=max(edge_color_list),
                                    alpha=0.8)
     # Draw labels
-    labels = nx.draw_networkx_labels(G, pos=node_pos, font_size=15, font_weight="bold")
+    labels = nx.draw_networkx_labels(G, pos=node_pos, font_size=25, font_weight="bold")
     # Create the edges
     edges = nx.draw_networkx_edges(G,
                                    pos=node_pos,
@@ -134,7 +134,8 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
                                    edge_vmin=min(edge_color_list),
                                    edge_vmax=max(edge_color_list),
                                    alpha=edge_alpha_list,
-                                   connectionstyle="arc3,rad=0.2")
+                                   connectionstyle="arc3,rad=0.2",
+                                   arrowsize=40)
 
     pc = PatchCollection(edges, cmap=cmap)
     pc.set_array(edge_color_list)

@@ -15,9 +15,9 @@ home = os.path.expanduser("~")
 wv_model = KeyedVectors.load(f"{home}/Documents/data/pretrained_word_vectors/enwiki.model")
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/Hamlet.tsv"
+corpus_tsv_path = "corpora/Romeo&Juliet.tsv"
 # File for node position
-corpus_node_pos = "corpora/Hamlet.pkl"
+corpus_node_pos = "corpora/Romeo&Juliet.pkl"
 # Global or per_act
 global_view = True
 
@@ -155,4 +155,5 @@ edge_weights = np.sum(dt_thr_matrix, axis=1).T.tolist()[0]
 with open(corpus_node_pos, "rb") as pkl_file:
     node_pos = pickle.load(pkl_file)
 
-display_char_network(act_interact_thr_list, interaction_polarity_score, edge_weights, node_pos=node_pos)
+display_char_network(act_interact_thr_list, interaction_polarity_score, edge_weights, node_pos=node_pos,
+                     edge_min_width=0.5, edge_max_width=8, node_min_width=200, node_max_width=2000)

@@ -144,7 +144,8 @@ with open(corpus_node_pos, "rb") as pkl_file:
     node_pos = pickle.load(pkl_file)
 
 axis = 1
-display_char_network(act_interact_thr_list, coord_row[:, axis], cos2_row[:, axis], node_pos=node_pos)
+display_char_network(act_interact_thr_list, coord_row[:, axis], cos2_row[:, axis], node_pos=node_pos,
+                     edge_min_width=0.5, edge_max_width=8, node_min_width=200, node_max_width=2000)
 relation_df = pd.DataFrame({"Coord": coord_row[:, axis], "Contrib": contrib_row[:, axis], "Cos²": cos2_row[:, axis]},
                            index=act_interact_thr_name_list)
 voc_df = pd.DataFrame({"Coord": coord_col[:, axis], "Contrib": contrib_col[:, axis], "Cos²": cos2_col[:, axis]},
