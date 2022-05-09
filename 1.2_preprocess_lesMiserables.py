@@ -2,6 +2,7 @@ import numpy as np
 from flair.models import SequenceTagger
 from flair.data import Sentence
 from tqdm import tqdm
+import networkx as nx
 from collections import Counter
 
 # -------------------------------
@@ -11,8 +12,20 @@ from collections import Counter
 input_corpus_path = "corpora/LesMiserables1_fr.txt" # french
 #input_corpus_path = "corpora/LesMiserables_mini_en.txt" # english
 output_tsv_path = "corpora/LesMiserables_pp.txt"
-# Minimum number of sign to be considered a character
+
+# Target character list
+target_characters = ["Valjean", "Cosette", "Fantine", "Marius", "Gavroche", "Javert", "Monsieur Thénardier",
+                     "Madame Thénardier", "Babet", "Claquesous", "Montparnasse", "Gueulemer", "Brujon", "Bamatabois",
+                     "Madame Victurnien", "Enjolras", "Combeferre", "Courfeyrac", "Prouvaire", "Feuilly", "Bahorel",
+                     "Lesgle", "Joly", "Grantaire", "Favourite", "Dahlia", "Zéphine", "Tholomyès", "Listolier",
+                     "Blachevelle", "Fauchelevent", "Mabeuf", "Toussaint", "Gillenormand", "Pontmercy", "Myriel",
+                     "Baptistine", "Magloire", "Gervais", "Éponine", "Magnon", "Fameuil", "Azelma", "Champmathieu",
+                     "Brevet", "Simplice", "Chenildieu", "Cochepaille", "Innocente", "Mademoiselle Gillenormand",
+                     "Bougon"]
+# Minimum signs for a character
 minimum_sign = 3
+# Minimum occurences for a character
+minimum_occ = 5
 
 # -------------------------------
 # ---- CODE
@@ -75,6 +88,17 @@ for line in tqdm(lines):
 all_characters = sum(characters, [])
 # Construct the unique list of characters
 unique_characters = set(all_characters)
-# Remove characters too small
+# Remove characters with not enough signs
 unique_characters = [unique_character for unique_character in unique_characters
                      if len(unique_character) >= minimum_sign]
+
+# Create a graph of character
+graph = nx.DiGraph()
+# Add characters
+graph.add_nodes_from(unique_characters)
+links = []
+# Add links
+for i, unique_character in enumerate(unique_characters):
+    links.extend([(unique_character, distination_character) for distination_character in unique_characters
+                  if (distination_character != unique_character) and unique_character in distination_character])
+graph.add_edges_from(links)
