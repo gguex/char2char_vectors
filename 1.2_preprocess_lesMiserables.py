@@ -1,11 +1,80 @@
-import re
-import pandas as pd
+import numpy as np
+from flair.models import SequenceTagger
+from flair.data import Sentence
+from tqdm import tqdm
+from collections import Counter
+
+# -------------------------------
+# ---- PARAMETERS
 
 # Input/output paths
-input_corpus_path = "corpora/LesMiserables1_fr.txt"
+input_corpus_path = "corpora/LesMiserables1_fr.txt" # french
+#input_corpus_path = "corpora/LesMiserables_mini_en.txt" # english
 output_tsv_path = "corpora/LesMiserables_pp.txt"
+# Minimum number of sign to be considered a character
+minimum_sign = 3
+
+# -------------------------------
+# ---- CODE
+
+# ---- Character, text and divisions extraction
 
 # Loading the corpus
 with open(input_corpus_path) as corpus_file:
-    corpus_lines = corpus_file.readlines()
+    lines = corpus_file.readlines()
 
+# Setting tagger and divisions keywords (finer - coarser)
+# For french
+flair_tagger = SequenceTagger.load("fr-ner")
+division_keywords = ["Chapitre", "Livre"]
+# For english
+# flair_tagger = SequenceTagger.load("ner")
+# division_keywords = ["CHAPTER ", "BOOK "]
+
+
+# To store values in loop
+tokens = []
+characters = []
+paragraph = ""
+paragraphs = []
+divisions_counters = np.repeat(0, len(division_keywords))
+divisions_l = [[] for _ in division_keywords]
+# Loop on lines
+for line in tqdm(lines):
+
+    # If the line is empty
+    if line.strip() == "":
+        # If there is nothing before
+        if paragraph == "":
+            continue
+        # Else store the paragraph
+        else:
+            # Append divisions
+            paragraphs.append(paragraph)
+            for divisions_id, divisions in enumerate(divisions_l):
+                divisions.append(divisions_counters[divisions_id])
+            # Get flair information and save it
+            flair_sentence = Sentence(paragraph, use_tokenizer=True)
+            flair_tagger.predict(flair_sentence)
+            tokens.append([token.text for token in flair_sentence.tokens])
+            characters.append([entity.text for entity in flair_sentence.get_spans("ner") if entity.tag == "PER"])
+            # Reset paragraph
+            paragraph = ""
+    else:
+        # Division count
+        divisions_presence = [division_keyword in line for division_keyword in division_keywords]
+        # Update the counter for divisions
+        divisions_counters += divisions_presence
+        # Add the paragraph if there are no divisions counter
+        if not any(divisions_presence):
+            paragraph += " " + line
+
+# ---- Characters processing
+
+# Construct the full list of characters
+all_characters = sum(characters, [])
+# Construct the unique list of characters
+unique_characters = set(all_characters)
+# Remove characters too small
+unique_characters = [unique_character for unique_character in unique_characters
+                     if len(unique_character) >= minimum_sign]
