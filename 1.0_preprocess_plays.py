@@ -2,8 +2,8 @@ import re
 import pandas as pd
 
 # Input/output paths
-input_corpus_path = "corpora/Hamlet.txt"
-output_tsv_path = "corpora/Hamlet.tsv"
+input_corpus_path = "corpora/Hamlet/Hamlet.txt"
+output_tsv_path = "corpora/Hamlet/Hamlet.tsv"
 
 # Loading the corpus
 with open(input_corpus_path) as corpus_file:

@@ -15,7 +15,7 @@ home = os.path.expanduser("~")
 wv_model = KeyedVectors.load(f"{home}/Documents/data/pretrained_word_vectors/enwiki.model")
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/Romeo&Juliet.tsv"
+corpus_tsv_path = "corpora/Romeo&Juliet/Romeo&Juliet.tsv"
 # File for node position
 corpus_node_pos = "corpora/Romeo&Juliet.pkl"
 # Global or per_act

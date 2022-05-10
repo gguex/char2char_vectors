@@ -12,7 +12,7 @@ import colorsys
 
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/Hamlet.tsv"
+corpus_tsv_path = "corpora/Hamlet/Hamlet.tsv"
 
 # --- Preprocess dataframe
 
