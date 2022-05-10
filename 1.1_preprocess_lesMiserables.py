@@ -1,16 +1,21 @@
+import os
+import pandas as pd
 import numpy as np
 from flair.models import SequenceTagger
 from flair.data import Sentence
 from tqdm import tqdm
-from collections import Counter
 
 # -------------------------------
 # ---- PARAMETERS
 
-# Input/output paths
-input_corpus_path = "corpora/LesMiserables_fr/LesMiserables1_fr.txt"  # french
-# input_corpus_path = "corpora/LesMiserables_mini_en.txt" # english
-output_tsv_path = "corpora/LesMiserables_pp.txt"
+# Input folder path
+input_corpus_path = "corpora/LesMiserables_fr"
+
+# Ouput folder path
+output_tsv_path = "corpora/LesMiserables_fr/LesMiserables.tsv"
+
+# Keywords for division
+division_keywords = ["Chapitre", "Livre"]
 
 # Target character list
 target_characters = ["Valjean", "Cosette", "Fantine", "Marius", "Gavroche", "Javert", "Monsieur Thénardier",
@@ -49,32 +54,23 @@ aliases = {"Jean-le-cric": "Valjean",
            "Bienvenu": "Myriel",
            "Monseigneur": "Myriel",
            "L'évêque": "Myriel"}
-# Minimum signs for a character
-minimum_sign = 3
-# Minimum occurences for a character
-minimum_occ = 5
 
 # -------------------------------
 # ---- CODE
 
-# ---- Character, text and divisions extraction
+# Get tomes
+tomes = os.listdir(input_corpus_path)
+tomes.sort()
 
-# Loading the corpus
-with open(input_corpus_path) as corpus_file:
-    lines = corpus_file.readlines()
+# Create dataframe for results
+target_characters.sort()
+columns_name = ["tome", *[kwd.lower() for kwd in division_keywords], "text", *target_characters]
+final_df = pd.DataFrame(columns=columns_name)
 
 # Setting tagger and divisions keywords (finer - coarser)
-# For french
 flair_tagger = SequenceTagger.load("fr-ner")
-division_keywords = ["Chapitre", "Livre"]
-
-
-# For english
-# flair_tagger = SequenceTagger.load("ner")
-# division_keywords = ["CHAPTER ", "BOOK "]
 
 # Function for character treatment
-
 def recognise_character(tested_characters, ref_characters, ref_aliases):
     # For the output
     output_characters = []
@@ -84,61 +80,63 @@ def recognise_character(tested_characters, ref_characters, ref_aliases):
         target_characters_present = [ref_character for ref_character in ref_characters
                                      if ref_character in tested_character]
         if len(target_characters_present) > 0:
-            output_characters.extend(target_characters_present)
+            output_characters.append(max(target_characters_present))
         else:
             # Check if an alias key is in character
             aliases_present = [ref_alias for ref_alias in ref_aliases.keys() if ref_alias in tested_character]
             if len(aliases_present) > 0:
-                output_characters.append(ref_aliases[aliases_present[0]])
+                output_characters.append(ref_aliases[max(aliases_present)])
 
     # Return result
     return output_characters
 
 
-# To store values in loop
-tokens_l = []
-characters_l = []
-paragraph = ""
-paragraphs = []
-divisions_counters = np.repeat(0, len(division_keywords))
-divisions_l = [[] for _ in division_keywords]
-# Loop on lines
-for line in tqdm(lines):
+# Loop on tomes
+for tome_id, tome in enumerate(tomes):
 
-    # If the line is empty
-    if line.strip() == "":
-        # If there is nothing before
-        if paragraph == "":
-            continue
-        # Else store the paragraph
+    # Loading the corpus
+    with open(f"{input_corpus_path}/{tome}") as corpus_file:
+        lines = corpus_file.readlines()
+
+    # To store values in loop
+    characters_l = []
+    paragraph = ""
+    paragraphs = []
+    divisions_counters = np.repeat(0, len(division_keywords))
+    # Loop on lines
+    for line in tqdm(lines):
+
+        # If the line is empty
+        if line.strip() == "":
+            # If there is nothing before
+            if paragraph == "":
+                continue
+            # Else store the paragraph
+            else:
+                # Get characters with flair and references
+                flair_sentence = Sentence(paragraph, use_tokenizer=True)
+                flair_tagger.predict(flair_sentence)
+                potential_characters = [entity.text for entity in flair_sentence.get_spans("ner") if
+                                        entity.tag == "PER"]
+                recognised_characters = recognise_character(potential_characters, target_characters, aliases)
+                character_counter = [recognised_characters.count(target_character)
+                                     for target_character in target_characters]
+                # Add information into df
+                row_df = pd.DataFrame([[tome_id + 1, *divisions_counters, paragraph, *character_counter]],
+                                      columns=columns_name)
+                final_df = pd.concat([final_df, row_df], ignore_index=True)
+                # Reset paragraph
+                paragraph = ""
         else:
-            # Append divisions
-            paragraphs.append(paragraph)
-            for divisions_id, divisions in enumerate(divisions_l):
-                divisions.append(divisions_counters[divisions_id])
-            # Get flair information and save it
-            flair_sentence = Sentence(paragraph, use_tokenizer=True)
-            flair_tagger.predict(flair_sentence)
-            tokens_l.append([token.text for token in flair_sentence.tokens])
-            potential_characters = [entity.text for entity in flair_sentence.get_spans("ner") if entity.tag == "PER"]
-            characters_l.append(recognise_character(potential_characters, target_characters, aliases))
-            # Reset paragraph
-            paragraph = ""
-    else:
-        # Division count
-        divisions_presence = [division_keyword in line for division_keyword in division_keywords]
-        # Update the counter for divisions
-        divisions_counters += divisions_presence
-        # Add the paragraph if there are no divisions counter
-        if not any(divisions_presence):
-            paragraph += " " + line
+            # Division count
+            divisions_presence = [division_keyword in line for division_keyword in division_keywords]
+            # Update the counter for divisions
+            divisions_counters += divisions_presence
+            # Add the paragraph if there are no divisions counter
+            if not any(divisions_presence):
+                paragraph += " " + line
 
-# ---- Characters processing
+# Save dataframe
+final_df.to_csv(output_tsv_path, sep="\t")
 
-# Construct the full list of characters
-all_characters = sum(characters_l, [])
-# Construct the unique list of characters
-unique_characters = set(all_characters)
-# Remove characters with not enough signs
-unique_characters = [unique_character for unique_character in unique_characters
-                     if len(unique_character) >= minimum_sign]
+final_df.sum()
