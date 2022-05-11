@@ -1,34 +1,22 @@
-import pickle
 import pandas as pd
 import string
 import re
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 from nltk.corpus import stopwords
-from gensim.models import KeyedVectors
-import os
-from sklearn.metrics.pairwise import cosine_similarity
 from local_functions import display_char_network
+import pickle
 
 # -------------------------------
 #  Parameters
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/Romeo&Juliet/Romeo&Juliet.tsv"
-# File for node position
-corpus_node_pos = "corpora/Romeo&Juliet.pkl"
-# Global or per_act
-global_view = True
+corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables.tsv"
 
 # -------------------------------
 #  Code
 # -------------------------------
-
-# --- Loading wordvector models
-
-home = os.path.expanduser("~")
-wv_model = KeyedVectors.load(f"{home}/Documents/data/pretrained_word_vectors/enwiki.model")
 
 # --- Preprocess dataframe
 
@@ -42,6 +30,7 @@ char_list = sent_char_count[sent_char_count > min_char_count].index
 
 # Reduce the corpus on the list of chars
 reduced_corpus_df = corpus_df[corpus_df["char_from"].isin(char_list) & corpus_df["char_to"].isin(char_list)]
+
 
 # Preprocess sentences function
 def process_sentence(sent):
@@ -87,15 +76,12 @@ for act_interact in act_interact_list:
 
 # Build the document-term matrix
 vectorizer = CountVectorizer(stop_words=stopwords.words('english'))
-# vectorizer = TfidfVectorizer(stop_words=stopwords.words('english'))
 dt_matrix = vectorizer.fit_transform(act_interact_corpus)
 corpus_voc = vectorizer.get_feature_names_out()
 
 # Make a threshold for the minimum vocabulary
 min_words_per_char = 20
 min_occ_per_word = 10
-# min_words_per_char = 3
-# min_occ_per_word = 0.05
 index_interact_ok = np.where(np.sum(dt_matrix, axis=1) >= min_words_per_char)[0]
 dt_thr_matrix = dt_matrix[index_interact_ok, :]
 index_voc_ok = np.where(np.sum(dt_thr_matrix, axis=0) > min_occ_per_word)[1]
@@ -104,65 +90,69 @@ corpus_thr_voc = corpus_voc[index_voc_ok]
 act_interact_thr_name_list = np.array(act_interact_name_list)[index_interact_ok]
 act_interact_thr_list = np.array(act_interact_list)[index_interact_ok]
 
-# ---- Make the embedding
+# ---- Make the CA
 
-# Getting wv model data
-wv_voc = wv_model.index_to_key
-wv_dim = wv_model.vector_size
+# dataframe for ca
+act_interact_df = pd.DataFrame(dt_thr_matrix.todense(), columns=corpus_thr_voc.tolist(),
+                               index=act_interact_thr_name_list.tolist())
+# Creating matrix
+cross_mat = np.array(act_interact_df)
 
-# Save common voc
-common_voc = list(set(corpus_thr_voc) & set(wv_voc))
+# Number of row and col
+n_row, n_col = cross_mat.shape
+min_rowcol = min(n_row, n_col)
 
-# Reduce the dt_thr_matrix with common voc
-index_ok = [word in common_voc for word in corpus_thr_voc]
-dt_thr_matrix = dt_thr_matrix[:, index_ok]
-corpus_thr_voc = corpus_thr_voc[index_ok]
-index_interact_ok = np.where(np.sum(dt_thr_matrix, axis=1) >= 0)[0]
-dt_thr_matrix = dt_thr_matrix[index_interact_ok, :]
+# Constructing independence table
+n = np.sum(cross_mat)
+f = cross_mat.sum(axis=1)
+f = f / sum(f)
+fs = cross_mat.sum(axis=0)
+fs = fs / sum(fs)
+indep_mat = np.outer(f, fs) * n
+quot_mat = cross_mat / indep_mat
 
-# Making vectors for words
-voc_vectors = np.zeros((len(corpus_thr_voc), wv_dim))
-for i, word in enumerate(corpus_thr_voc):
-    voc_vectors[i, :] = wv_model.get_vector(word)
+# Transformation of quotients
+beta = 1
+quot_trans = 1 / beta * (quot_mat ** beta - 1)
 
-# Making vectors for interaction
-interact_vectors = (np.outer(1 / dt_thr_matrix.sum(axis=1), np.ones(dt_thr_matrix.shape[1]))
-                    * dt_thr_matrix.toarray()) @ voc_vectors
+# Scalar products matrix, eigen decomposition
+B = (quot_trans * fs) @ quot_trans.T
+K = np.outer(np.sqrt(f), np.sqrt(f)) * B
+val_p, vec_p = np.linalg.eig(K)
+idx = val_p.argsort()[::-1]
+val_p = np.abs(val_p[idx])[:min_rowcol]
+vec_p = vec_p[:, idx][:, :min_rowcol]
 
-# --- PLotting interaction
+# Row coordinates
+coord_row = np.real(np.outer(1 / np.sqrt(f), np.sqrt(val_p)) * vec_p)
+# Col coordinates
+coord_col = (quot_trans.T * f) @ coord_row / np.sqrt(val_p)
 
-# # Make the TSNE projection
-# proj2D_all_vectors = TSNE(perplexity=30).fit_transform(np.asarray(interact_vectors))
-#
-# # ---- Plot
-#
-# fig, ax = plt.subplots()
-# ax.scatter(proj2D_all_vectors[:, 0], proj2D_all_vectors[:, 1], alpha=0, color="white")
-#
-# for i, txt in enumerate(act_interact_thr_name_list):
-#     ax.annotate(txt, (proj2D_all_vectors[i, 0],
-#                       proj2D_all_vectors[i, 1]))
-#
-# ax.grid()
-# plt.show()
+# Row contrib ( 1 for sum(axis=0) )
+contrib_row = np.outer(f, 1 / val_p) * coord_row ** 2
+# Col contrib ( 1 for sum(axis=0) )
+contrib_col = np.outer(fs, 1 / val_p) * coord_col ** 2
 
-# --- Getting similarity
+# Row cos2 ( 1 for sum(axis=1) )
+cos2_row = coord_row ** 2
+cos2_row = np.outer(1 / cos2_row.sum(axis=1), np.repeat(1, min_rowcol)) * cos2_row
+# Col cos2 (1 for sum(axis=1) )
+cos2_col = coord_col ** 2
+cos2_col = np.outer(1 / cos2_col.sum(axis=1), np.repeat(1, min_rowcol)) * cos2_col
 
-direction_vector = wv_model.get_vector("love")
-push_vector = wv_model.get_vector("hatred")
-interaction_polarity_score = cosine_similarity(np.asarray(direction_vector.reshape(1, -1)),
-                                               np.asarray(interact_vectors))[0] - \
-                             cosine_similarity(np.asarray(push_vector.reshape(1, -1)),
-                                               np.asarray(interact_vectors))[0]
-
-interact_polarity_df = pd.DataFrame({"polarity": interaction_polarity_score}, index=act_interact_thr_name_list)
-
-# --- Plot interactions
+# ---- Display
 
 edge_weights = np.sum(dt_thr_matrix, axis=1).T.tolist()[0]
 
 with open(corpus_node_pos, "rb") as pkl_file:
     node_pos = pickle.load(pkl_file)
 
-display_char_network(act_interact_thr_list, interaction_polarity_score, edge_weights, node_pos=node_pos,
+axis = 1
+display_char_network(act_interact_thr_list, coord_row[:, axis], cos2_row[:, axis], node_pos=node_pos,
                      edge_min_width=0.5, edge_max_width=8, node_min_width=200, node_max_width=2000)
+relation_df = pd.DataFrame({"Coord": coord_row[:, axis], "Contrib": contrib_row[:, axis], "Cos²": cos2_row[:, axis]},
+                           index=act_interact_thr_name_list)
+voc_df = pd.DataFrame({"Coord": coord_col[:, axis], "Contrib": contrib_col[:, axis], "Cos²": cos2_col[:, axis]},
+                      index=corpus_thr_voc.tolist())
+
+voc_df.to_csv(f"results/Hamlet_voc_df_factor{axis + 1}.csv")

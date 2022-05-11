@@ -6,7 +6,8 @@ from flair.data import Sentence
 from tqdm import tqdm
 
 # -------------------------------
-# ---- PARAMETERS
+#  Parameters
+# -------------------------------
 
 # Input folder path
 input_corpus_path = "corpora/LesMiserables_fr"
@@ -56,7 +57,8 @@ aliases = {"Jean-le-cric": "Valjean",
            "L'évêque": "Myriel"}
 
 # -------------------------------
-# ---- CODE
+#   Code
+# -------------------------------
 
 # Get tomes
 tomes = os.listdir(input_corpus_path)

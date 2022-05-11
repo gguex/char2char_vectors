@@ -10,9 +10,16 @@ import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
 import colorsys
 
+# -------------------------------
+#  Parameters
+# -------------------------------
 
 # Corpus tsv path
 corpus_tsv_path = "corpora/Hamlet/Hamlet.tsv"
+
+# -------------------------------
+#  Code
+# -------------------------------
 
 # --- Preprocess dataframe
 

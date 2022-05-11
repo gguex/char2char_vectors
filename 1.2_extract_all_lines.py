@@ -1,7 +1,15 @@
 import pandas as pd
 
+# -------------------------------
+#  Parameters
+# -------------------------------
+
 # The book name
 book_name = "Romeo&Juliet"
+
+# -------------------------------
+#  Code
+# -------------------------------
 
 # Load df
 df = pd.read_csv(f"corpora/{book_name}.tsv", sep="\t")

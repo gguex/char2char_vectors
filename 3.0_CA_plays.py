@@ -7,12 +7,20 @@ from nltk.corpus import stopwords
 from local_functions import display_char_network
 import pickle
 
+# -------------------------------
+#  Parameters
+# -------------------------------
+
 # Corpus tsv path
 corpus_tsv_path = "corpora/Hamlet/Hamlet.tsv"
 # File for node position
 corpus_node_pos = "corpora/Hamlet.pkl"
 # Global or per_act
 global_view = True
+
+# -------------------------------
+#  Code
+# -------------------------------
 
 # --- Preprocess dataframe
 
