@@ -1,1 +1,3 @@
-# char2char_vectors project
+# Project to enhance relationships display in a character Network
+
+Work in progress
