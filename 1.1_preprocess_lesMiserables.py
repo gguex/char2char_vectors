@@ -24,7 +24,7 @@ target_characters = ["Valjean", "Cosette", "Fantine", "Marius", "Gavroche", "Jav
                      "Madame Victurnien", "Enjolras", "Combeferre", "Courfeyrac", "Prouvaire", "Feuilly", "Bahorel",
                      "Lesgle", "Joly", "Grantaire", "Favourite", "Dahlia", "Zéphine", "Tholomyès", "Listolier",
                      "Blachevelle", "Fauchelevent", "Mabeuf", "Toussaint", "Gillenormand", "Pontmercy", "Myriel",
-                     "Baptistine", "Magloire", "Gervais", "Éponine", "Magnon", "Fameuil", "Azelma", "Champmathieu",
+                     "Baptistine", "Magloire", "Gervais", "Eponine", "Magnon", "Fameuil", "Azelma", "Champmathieu",
                      "Brevet", "Simplice", "Chenildieu", "Cochepaille", "Innocente", "Mademoiselle Gillenormand",
                      "Bougon"]
 # Alias dic
@@ -54,7 +54,8 @@ aliases = {"Jean-le-cric": "Valjean",
            "Zelma": "Azelma",
            "Bienvenu": "Myriel",
            "Monseigneur": "Myriel",
-           "L'évêque": "Myriel"}
+           "L'évêque": "Myriel",
+           "Éponine": "Eponine"}
 
 # -------------------------------
 #   Code

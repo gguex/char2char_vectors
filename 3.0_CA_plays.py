@@ -17,6 +17,8 @@ corpus_tsv_path = "corpora/Hamlet/Hamlet.tsv"
 corpus_node_pos = "corpora/Hamlet.pkl"
 # Global or per_act
 global_view = True
+# Min number of appearances for characters
+min_char_count = 20
 
 # -------------------------------
 #  Code
@@ -28,7 +30,6 @@ global_view = True
 corpus_df = pd.read_csv(corpus_tsv_path, sep="\t", index_col=0)
 
 # Make the list of important characters
-min_char_count = 20
 sent_char_count = corpus_df.groupby(["char_from"]).size()
 char_list = sent_char_count[sent_char_count > min_char_count].index
 

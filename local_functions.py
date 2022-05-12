@@ -6,6 +6,63 @@ from matplotlib.collections import PatchCollection
 from scipy.stats import rankdata
 
 
+def correspondence_analysis(contingency):
+    """
+    A function to perform a correspondence analysis from a contingency table
+
+    :param contingency: a contingency table in array or numpy array format
+    :return: maximum number of dimension, percentage of variance, row coordinates, col coordinates, row contributions
+    col contributions, row cosines, col cosines.
+    """
+
+    # Transform into a numpy array
+    contingency = np.array(contingency)
+    # Extract the number of rows and columns
+    n_row, n_col = contingency.shape
+    # Compute the maximum number of dimension
+    dim_max = min(n_row, n_col) - 1
+
+    # Compute the total in contingency table
+    total = np.sum(contingency)
+    # Compute the row and columns weights
+    f_row = contingency.sum(axis=1)
+    f_row = f_row / sum(f_row)
+    f_col = contingency.sum(axis=0)
+    f_col = f_col / sum(f_col)
+    # Compute the independence table
+    independency = np.outer(f_row, f_col) * total
+    # Compute the quotient matrix
+    normalized_quotient = contingency / independency - 1
+
+    # Compute the scalar products matrix
+    b_mat = (normalized_quotient * f_col) @ normalized_quotient.T
+    # Compute the weighted scalar products matrix
+    k_mat = np.outer(np.sqrt(f_row), np.sqrt(f_row)) * b_mat
+    # Perform the eigen-decomposition
+    eig_val, eig_vec = np.linalg.eig(k_mat)
+    # Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
+    idx = eig_val.argsort()[::-1]
+    eig_val = np.abs(eig_val[idx])[:dim_max]
+    eig_vec = eig_vec[:, idx][:, :dim_max]
+
+    # Compute the percentage of variance
+    percentage_var = eig_val / sum(eig_val)
+    # Compute row and col coordinates
+    coord_row = np.real(np.outer(1 / np.sqrt(f_row), np.sqrt(eig_val)) * eig_vec)
+    coord_col = (normalized_quotient.T * f_row) @ coord_row / np.sqrt(eig_val)
+    # Compute row and col contributions
+    contrib_row = eig_vec ** 2
+    contrib_col = np.outer(f_col, 1 / eig_val) * coord_col ** 2
+    # Compute row and col cosines
+    cos2_row = coord_row ** 2
+    cos2_row = (cos2_row.T / cos2_row.sum(axis=1)).T
+    cos2_col = coord_col ** 2
+    cos2_col = (cos2_col.T / cos2_col.sum(axis=1)).T
+
+    return dim_max, percentage_var, coord_row, coord_col, contrib_row, contrib_col, cos2_row, cos2_col
+
+
+
 def display_char_network(interact_list, edge_polarity_list, edge_weight_list, color="polarity", width="weight",
                          width_rank=False, node_min_width=50, node_max_width=1000, edge_min_width=0.2, edge_max_width=5,
                          string_strength="weight", min_alpha=0.5, max_alpha=1, cmap=plt.cm.coolwarm,
