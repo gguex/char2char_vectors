@@ -4,6 +4,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 from scipy.stats import rankdata
+from itertools import combinations
 
 
 def correspondence_analysis(contingency):
@@ -61,6 +62,41 @@ def correspondence_analysis(contingency):
 
     return dim_max, percentage_var, coord_row, coord_col, contrib_row, contrib_col, cos2_row, cos2_col
 
+
+def build_interactions(character_presences_df, max_interaction_degree):
+    """
+    :param character_presences_df: a pandas dataframe containg character occurences along unit. Columns name should be
+    the names of the characters
+    :param max_interaction_degree: an integer >= 2 indicating the maximum degree of interaction to compute
+    :return: a pandas dataframe containing interactions as columns, unit as row,
+    and in the cells the indicator variable of the presence of the interaction in the unit
+    """
+
+    # Get characters
+    characters = np.array(character_presences_df.columns)
+    character_presences = character_presences_df.to_numpy()
+
+    # Make the list of interactions
+    interactions = []
+    for id_row in range(character_presences.shape[0]):
+        presence_in_unit = characters[character_presences[id_row, :] > 0]
+        for interaction_degree in range(2, max_interaction_degree + 1):
+            interactions.extend([tuple(sorted(comb)) for comb in combinations(presence_in_unit, interaction_degree)])
+    interactions = list(set(interactions))
+
+    # Fill the interaction presences
+    interaction_presences = []
+    for interaction in interactions:
+        interaction_presence = np.ones(character_presences[:, 0].shape)
+        for char in interaction:
+            interaction_presence = interaction_presence * character_presences[:, characters == char].reshape(-1)
+        interaction_presences.append(interaction_presence.reshape(-1).astype(int))
+    interaction_presences = np.array(interaction_presences).T
+
+    # Build the dataframe of interaction and return it
+    interactions_name = ["-".join(interaction) for interaction in interactions]
+
+    return pd.DataFrame(interaction_presences, columns=interactions_name)
 
 
 def display_char_network(interact_list, edge_polarity_list, edge_weight_list, color="polarity", width="weight",
