@@ -14,7 +14,7 @@ import pickle
 # Corpus tsv path
 corpus_tsv_path = "corpora/Hamlet/Hamlet.tsv"
 # File for node position
-corpus_node_pos = "corpora/Hamlet.pkl"
+corpus_node_pos = "corpora/Hamlet/Hamlet.pkl"
 # Global or per_act
 global_view = True
 # Min number of appearances for characters

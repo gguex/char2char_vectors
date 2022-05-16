@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import linear_model
 from nltk.corpus import stopwords
 from local_functions import *
-
+import spacy
 
 # -------------------------------
 #  Parameters
@@ -49,6 +49,11 @@ else:
     texts = list(corpus_df["text"])
     character_occurrences = corpus_df[word_columns]
 
+# Remove chapter without characters
+unit_with_character = np.where(character_occurrences.sum(axis=1) > 0)[0]
+character_occurrences = pd.DataFrame(character_occurrences.to_numpy()[unit_with_character, ], columns=word_columns)
+texts = np.array(texts)[unit_with_character]
+
 # Get char list
 characters = list(character_occurrences.columns)
 
@@ -68,6 +73,14 @@ def process_text(text):
 
 # Apply the function on texts
 processed_texts = [process_text(text) for text in texts]
+
+# - NEW WAY
+# nlp = spacy.load("fr_core_news_lg")
+# processed_texts = []
+# for text in texts:
+#     text_pp = nlp(text)
+#     processed_texts.append(" ".join([word.lemma_ for word in text_pp if process_text(word.lemma_).strip() != ""]))
+# - NEW WAY
 
 # Build the document-term matrix
 vectorizer = CountVectorizer(stop_words=stopwords.words('french'))
@@ -170,7 +183,7 @@ relationship_coord = relationship_weights.T @ coord_row
 relationship_df = pd.DataFrame(relationship_coord, index=["-".join(relationship) for relationship in relationships])
 word_df = pd.DataFrame(contrib_col, index=vocabulary)
 
-# ---- Plot
+# ---- Plots
 
 fig, ax = plt.subplots()
 ax.scatter(relationship_coord[:, displayed_axes[0]], relationship_coord[:, displayed_axes[1]], alpha=0, color="white")
@@ -182,3 +195,7 @@ for i in range(relationships.shape[0]):
 ax.grid()
 plt.show()
 
+axis = 0
+display_char_network(relationships,
+                     relationship_coord[:, axis], relationship_coord[:, axis],
+                     edge_min_width=0.5, edge_max_width=8, node_min_width=200, node_max_width=2000)
