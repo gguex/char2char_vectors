@@ -64,6 +64,7 @@ aliases = {"Jean-le-cric": "Valjean",
 # Get tomes
 tomes = os.listdir(input_corpus_path)
 tomes.sort()
+tomes.remove("LesMiserables.tsv")
 
 # Create dataframe for results
 target_characters.sort()
@@ -95,6 +96,7 @@ def recognise_character(tested_characters, ref_characters, ref_aliases):
 
 
 # Loop on tomes
+divisions_counters = np.repeat(0, len(division_keywords))
 for tome_id, tome in enumerate(tomes):
 
     # Loading the corpus
@@ -105,7 +107,6 @@ for tome_id, tome in enumerate(tomes):
     characters_l = []
     paragraph = ""
     paragraphs = []
-    divisions_counters = np.repeat(0, len(division_keywords))
     # Loop on lines
     for line in tqdm(lines):
 
@@ -141,5 +142,3 @@ for tome_id, tome in enumerate(tomes):
 
 # Save dataframe
 final_df.to_csv(output_tsv_path, sep="\t")
-
-final_df.sum()

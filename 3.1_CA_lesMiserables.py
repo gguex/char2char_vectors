@@ -1,5 +1,7 @@
 import string
 import re
+
+import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import linear_model
 from nltk.corpus import stopwords
@@ -41,18 +43,18 @@ word_columns = corpus_df.iloc[:, ((np.where(corpus_df.columns == "text")[0][0]) 
 
 # Aggregate at the defined level and split the df
 if aggregation_level is not None:
-    separations = corpus_df.groupby(["tome", aggregation_level])[separation_columns].max()
-    texts = list(corpus_df.groupby(["tome", aggregation_level])["text"].apply(lambda x: "\n".join(x)))
-    character_occurrences = corpus_df.groupby(["tome", aggregation_level])[word_columns].sum()
+    separations = corpus_df.groupby([aggregation_level])[separation_columns].max()
+    texts = list(corpus_df.groupby([aggregation_level])["text"].apply(lambda x: "\n".join(x)))
+    character_occurrences = corpus_df.groupby([aggregation_level])[word_columns].sum()
 else:
     separations = corpus_df[separation_columns]
     texts = list(corpus_df["text"])
     character_occurrences = corpus_df[word_columns]
 
-# Remove chapter without characters
-unit_with_character = np.where(character_occurrences.sum(axis=1) > 0)[0]
-character_occurrences = pd.DataFrame(character_occurrences.to_numpy()[unit_with_character, ], columns=word_columns)
-texts = np.array(texts)[unit_with_character]
+# Remove chapters without characters
+# unit_with_character = np.where(character_occurrences.sum(axis=1) > 0)[0]
+# character_occurrences = pd.DataFrame(character_occurrences.to_numpy()[unit_with_character, ], columns=word_columns)
+# texts = np.array(texts)[unit_with_character]
 
 # Get char list
 characters = list(character_occurrences.columns)
@@ -75,11 +77,11 @@ def process_text(text):
 processed_texts = [process_text(text) for text in texts]
 
 # - NEW WAY
-# nlp = spacy.load("fr_core_news_lg")
-# processed_texts = []
-# for text in texts:
-#     text_pp = nlp(text)
-#     processed_texts.append(" ".join([word.lemma_ for word in text_pp if process_text(word.lemma_).strip() != ""]))
+nlp = spacy.load("fr_core_news_lg")
+processed_texts = []
+for text in texts:
+    text_pp = nlp(text)
+    processed_texts.append(" ".join([word.lemma_ for word in text_pp if process_text(word.lemma_).strip() != ""]))
 # - NEW WAY
 
 # Build the document-term matrix
@@ -102,10 +104,10 @@ vocabulary = vocabulary[not_a_character]
 kept_row_indices = np.where(dt_matrix.sum(axis=1) >= row_threshold)[0]
 dt_matrix = dt_matrix[kept_row_indices, :]
 character_occurrences = character_occurrences.iloc[kept_row_indices, :]
+separations = separations.iloc[kept_row_indices, :]
 kept_col_indices = np.where(np.sum(dt_matrix, axis=0) >= word_threshold)[1]
 dt_matrix = dt_matrix[:, kept_col_indices]
 vocabulary = vocabulary[kept_col_indices]
-
 
 # ---- Make the CA
 
@@ -130,12 +132,20 @@ interactions = list(interaction_presences.columns)
 f_row = np.array(dt_matrix.sum(axis=1)).reshape(-1)
 f_row = f_row / sum(f_row)
 
+# Build predictors
+predictors = np.concatenate([
+    separations["livre"].to_numpy().reshape(character_presences.shape[0], -1),
+    character_presences,
+    interaction_presences.to_numpy()], axis=1)
+regression_elements = ["intercept"] + ["time"] + list(reduced_characters) + interactions
+# predictors = np.concatenate([character_presences, interaction_presences.to_numpy()], axis=1)
+# regression_elements = ["intercept"] + list(reduced_characters) + interactions
+
 # Linear models
 reg_coefs = []
 for i in range(dim_max):
-    predictors = np.concatenate([character_presences, interaction_presences.to_numpy()], axis=1)
     num_results = coord_row[:, i]
-    lin_reg = linear_model.Ridge(0.1)
+    lin_reg = linear_model.Ridge(1)
     lin_reg.fit(predictors, num_results, sample_weight=f_row)
     reg_coef = [lin_reg.intercept_]
     reg_coef.extend(lin_reg.coef_)
@@ -143,7 +153,6 @@ for i in range(dim_max):
 reg_coefs = np.array(reg_coefs)
 
 # Diplay the results
-regression_elements = ["intercept"] + list(reduced_characters) + interactions
 regression_df = pd.DataFrame(reg_coefs, columns=regression_elements)
 
 # Compute the cosine between reg_coefs and coord_col
@@ -153,6 +162,10 @@ norm_regression = (norm_regression.T / np.sqrt(np.sum(norm_regression ** 2, axis
 
 # Make the cosine between regression df and words
 wordsVSreg = pd.DataFrame(norm_coord_col @ norm_regression.T, index=vocabulary, columns=regression_elements)
+# Reorder by name
+wordsVSreg = wordsVSreg.reindex(sorted(wordsVSreg.columns), axis=1)
+
+axisVSreg =pd.DataFrame(regression_df.T, index=regression_elements)
 
 # ---- Make weid means of characters and relationships
 
@@ -181,7 +194,12 @@ relationship_coord = relationship_weights.T @ coord_row
 # ---- Result dataframes
 
 relationship_df = pd.DataFrame(relationship_coord, index=["-".join(relationship) for relationship in relationships])
-word_df = pd.DataFrame(contrib_col, index=vocabulary)
+columns_whl_n = [(len(f"{dim_max}") - len(f"{dim}")) * "0" + f"{dim}" for dim in range(dim_max)]
+word_coord_df = pd.DataFrame(coord_col, index=vocabulary, columns=[whl_n + "_coord" for whl_n in columns_whl_n])
+word_contrib_df = pd.DataFrame(contrib_col, index=vocabulary, columns=[whl_n + "_contrib" for whl_n in columns_whl_n])
+word_cos_df = pd.DataFrame(cos2_col, index=vocabulary, columns=[whl_n + "_cos2" for whl_n in columns_whl_n])
+word_df = pd.concat([word_coord_df, word_contrib_df, word_cos_df], axis=1)
+word_df = word_df.reindex(sorted(word_df.columns), axis=1)
 
 # ---- Plots
 
