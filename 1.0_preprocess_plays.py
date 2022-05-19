@@ -7,7 +7,7 @@ import pandas as pd
 
 # Input/output paths
 input_corpus_path = "corpora/Hamlet/Hamlet.txt"
-output_tsv_path = "corpora/Hamlet/Hamlet.tsv"
+output_tsv_path = "corpora/Hamlet/Hamlet_old.tsv"
 
 # -------------------------------
 #  Code

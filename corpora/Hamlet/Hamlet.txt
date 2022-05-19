@@ -148,8 +148,7 @@ MARCELLUS. Let’s do’t, I pray, and I this morning know Where we shall
 find him most conveniently.
 [_Exeunt._]
 SCENE II. Elsinore. A room of state in the Castle.
-Enter Claudius King of Denmark, Gertrude the Queen, Hamlet, Polonius,
-Laertes, Voltemand, Cornelius, Lords and Attendant.
+Enter Claudius King of Denmark, Gertrude the Queen, Hamlet, Polonius, Laertes, Voltemand, Cornelius, Lords and Attendant.
 KING. Though yet of Hamlet our dear brother’s death The memory be
 green, and that it us befitted To bear our hearts in grief, and our
 whole kingdom To be contracted in one brow of woe; Yet so far hath
@@ -1230,7 +1229,7 @@ who should scape whipping? Use them after your own honour and dignity.
 The less they deserve, the more merit is in your bounty. Take them in.
 POLONIUS. Come, sirs.
 HAMLET. Follow him, friends. We’ll hear a play tomorrow.
-[_Exeunt Polonius with all the Players but the First._]
+[_Exeunt Polonius with all the Payers but the First._]
 Dost thou hear me, old friend? Can you play _The Murder of Gonzago_?
 FIRST PLAYER. Ay, my lord.
 HAMLET. We’ll ha’t tomorrow night. You could for a need study a speech
@@ -1506,7 +1505,8 @@ his seeming.
 HORATIO. Well, my lord. If he steal aught the whilst this play is
 playing, And scape detecting, I will pay the theft.
 HAMLET. They are coming to the play. I must be idle. Get you a place.
-Danish march. A flourish. Enter King, Queen, Polonius, Ophelia,
+Danish march. A flourish.
+Enter King, Queen, Polonius, Ophelia,
 Rosencrantz, Guildenstern and others.
 KING. How fares our cousin Hamlet?
 HAMLET. Excellent, i’ faith; of the chameleon’s dish: I eat the air,
@@ -3207,5 +3207,4 @@ for his passage, The soldiers’ music and the rites of war Speak loudly
 for him. Take up the bodies. Such a sight as this Becomes the field,
 but here shows much amiss. Go, bid the soldiers shoot.
 [_A dead march._]
-[_Exeunt, bearing off the bodies, after which a peal of ordnance is
-shot off._]
+[_Exeunt, bearing off the bodies, after which a peal of ordnance is shot off._]

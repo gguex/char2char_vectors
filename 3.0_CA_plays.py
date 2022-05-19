@@ -12,7 +12,7 @@ import pickle
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/Hamlet/Hamlet.tsv"
+corpus_tsv_path = "corpora/Hamlet/Hamlet_old.tsv"
 # File for node position
 corpus_node_pos = "corpora/Hamlet/Hamlet.pkl"
 # Global or per_act
