@@ -1,8 +1,5 @@
 import string
 import re
-
-import numpy as np
-import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import linear_model
 from nltk.corpus import stopwords
