@@ -71,6 +71,8 @@ unique_character = list(set(unique_character))
 unique_character.remove("all")
 unique_character.remove("first player")
 unique_character.append("player")
+unique_character.remove("both")
+unique_character.remove("lords")
 
 # Treat entrances
 list_of_entrances = []
@@ -128,7 +130,10 @@ for i, line in enumerate(speaking_lines):
     sentence += speaking_lines[i]
 
     # Enter chararcters
-    char_presence += list_of_entrances[i]
+    if len(list_of_entrances[i]) > 0:
+        add_line()
+        sentence = ""
+        char_presence += list_of_entrances[i]
 
     # Outgoing char
     if actions[i] != "":
@@ -160,11 +165,15 @@ for i, line in enumerate(speaking_lines):
                     char_presence.remove(char)
 
 results_df = pd.DataFrame(np.array(char_presence_table).astype(int), columns=unique_character)
+results_df = results_df.loc[:, results_df.sum() > 0]
+appearing_characters = list(results_df.columns)
 results_df["act"] = acts
 results_df["scene"] = scenes
 results_df["speaking"] = speaking_chars
 results_df["text"] = sentences
 
-results_df = results_df.reindex(columns=["act", "scene", "speaking", "text"] + unique_character)
+results_df = results_df.reindex(columns=["act", "scene", "speaking", "text"] + appearing_characters)
+results_df = results_df.dropna(axis=1)
+results_df = results_df[results_df["speaking"] != ""]
 
 results_df.to_csv(output_tsv_path, sep="\t")

@@ -99,6 +99,47 @@ def build_interactions(character_presences_df, max_interaction_degree):
     return pd.DataFrame(interaction_presences, columns=interactions_name)
 
 
+def build_directed_interactions(speaking_characters, character_presences_df, max_interaction_degree):
+    """
+    :param speaking_characters: a list of character speaking to other characters.
+    :param character_presences_df: a pandas dataframe containg character occurences along unit. Columns name should be
+    the names of the characters
+    :param max_interaction_degree: an integer >= 2 indicating the maximum degree of interaction to compute
+    :return: a pandas dataframe containing interactions as columns, unit as row,
+    and in the cells the indicator variable of the presence of the interaction in the unit
+    """
+
+    # Get characters
+    characters = np.array(character_presences_df.columns)
+    character_presences = character_presences_df.to_numpy()
+
+    # Make the list of interactions
+    interactions = []
+    for id_row in range(character_presences.shape[0]):
+        speaking_character = speaking_characters[id_row]
+        presence_in_unit = list(characters[character_presences[id_row, :] > 0])
+        if speaking_character in presence_in_unit:
+            presence_in_unit.remove(speaking_character)
+        for interaction_degree in range(1, max_interaction_degree):
+            interactions.extend([tuple([speaking_character] + sorted(comb))
+                                 for comb in combinations(presence_in_unit, interaction_degree)])
+    interactions = list(set(interactions))
+
+    # Fill the interaction presences
+    interaction_presences = []
+    for interaction in interactions:
+        speaking_character_presence = (np.array(speaking_characters) == interaction[0]) * 1
+        for char in interaction[1:]:
+            interaction_presence = speaking_character_presence * character_presences[:, characters == char].reshape(-1)
+        interaction_presences.append(interaction_presence.reshape(-1).astype(int))
+    interaction_presences = np.array(interaction_presences).T
+
+    # Build the dataframe of interaction and return it
+    interactions_name = ["-".join(interaction) for interaction in interactions]
+
+    return pd.DataFrame(interaction_presences, columns=interactions_name)
+
+
 def display_char_network(interact_list, edge_polarity_list, edge_weight_list, color="polarity", width="weight",
                          width_rank=False, node_min_width=50, node_max_width=1000, edge_min_width=0.2, edge_max_width=5,
                          string_strength="weight", min_alpha=0.5, max_alpha=1, cmap=plt.cm.coolwarm,

@@ -22,7 +22,7 @@ displayed_axes = (0, 1)
 # Word threshold
 word_threshold = 1
 # Row information threshold
-row_threshold = 5
+row_threshold = 1
 # Relationship threshold
 relationship_threshold = 10
 # Character occurence threshold
@@ -51,11 +51,6 @@ else:
     separations = corpus_df[separation_columns]
     texts = list(corpus_df["text"])
     character_occurrences = corpus_df[word_columns]
-
-# Remove chapters without characters
-# unit_with_character = np.where(character_occurrences.sum(axis=1) > 0)[0]
-# character_occurrences = pd.DataFrame(character_occurrences.to_numpy()[unit_with_character, ], columns=word_columns)
-# texts = np.array(texts)[unit_with_character]
 
 # Get char list
 characters = list(character_occurrences.columns)
@@ -117,14 +112,12 @@ dim_max, percentage_var, coord_row, coord_col, contrib_row, contrib_col, cos2_ro
 
 # ---- Build interactions
 
-# Get the presence (with a minimum of occurrences)
-character_presences = (character_occurrences.to_numpy() >= character_occ_threshold) * 1
-# The reduced list of char
-reduced_characters = np.array(characters)[character_presences.sum(axis=0) > 0]
-character_presences = character_presences[:, character_presences.sum(axis=0) > 0]
+# Build character presences
+character_presences = np.array(character_occurrences)
 # Build interactions
-interaction_presences = build_interactions(pd.DataFrame(character_presences, columns=reduced_characters),
-                                           max_interaction_degree)
+interaction_presences = build_directed_interactions(list(separations["speaking"]),
+                                                    pd.DataFrame(character_presences, columns=characters),
+                                                    max_interaction_degree)
 interactions = list(interaction_presences.columns)
 
 # ---- Simple model of character + interactions
@@ -132,7 +125,7 @@ interactions = list(interaction_presences.columns)
 # Build character + interaction array
 all_presences = np.concatenate([character_presences, interaction_presences], axis=1)
 all_presences = all_presences / all_presences.sum(axis=0)
-presence_names = list(reduced_characters) + interactions
+presence_names = list(characters) + interactions
 
 # Compute their coordinates
 presences_coord = all_presences.T @ coord_row
