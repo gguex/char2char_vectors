@@ -122,10 +122,14 @@ interactions = list(interaction_presences.columns)
 
 # ---- Simple model of character + interactions
 
+# Speaking character presences
+speaking_character_presences = pd.get_dummies(separations["speaking"], prefix="", prefix_sep="")
+speaking_characters = list(speaking_character_presences.columns)
+
 # Build character + interaction array
-all_presences = np.concatenate([character_presences, interaction_presences], axis=1)
+all_presences = np.concatenate([speaking_character_presences, interaction_presences], axis=1)
 all_presences = all_presences / all_presences.sum(axis=0)
-presence_names = list(characters) + interactions
+presence_names = list(speaking_characters) + interactions
 
 # Compute their coordinates
 presences_coord = all_presences.T @ coord_row
@@ -142,13 +146,8 @@ f_row = np.array(dt_matrix.sum(axis=1)).reshape(-1)
 f_row = f_row / sum(f_row)
 
 # Build predictors
-predictors = np.concatenate([
-    separations["livre"].to_numpy().reshape(character_presences.shape[0], -1),
-    character_presences,
-    interaction_presences.to_numpy()], axis=1)
-regression_elements = ["intercept"] + ["time"] + list(reduced_characters) + interactions
-# predictors = np.concatenate([character_presences, interaction_presences.to_numpy()], axis=1)
-# regression_elements = ["intercept"] + list(reduced_characters) + interactions
+predictors = np.concatenate([speaking_character_presences, interaction_presences.to_numpy()], axis=1)
+regression_elements = ["intercept"] + list(speaking_characters) + interactions
 
 # Linear models
 reg_coefs = []
@@ -176,7 +175,7 @@ wordsVSreg = pd.DataFrame(norm_coord_col @ norm_regression.T, index=vocabulary, 
 # Reorder by name
 wordsVSreg = wordsVSreg.reindex(sorted(wordsVSreg.columns), axis=1)
 
-axisVSreg =pd.DataFrame(regression_df.T, index=regression_elements)
+axisVSreg = pd.DataFrame(regression_df.T, index=regression_elements)
 
 # ---- Make weid means of characters and relationships
 

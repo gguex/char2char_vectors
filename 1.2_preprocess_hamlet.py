@@ -79,6 +79,8 @@ list_of_entrances = []
 for entrance in entrances:
     if "a King and a Queen" in entrance:
         char_detected = ["player king", "player queen"]
+    elif "two Clowns" in entrance:
+        char_detected = ["first clown", "second clown"]
     else:
         char_detected = [char for char in unique_character if char in entrance.lower()]
     list_of_entrances.append(char_detected)
