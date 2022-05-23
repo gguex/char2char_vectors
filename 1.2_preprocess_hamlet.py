@@ -128,7 +128,6 @@ for i, line in enumerate(speaking_lines):
     sentence += speaking_lines[i]
 
     # Enter chararcters
-    print(char_presence)
     char_presence += list_of_entrances[i]
 
     # Outgoing char
@@ -164,6 +163,8 @@ results_df = pd.DataFrame(np.array(char_presence_table).astype(int), columns=uni
 results_df["act"] = acts
 results_df["scene"] = scenes
 results_df["speaking"] = speaking_chars
-results_df["sentence"] = sentences
+results_df["text"] = sentences
+
+results_df = results_df.reindex(columns=["act", "scene", "speaking", "text"] + unique_character)
 
 results_df.to_csv(output_tsv_path, sep="\t")

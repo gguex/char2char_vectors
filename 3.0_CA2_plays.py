@@ -14,19 +14,19 @@ import spacy
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables.tsv"
+corpus_tsv_path = "corpora/Hamlet/Hamlet.tsv"
 # Set aggregation level (None for each line)
-aggregation_level = "chapitre"
+aggregation_level = None
 # Axes displayed
 displayed_axes = (0, 1)
 # Word threshold
-word_threshold = 20
+word_threshold = 1
 # Row information threshold
 row_threshold = 5
 # Relationship threshold
 relationship_threshold = 10
 # Character occurence threshold
-character_occ_threshold = 3
+character_occ_threshold = 1
 # Max interactions
 max_interaction_degree = 2
 
@@ -78,15 +78,15 @@ def process_text(text):
 processed_texts = [process_text(text) for text in texts]
 
 # - NEW WAY
-nlp = spacy.load("fr_core_news_lg")
-processed_texts = []
-for text in texts:
-    text_pp = nlp(text)
-    processed_texts.append(" ".join([word.lemma_ for word in text_pp if process_text(word.lemma_).strip() != ""]))
+# nlp = spacy.load("fr_core_news_lg")
+# processed_texts = []
+# for text in texts:
+#     text_pp = nlp(text)
+#     processed_texts.append(" ".join([word.lemma_ for word in text_pp if process_text(word.lemma_).strip() != ""]))
 # - NEW WAY
 
 # Build the document-term matrix
-vectorizer = CountVectorizer(stop_words=stopwords.words('french'))
+vectorizer = CountVectorizer(stop_words=stopwords.words('english'))
 dt_matrix = vectorizer.fit_transform(processed_texts)
 vocabulary = vectorizer.get_feature_names_out()
 
@@ -118,7 +118,7 @@ dim_max, percentage_var, coord_row, coord_col, contrib_row, contrib_col, cos2_ro
 # ---- Build interactions
 
 # Get the presence (with a minimum of occurrences)
-character_presences = (character_occurrences.to_numpy() > character_occ_threshold) * 1
+character_presences = (character_occurrences.to_numpy() >= character_occ_threshold) * 1
 # The reduced list of char
 reduced_characters = np.array(characters)[character_presences.sum(axis=0) > 0]
 character_presences = character_presences[:, character_presences.sum(axis=0) > 0]
