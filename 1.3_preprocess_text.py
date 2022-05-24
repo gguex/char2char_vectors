@@ -8,11 +8,11 @@ from tqdm import tqdm
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables.tsv"
+corpus_tsv_path = "corpora/Hamlet/Hamlet.tsv"
 # Outfile
-output_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
+output_tsv_path = "corpora/Hamlet/Hamlet_tokens.tsv"
 # Language ("fr" or "en")
-language = "fr"
+language = "en"
 
 # -------------------------------
 #  Code
