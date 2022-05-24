@@ -8,11 +8,11 @@ from tqdm import tqdm
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/Hamlet/Hamlet.tsv"
+corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables.tsv"
 # Outfile
-output_tsv_path = "corpora/Hamlet/Hamlet_tokens.tsv"
+output_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
 # Language ("fr" or "en")
-language = "en"
+language = "fr"
 
 # -------------------------------
 #  Code
@@ -39,6 +39,9 @@ for text in tqdm(texts):
 
 # Change the text to the processed text
 corpus_df["text"] = processed_texts
+
+# Remove empty lines
+corpus_df = corpus_df[corpus_df["text"] != ""]
 
 # Save the new corpus
 corpus_df.to_csv(output_tsv_path, sep="\t")

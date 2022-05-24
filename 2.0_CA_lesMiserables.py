@@ -14,7 +14,7 @@ import spacy
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables.tsv"
+corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
 # Axes displayed
@@ -39,18 +39,23 @@ max_interaction_degree = 2
 # Load the dataframe
 corpus_df = pd.read_csv(corpus_tsv_path, sep="\t", index_col=0)
 # Get the columns name for separation and words
-separation_columns = corpus_df.iloc[:, :(np.where(corpus_df.columns == "text")[0][0])].columns
-word_columns = corpus_df.iloc[:, ((np.where(corpus_df.columns == "text")[0][0]) + 1):].columns
+meta_columns = corpus_df.iloc[:, :(np.where(corpus_df.columns == "text")[0][0])].columns
+character_columns = corpus_df.iloc[:, ((np.where(corpus_df.columns == "text")[0][0]) + 1):].columns
 
 # Aggregate at the defined level and split the df
 if aggregation_level is not None:
-    separations = corpus_df.groupby([aggregation_level])[separation_columns].max()
+    meta_variables = corpus_df.groupby([aggregation_level])[meta_columns].max()
     texts = list(corpus_df.groupby([aggregation_level])["text"].apply(lambda x: "\n".join(x)))
-    character_occurrences = corpus_df.groupby([aggregation_level])[word_columns].sum()
+    character_occurrences = corpus_df.groupby([aggregation_level])[character_columns].sum()
 else:
-    separations = corpus_df[separation_columns]
+    meta_variables = corpus_df[meta_columns]
     texts = list(corpus_df["text"])
-    character_occurrences = corpus_df[word_columns]
+    character_occurrences = corpus_df[character_columns]
+
+corpus_df.groupby("livre")["text"].apply(lambda x: " ".join(x))
+
+for i, elem in enumerate(corpus_df.groupby([aggregation_level])["text"]):
+    print("\n".join(elem))
 
 # Remove chapters without characters
 # unit_with_character = np.where(character_occurrences.sum(axis=1) > 0)[0]
