@@ -1,3 +1,5 @@
+import string
+import re
 import numpy as np
 import pandas as pd
 import networkx as nx
@@ -5,6 +7,26 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 from scipy.stats import rankdata
 from itertools import combinations
+
+
+def process_text(text):
+    """
+    A function that take a string and remove punctuation, remove numbers, lower cases and remove extra spaces
+    :param text: the input string
+    :return: the output string
+    """
+    # Punctuation list
+    enhanced_punctuation = string.punctuation + "«»“”—’–\n"
+    # Lower char
+    processed_text = text.lower()
+    # Remove numbers
+    processed_text = re.sub(r"[0-9]", " ", processed_text)
+    # Remove punctuation
+    processed_text = processed_text.translate(str.maketrans(enhanced_punctuation, " " * len(enhanced_punctuation)))
+    # Remove extra spaces
+    processed_text = re.sub(" +", " ", processed_text).strip()
+    # Return the sentence
+    return processed_text
 
 
 def correspondence_analysis(contingency):
