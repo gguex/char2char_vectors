@@ -23,12 +23,12 @@ def process_text(text):
     # Lower char
     processed_text = text.lower()
     # Remove numbers
-    processed_text = re.sub(r"[0-9]", " ", processed_text)
+    processed_text = re.sub(r"\d", " ", processed_text)
     # Remove punctuation
     processed_text = processed_text.translate(str.maketrans(enhanced_punctuation, " " * len(enhanced_punctuation)))
     # Remove special punctuation
-    processed_text = re.sub("['\-–][^a-z]", " ", processed_text)
-    processed_text = re.sub("[^a-z]['\-–]", " ", processed_text)
+    processed_text = re.sub("[-'–][^a-z]", " ", processed_text)
+    processed_text = re.sub("[^a-z][-'–]", " ", processed_text)
     # Remove extra spaces
     processed_text = re.sub(" +", " ", processed_text).strip()
     # Return the sentence
@@ -37,11 +37,12 @@ def process_text(text):
 
 def build_interactions(character_occurrences_df, max_interaction_degree):
     """
-    :param character_occurrences_df: a pandas dataframe containg character occurences along unit. Columns name should be
-    the names of the characters
-    :param max_interaction_degree: an integer >= 2 indicating the maximum degree of interaction to compute
+    Build interactions up to a certain degree from a character occurrences dataframe.
+    :param character_occurrences_df: a pandas dataframe containing character occurrences along unit.
+    Columns name should be the names of the characters.
+    :param max_interaction_degree: an integer >= 2 indicating the maximum degree of interaction to compute.
     :return: a pandas dataframe containing interactions as columns, unit as row,
-    and in the cells the indicator variable of the presence of the interaction in the unit
+    and in the cells the indicator variable of the presence of the interaction in the unit.
     """
 
     # Get characters
@@ -103,8 +104,9 @@ def build_directed_interactions(speaking_characters, character_presences_df, max
     for interaction in interactions:
         speaking_character_presence = (np.array(speaking_characters) == interaction[0]) * 1
         for char in interaction[1:]:
-            interaction_presence = speaking_character_presence * character_presences[:, characters == char].reshape(-1)
-        interaction_presences.append(interaction_presence.reshape(-1).astype(int))
+            speaking_character_presence = \
+                speaking_character_presence * character_presences[:, characters == char].reshape(-1)
+        interaction_presences.append(speaking_character_presence.reshape(-1).astype(int))
     interaction_presences = np.array(interaction_presences).T
 
     # Build the dataframe of interaction and return it
@@ -119,7 +121,7 @@ def correspondence_analysis(contingency):
 
     :param contingency: a contingency table in array or numpy array format
     :return: maximum number of dimension, percentage of variance, row coordinates, col coordinates, row contributions
-    col contributions, row cosines, col cosines.
+    col contributions, row square cosines, col square cosines.
     """
 
     # Transform into a numpy array
@@ -167,6 +169,57 @@ def correspondence_analysis(contingency):
     col_cos2 = (col_cos2.T / col_cos2.sum(axis=1)).T
 
     return dim_max, percentage_var, row_coord, col_coord, row_contrib, col_contrib, row_cos2, col_cos2
+
+
+def explore_correspondence_analysis(row_names, col_names, dim_max, row_coord, col_coord,
+                                    row_contrib, col_contrib, row_cos2, col_cos2):
+    """
+    Give some dataframe in order to explore correspondence analysis results
+    :param row_names: the names of rows
+    :param col_names: the names of columns
+    :param dim_max: the maximum number of dimension
+    :param row_coord: the coordinates of rows
+    :param col_coord: the coordinates of columns
+    :param row_contrib: the contributions of rows
+    :param col_contrib: the contributions of columns
+    :param row_cos2: the square cosine of rows
+    :param col_cos2: the square cosine of columns
+    :return: multiple df to explore the results.
+    """
+
+    # Completed dimension name
+    dim_names = [(len(f"{dim_max}") - len(f"{dim}")) * "0" + f"{dim}" for dim in range(dim_max)]
+
+    # --- For rows
+
+    # Make the different value in df
+    row_coord_df = pd.DataFrame(row_coord, index=row_names, columns=[dim_name + "_coord" for dim_name in dim_names])
+    row_contrib_df = pd.DataFrame(row_contrib, index=row_names, columns=[dim_name + "_contrib"
+                                                                         for dim_name in dim_names])
+    row_cos2_df = pd.DataFrame(row_cos2, index=row_names, columns=[dim_name + "_cos2" for dim_name in dim_names])
+    # Concatenate them, then sort them
+    row_explore_df = pd.concat([row_coord_df, row_contrib_df, row_cos2_df], axis=1)
+    row_explore_df = row_explore_df.reindex(sorted(row_explore_df.columns), axis=1)
+
+    # Explore cos2
+    row_cos2_explore_df = pd.DataFrame(row_cos2.T, columns=row_names)
+
+    # --- For columns
+
+    # Make the different value in df
+    col_coord_df = pd.DataFrame(col_coord, index=col_names, columns=[dim_name + "_coord" for dim_name in dim_names])
+    col_contrib_df = pd.DataFrame(col_contrib, index=col_names, columns=[dim_name + "_contrib"
+                                                                         for dim_name in dim_names])
+    col_cos2_df = pd.DataFrame(col_cos2, index=col_names, columns=[dim_name + "_cos2" for dim_name in dim_names])
+    # Concatenate them, then sort them
+    col_explore_df = pd.concat([col_coord_df, col_contrib_df, col_cos2_df], axis=1)
+    col_explore_df = col_explore_df.reindex(sorted(col_explore_df.columns), axis=1)
+
+    # Explore cos2
+    col_cos2_explore_df = pd.DataFrame(col_cos2.T, columns=col_names)
+
+    # Return results
+    return row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df
 
 
 def build_occurrences_vectors(occurrences, vectors):
@@ -232,6 +285,7 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
     """
     A function to diplay a graph between character interactions
 
+    :param width_rank:
     :param min_alpha:
     :param interact_list:
     :param edge_polarity_list:
@@ -277,17 +331,17 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
     graph_df = pd.DataFrame(graph_dict)
 
     # Make the graph
-    G = nx.from_pandas_edgelist(graph_df,
-                                source="char_from",
-                                target="char_to",
-                                edge_attr=True,
-                                create_using=nx.DiGraph())
+    graph = nx.from_pandas_edgelist(graph_df,
+                                    source="char_from",
+                                    target="char_to",
+                                    edge_attr=True,
+                                    create_using=nx.DiGraph())
 
     # --- Color and widths
 
     # Computing mean polarity and mean weight of nodes
     node_polarity_list, node_weight_list = np.empty(0), np.empty(0)
-    for node in G.nodes:
+    for node in graph.nodes:
         char_df = graph_df[graph_df["char_from"] == node]
         node_polarity_list = np.append(node_polarity_list,
                                        sum(char_df["polarity"] * char_df["weight"]) / char_df["weight"].sum())
@@ -296,10 +350,10 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
     # Computing node and edge widths
     if width == "polarity":
         node_unscaled_width_list = node_polarity_list
-        edge_unscaled_width_list = np.array([G[u][v]["polarity"] for u, v in G.edges()])
+        edge_unscaled_width_list = np.array([graph[u][v]["polarity"] for u, v in graph.edges()])
     else:
         node_unscaled_width_list = node_weight_list
-        edge_unscaled_width_list = np.array([G[u][v]["weight"] for u, v in G.edges()])
+        edge_unscaled_width_list = np.array([graph[u][v]["weight"] for u, v in graph.edges()])
     if width_rank:
         node_unscaled_width_list = rankdata(node_unscaled_width_list)
         edge_unscaled_width_list = rankdata(edge_unscaled_width_list)
@@ -313,37 +367,38 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
     # Computing node and edge colors
     if color == "polarity":
         node_color_list = node_polarity_list
-        edge_color_list = [G[u][v]["polarity"] for u, v in G.edges()]
+        edge_color_list = [graph[u][v]["polarity"] for u, v in graph.edges()]
         edge_alpha_lambda = (np.array(edge_color_list) - min(edge_color_list)) / \
                             (max(edge_color_list) - min(edge_color_list))
         edge_alpha_list = (1 - edge_alpha_lambda) * min_alpha + edge_alpha_lambda * max_alpha
     else:
         node_color_list = node_weight_list
-        edge_color_list = [G[u][v]["weight"] for u, v in G.edges()]
+        edge_color_list = [graph[u][v]["weight"] for u, v in graph.edges()]
+        edge_alpha_list = 1
 
     # --- Plotting the graph
 
     # the positions of nodes
     if node_pos is None:
-        node_pos = nx.spring_layout(G, weight="string_strength")
+        node_pos = nx.spring_layout(graph, weight="string_strength")
 
     # Starting the graph
     plt.figure()
 
     # Create the nodes
-    nodes = nx.draw_networkx_nodes(G,
-                                   node_size=node_width_list,
-                                   pos=node_pos,
-                                   label=from_char_list,
-                                   node_color=node_color_list,
-                                   cmap=cmap,
-                                   vmin=min(edge_color_list),
-                                   vmax=max(edge_color_list),
-                                   alpha=0.8)
+    nx.draw_networkx_nodes(graph,
+                           node_size=node_width_list,
+                           pos=node_pos,
+                           label=from_char_list,
+                           node_color=node_color_list,
+                           cmap=cmap,
+                           vmin=min(edge_color_list),
+                           vmax=max(edge_color_list),
+                           alpha=0.8)
     # Draw labels
-    labels = nx.draw_networkx_labels(G, pos=node_pos, font_size=25, font_weight="bold")
+    nx.draw_networkx_labels(graph, pos=node_pos, font_size=25, font_weight="bold")
     # Create the edges
-    edges = nx.draw_networkx_edges(G,
+    edges = nx.draw_networkx_edges(graph,
                                    pos=node_pos,
                                    arrows=True,
                                    width=edge_width_list,

@@ -74,8 +74,14 @@ interaction_names = list(interaction_occurrences.columns)
 
 # ---- Make the CA
 
+# Perform the CA
 dim_max, percentage_var, row_coord, col_coord, row_contrib, col_contrib, row_cos2, col_cos2 = \
     correspondence_analysis(dt_matrix.todense())
+
+# Explore the CA
+row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df = \
+    explore_correspondence_analysis(list(meta_variables[aggregation_level]), vocabulary, dim_max, row_coord, col_coord,
+                                    row_contrib, col_contrib, row_cos2, col_cos2)
 
 # ---- Make the occurrences
 
@@ -85,10 +91,13 @@ occurrences = np.concatenate([character_occurrences, interaction_occurrences], a
 occurrence_names = character_names + interaction_names
 
 # Threshold
-occurrences[occurrences < min_occurrences] = 0
-object_remaining = np.where(occurrences.sum(axis=0) > 0)[0]
-occurrences = occurrences[:, object_remaining]
-occurrence_names = list(np.array(occurrence_names)[object_remaining])
+# occurrences[occurrences < min_occurrences] = 0
+# object_remaining = np.where(occurrences.sum(axis=0) > 0)[0]
+# occurrences = occurrences[:, object_remaining]
+# occurrence_names = list(np.array(occurrence_names)[object_remaining])
+
+# Binary
+# occurrences
 
 # ---- Simple model of character + interactions
 
