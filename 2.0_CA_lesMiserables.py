@@ -1,13 +1,7 @@
-import string
-import re
-
-import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn import linear_model
 from nltk.corpus import stopwords
 from local_functions import *
-import spacy
 
 # -------------------------------
 #  Parameters
@@ -15,26 +9,23 @@ import spacy
 
 # Corpus tsv path
 corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
+
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
-# Axes displayed
-displayed_axes = (0, 1)
-# Word threshold
-word_threshold = 20
-# Row information threshold
-row_threshold = 5
-# Relationship threshold
-relationship_threshold = 10
-# Character occurence threshold
-character_occ_threshold = 3
+
+# Minimum occurrences for words
+word_min_occurrences = 20
+
+# The minimum occurrences for an object to be considered
+min_occurrences = 5
 # Max interactions
 max_interaction_degree = 2
 
 # -------------------------------
-#  Code
+#  Processing
 # -------------------------------
 
-# --- Preprocess dataframe
+# --- Process dataframe
 
 # Load the dataframe
 corpus_df = pd.read_csv(corpus_tsv_path, sep="\t", index_col=0)
@@ -45,145 +36,82 @@ character_columns = corpus_df.iloc[:, ((np.where(corpus_df.columns == "text")[0]
 # Aggregate at the defined level and split the df
 if aggregation_level is not None:
     meta_variables = corpus_df.groupby([aggregation_level])[meta_columns].max()
-    texts = list(corpus_df.groupby([aggregation_level])["text"].apply(lambda x: "\n".join(x)))
+    texts = list(corpus_df.groupby([aggregation_level])["text"].apply(lambda x: " ".join(x)))
     character_occurrences = corpus_df.groupby([aggregation_level])[character_columns].sum()
 else:
     meta_variables = corpus_df[meta_columns]
     texts = list(corpus_df["text"])
     character_occurrences = corpus_df[character_columns]
 
-corpus_df.groupby("livre")["text"].apply(lambda x: " ".join(x))
-
-for i, elem in enumerate(corpus_df.groupby([aggregation_level])["text"]):
-    print("\n".join(elem))
-
-# Remove chapters without characters
-# unit_with_character = np.where(character_occurrences.sum(axis=1) > 0)[0]
-# character_occurrences = pd.DataFrame(character_occurrences.to_numpy()[unit_with_character, ], columns=word_columns)
-# texts = np.array(texts)[unit_with_character]
-
 # Get char list
-characters = list(character_occurrences.columns)
+character_names = list(character_occurrences.columns)
 
-# Process text function
-def process_text(text):
-    # Punctuation list
-    enhanced_punctuation = string.punctuation + "”’—“–\n"
-    # Lower char
-    processed_text = text.lower()
-    # Remove numbers
-    processed_text = re.sub(r"[0-9]", " ", processed_text)
-    # Remove punctuation
-    processed_text = processed_text.translate(str.maketrans(enhanced_punctuation, " " * len(enhanced_punctuation)))
-    # Return the sentence
-    return processed_text
-
-
-# Apply the function on texts
-processed_texts = [process_text(text) for text in texts]
-
-# - NEW WAY
-nlp = spacy.load("fr_core_news_lg")
-processed_texts = []
-for text in texts:
-    text_pp = nlp(text)
-    processed_texts.append(" ".join([word.lemma_ for word in text_pp if process_text(word.lemma_).strip() != ""]))
-# - NEW WAY
+# --- Construct the document term matrix and remove
 
 # Build the document-term matrix
 vectorizer = CountVectorizer(stop_words=stopwords.words('french'))
-dt_matrix = vectorizer.fit_transform(processed_texts)
+dt_matrix = vectorizer.fit_transform(texts)
 vocabulary = vectorizer.get_feature_names_out()
 
 # Make a threshold for the minimum vocabulary
-index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= word_threshold)[1]
+index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= word_min_occurrences)[1]
 dt_matrix = dt_matrix[:, index_voc_ok]
 vocabulary = vocabulary[index_voc_ok]
 
-# Remove character name
+# Remove character names
 not_a_character = [i for i, word in enumerate(vocabulary)
-                   if word not in [process_text(character) for character in characters]]
+                   if word not in [process_text(character_name) for character_name in character_names]]
 dt_matrix = dt_matrix[:, not_a_character]
 vocabulary = vocabulary[not_a_character]
 
-# Remove row with not enough occurrences
-kept_row_indices = np.where(dt_matrix.sum(axis=1) >= row_threshold)[0]
-dt_matrix = dt_matrix[kept_row_indices, :]
-character_occurrences = character_occurrences.iloc[kept_row_indices, :]
-separations = separations.iloc[kept_row_indices, :]
-kept_col_indices = np.where(np.sum(dt_matrix, axis=0) >= word_threshold)[1]
-dt_matrix = dt_matrix[:, kept_col_indices]
-vocabulary = vocabulary[kept_col_indices]
+# Build interactions
+interaction_occurrences = build_interactions(character_occurrences, max_interaction_degree)
+interaction_names = list(interaction_occurrences.columns)
+
+# -------------------------------
+#  Analysis
+# -------------------------------
 
 # ---- Make the CA
 
-dim_max, percentage_var, coord_row, coord_col, contrib_row, contrib_col, cos2_row, cos2_col = \
+dim_max, percentage_var, row_coord, col_coord, row_contrib, col_contrib, row_cos2, col_cos2 = \
     correspondence_analysis(dt_matrix.todense())
 
-# ---- Build interactions
+# ---- Make the occurrences
 
-# Get the presence (with a minimum of occurrences)
-character_presences = (character_occurrences.to_numpy() > character_occ_threshold) * 1
-# The reduced list of char
-reduced_characters = np.array(characters)[character_presences.sum(axis=0) > 0]
-character_presences = character_presences[:, character_presences.sum(axis=0) > 0]
-# Build interactions
-interaction_presences = build_interactions(pd.DataFrame(character_presences, columns=reduced_characters),
-                                           max_interaction_degree)
-interactions = list(interaction_presences.columns)
+# Concat
+occurrences = np.concatenate([character_occurrences, interaction_occurrences], axis=1)
+# Names
+occurrence_names = character_names + interaction_names
+
+# Threshold
+occurrences[occurrences < min_occurrences] = 0
+object_remaining = np.where(occurrences.sum(axis=0) > 0)[0]
+occurrences = occurrences[:, object_remaining]
+occurrence_names = list(np.array(occurrence_names)[object_remaining])
 
 # ---- Simple model of character + interactions
 
-# Build character + interaction array
-all_presences = np.concatenate([character_presences, interaction_presences], axis=1)
-all_presences = all_presences / all_presences.sum(axis=0)
-presence_names = list(reduced_characters) + interactions
-
 # Compute their coordinates
-presences_coord = all_presences.T @ coord_row
-# Compute the
-# Make the cosine between regression df and words
-wordsVScoord = pd.DataFrame(coord_col @ presences_coord.T, index=vocabulary, columns=presence_names)
-# Reorder by name
-wordsVScoord = wordsVScoord.reindex(sorted(wordsVScoord.columns), axis=1)
+occurrence_coord = build_occurrences_vectors(occurrences, row_coord)
+# Compute the scalar product between occurrences_coord and word_coord
+words_vs_occurrences = pd.DataFrame(col_coord @ occurrence_coord.T, index=vocabulary, columns=occurrence_names)
+# Reorder by occurrences name
+words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.columns), axis=1)
 
 # ---- Make the regression
 
-# Get sample weights
+# Get units weights
 f_row = np.array(dt_matrix.sum(axis=1)).reshape(-1)
 f_row = f_row / sum(f_row)
-
-# Build predictors
-predictors = np.concatenate([character_presences, interaction_presences.to_numpy()], axis=1)
-regression_elements = ["intercept"] + list(reduced_characters) + interactions
-
-# Linear models
-reg_coefs = []
-for i in range(dim_max):
-    num_results = coord_row[:, i]
-    lin_reg = linear_model.Ridge(1)
-    lin_reg.fit(predictors, num_results, sample_weight=f_row)
-    reg_coef = [lin_reg.intercept_]
-    reg_coef.extend(lin_reg.coef_)
-    reg_coefs.append(reg_coef)
-reg_coefs = np.array(reg_coefs)
-
-# Diplay the results
-regression_df = pd.DataFrame(reg_coefs, columns=regression_elements)
-
-# Compute the cosine between reg_coefs and coord_col
-# norm_coord_col = (coord_col.T / np.sqrt(np.sum(coord_col ** 2, axis=1))).T
-# norm_regression = regression_df.to_numpy().T
-# norm_regression = (norm_regression.T / np.sqrt(np.sum(norm_regression ** 2, axis=1))).T
-norm_coord_col = coord_col
-norm_regression = regression_df.to_numpy().T
-
-# Make the cosine between regression df and words
-wordsVSreg = pd.DataFrame(norm_coord_col @ norm_regression.T, index=vocabulary, columns=regression_elements)
+# Build regression vectors
+regression_coord = build_regression_vectors(occurrences, row_coord, f_row, regularization_parameter=1)
+# Compute the scalar product between regression_coord and word_coord
+words_vs_regressions = pd.DataFrame(col_coord @ regression_coord.T, index=vocabulary,
+                                    columns=["intercept"] + occurrence_names)
 # Reorder by name
-wordsVSreg = wordsVSreg.reindex(sorted(wordsVSreg.columns), axis=1)
+words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.columns), axis=1)
 
-axisVSreg = pd.DataFrame(regression_df.T, index=regression_elements)
 
 # ---- Make weid means of characters and relationships
 
@@ -195,7 +123,7 @@ character_coord = character_weights.T @ coord_row
 relationships = []
 relationship_presences = []
 for i in range(len(characters) - 1):
-    for j in range(i+1, len(characters)):
+    for j in range(i + 1, len(characters)):
         relationships.append([characters[i], characters[j]])
         relationship_presences.append(list((character_occurrences[characters[i]] > 0) *
                                            (character_occurrences[characters[j]] > 0)))

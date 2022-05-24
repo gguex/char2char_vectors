@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 from scipy.stats import rankdata
 from itertools import combinations
+from sklearn import linear_model
 
 
 def process_text(text):
@@ -34,65 +35,9 @@ def process_text(text):
     return processed_text
 
 
-def correspondence_analysis(contingency):
+def build_interactions(character_occurrences_df, max_interaction_degree):
     """
-    A function to perform a correspondence analysis from a contingency table
-
-    :param contingency: a contingency table in array or numpy array format
-    :return: maximum number of dimension, percentage of variance, row coordinates, col coordinates, row contributions
-    col contributions, row cosines, col cosines.
-    """
-
-    # Transform into a numpy array
-    contingency = np.array(contingency)
-    # Extract the number of rows and columns
-    n_row, n_col = contingency.shape
-    # Compute the maximum number of dimension
-    dim_max = min(n_row, n_col) - 1
-
-    # Compute the total in contingency table
-    total = np.sum(contingency)
-    # Compute the row and columns weights
-    f_row = contingency.sum(axis=1)
-    f_row = f_row / sum(f_row)
-    f_col = contingency.sum(axis=0)
-    f_col = f_col / sum(f_col)
-    # Compute the independence table
-    independency = np.outer(f_row, f_col) * total
-    # Compute the quotient matrix
-    normalized_quotient = contingency / independency - 1
-
-    # Compute the scalar products matrix
-    b_mat = (normalized_quotient * f_col) @ normalized_quotient.T
-    # Compute the weighted scalar products matrix
-    k_mat = np.outer(np.sqrt(f_row), np.sqrt(f_row)) * b_mat
-    # Perform the eigen-decomposition
-    eig_val, eig_vec = np.linalg.eig(k_mat)
-    # Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
-    idx = eig_val.argsort()[::-1]
-    eig_val = np.abs(eig_val[idx])[:dim_max]
-    eig_vec = eig_vec[:, idx][:, :dim_max]
-
-    # Compute the percentage of variance
-    percentage_var = eig_val / sum(eig_val)
-    # Compute row and col coordinates
-    coord_row = np.real(np.outer(1 / np.sqrt(f_row), np.sqrt(eig_val)) * eig_vec)
-    coord_col = (normalized_quotient.T * f_row) @ coord_row / np.sqrt(eig_val)
-    # Compute row and col contributions
-    contrib_row = eig_vec ** 2
-    contrib_col = np.outer(f_col, 1 / eig_val) * coord_col ** 2
-    # Compute row and col cosines
-    cos2_row = coord_row ** 2
-    cos2_row = (cos2_row.T / cos2_row.sum(axis=1)).T
-    cos2_col = coord_col ** 2
-    cos2_col = (cos2_col.T / cos2_col.sum(axis=1)).T
-
-    return dim_max, percentage_var, coord_row, coord_col, contrib_row, contrib_col, cos2_row, cos2_col
-
-
-def build_interactions(character_presences_df, max_interaction_degree):
-    """
-    :param character_presences_df: a pandas dataframe containg character occurences along unit. Columns name should be
+    :param character_occurrences_df: a pandas dataframe containg character occurences along unit. Columns name should be
     the names of the characters
     :param max_interaction_degree: an integer >= 2 indicating the maximum degree of interaction to compute
     :return: a pandas dataframe containing interactions as columns, unit as row,
@@ -100,13 +45,13 @@ def build_interactions(character_presences_df, max_interaction_degree):
     """
 
     # Get characters
-    characters = np.array(character_presences_df.columns)
-    character_presences = character_presences_df.to_numpy()
+    characters = np.array(character_occurrences_df.columns)
+    character_occurrences = character_occurrences_df.to_numpy()
 
     # Make the list of interactions
     interactions = []
-    for id_row in range(character_presences.shape[0]):
-        presence_in_unit = characters[character_presences[id_row, :] > 0]
+    for id_row in range(character_occurrences.shape[0]):
+        presence_in_unit = characters[character_occurrences[id_row, :] > 0]
         for interaction_degree in range(2, max_interaction_degree + 1):
             interactions.extend([tuple(sorted(comb)) for comb in combinations(presence_in_unit, interaction_degree)])
     interactions = list(set(interactions))
@@ -114,9 +59,10 @@ def build_interactions(character_presences_df, max_interaction_degree):
     # Fill the interaction presences
     interaction_presences = []
     for interaction in interactions:
-        interaction_presence = np.ones(character_presences[:, 0].shape)
+        interaction_presence = np.ones(character_occurrences[:, 0].shape) * 1e50
         for char in interaction:
-            interaction_presence = interaction_presence * character_presences[:, characters == char].reshape(-1)
+            interaction_presence = np.minimum(interaction_presence,
+                                              character_occurrences[:, characters == char].reshape(-1))
         interaction_presences.append(interaction_presence.reshape(-1).astype(int))
     interaction_presences = np.array(interaction_presences).T
 
@@ -165,6 +111,118 @@ def build_directed_interactions(speaking_characters, character_presences_df, max
     interactions_name = ["-".join(interaction) for interaction in interactions]
 
     return pd.DataFrame(interaction_presences, columns=interactions_name)
+
+
+def correspondence_analysis(contingency):
+    """
+    A function to perform a correspondence analysis from a contingency table
+
+    :param contingency: a contingency table in array or numpy array format
+    :return: maximum number of dimension, percentage of variance, row coordinates, col coordinates, row contributions
+    col contributions, row cosines, col cosines.
+    """
+
+    # Transform into a numpy array
+    contingency = np.array(contingency)
+    # Extract the number of rows and columns
+    n_row, n_col = contingency.shape
+    # Compute the maximum number of dimension
+    dim_max = min(n_row, n_col) - 1
+
+    # Compute the total in contingency table
+    total = np.sum(contingency)
+    # Compute the row and columns weights
+    f_row = contingency.sum(axis=1)
+    f_row = f_row / sum(f_row)
+    f_col = contingency.sum(axis=0)
+    f_col = f_col / sum(f_col)
+    # Compute the independence table
+    independency = np.outer(f_row, f_col) * total
+    # Compute the quotient matrix
+    normalized_quotient = contingency / independency - 1
+
+    # Compute the scalar products matrix
+    b_mat = (normalized_quotient * f_col) @ normalized_quotient.T
+    # Compute the weighted scalar products matrix
+    k_mat = np.outer(np.sqrt(f_row), np.sqrt(f_row)) * b_mat
+    # Perform the eigen-decomposition
+    eig_val, eig_vec = np.linalg.eig(k_mat)
+    # Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
+    idx = eig_val.argsort()[::-1]
+    eig_val = np.abs(eig_val[idx])[:dim_max]
+    eig_vec = eig_vec[:, idx][:, :dim_max]
+
+    # Compute the percentage of variance
+    percentage_var = eig_val / sum(eig_val)
+    # Compute row and col coordinates
+    row_coord = np.real(np.outer(1 / np.sqrt(f_row), np.sqrt(eig_val)) * eig_vec)
+    col_coord = (normalized_quotient.T * f_row) @ row_coord / np.sqrt(eig_val)
+    # Compute row and col contributions
+    row_contrib = eig_vec ** 2
+    col_contrib = np.outer(f_col, 1 / eig_val) * col_coord ** 2
+    # Compute row and col cosines
+    row_cos2 = row_coord ** 2
+    row_cos2 = (row_cos2.T / row_cos2.sum(axis=1)).T
+    col_cos2 = col_coord ** 2
+    col_cos2 = (col_cos2.T / col_cos2.sum(axis=1)).T
+
+    return dim_max, percentage_var, row_coord, col_coord, row_contrib, col_contrib, row_cos2, col_cos2
+
+
+def build_occurrences_vectors(occurrences, vectors):
+    """
+    Build the vectors of objects regarding their occurrences in the text.
+    :param occurrences: the (units x objects) matrix containing occurrences of objects in units.
+    :param vectors: the (units x dim) matrix containing units vectors with dim dimensions.
+    :return: object_vectors: a (objects x dim) dataframe containing vectors of objects.
+    """
+
+    # Build weighted occurrences
+    weighted_occurrences = occurrences / occurrences.sum(axis=0)
+
+    # Compute coordinates
+    coord_object = weighted_occurrences.T @ vectors
+
+    # Return them
+    return coord_object
+
+
+def build_regression_vectors(occurrences, vectors, weights, reg_type="Ridge", regularization_parameter=1):
+    """
+    Build the vectors of objects regarding their regression coefficient with respect to the vectors.
+    :param occurrences: the (units x objects) matrix containing occurrences of objects in units.
+    :param vectors: the (units x dim) matrix containing units vectors with dim dimensions.
+    :param weights: the (units) vector containing unit weights.
+    :param reg_type: the type of regression, between "Linear", "Ridge", or "Lasso" (default = "Ridge")
+    :param regularization_parameter: the regularization parameter for the regression (default = 1)
+    :return: regression_vectors: a (objects x dim) dataframe containing regression vectors of objects.
+    """
+
+    # Get the maximum of dimension
+    dim_max = vectors.shape[1]
+
+    # An empty array for results
+    regression_vectors = []
+    # Loop on dimensions
+    for i in range(dim_max):
+        # Get coordinates for the dimension
+        coordinates = vectors[:, i]
+        # Chose the regression
+        if reg_type == "Ridge":
+            reg = linear_model.Ridge(regularization_parameter)
+        elif reg_type == "Lasso":
+            reg = linear_model.Lasso(regularization_parameter)
+        else:
+            reg = linear_model.LinearRegression()
+        # Fit the regression
+        reg.fit(occurrences, coordinates, sample_weight=weights)
+        # Store the intercept and the coefficients
+        regression_vector = np.concatenate([[reg.intercept_], reg.coef_])
+        # Append the results to the result array
+        regression_vectors.append(regression_vector)
+
+    # Return the resulting vectors
+    return np.array(regression_vectors).T
 
 
 def display_char_network(interact_list, edge_polarity_list, edge_weight_list, color="polarity", width="weight",

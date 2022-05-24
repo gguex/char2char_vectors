@@ -24,7 +24,7 @@ word_threshold = 20
 row_threshold = 5
 # Relationship threshold
 relationship_threshold = 10
-# Character occurence threshold
+# Character occurrence threshold
 character_occ_threshold = 3
 # Max interactions
 max_interaction_degree = 2
