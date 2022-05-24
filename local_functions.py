@@ -16,13 +16,18 @@ def process_text(text):
     :return: the output string
     """
     # Punctuation list
-    enhanced_punctuation = string.punctuation + "«»“”—’–\n"
+    enhanced_punctuation = string.punctuation + "«»“”—’\n\t"
+    # Remove some punctuation
+    enhanced_punctuation = re.sub("['-]", "", enhanced_punctuation)
     # Lower char
     processed_text = text.lower()
     # Remove numbers
     processed_text = re.sub(r"[0-9]", " ", processed_text)
     # Remove punctuation
     processed_text = processed_text.translate(str.maketrans(enhanced_punctuation, " " * len(enhanced_punctuation)))
+    # Remove special punctuation
+    processed_text = re.sub("['\-–][^a-z]", " ", processed_text)
+    processed_text = re.sub("[^a-z]['\-–]", " ", processed_text)
     # Remove extra spaces
     processed_text = re.sub(" +", " ", processed_text).strip()
     # Return the sentence
