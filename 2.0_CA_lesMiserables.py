@@ -17,9 +17,13 @@ aggregation_level = "chapitre"
 word_min_occurrences = 20
 
 # The minimum occurrences for an object to be considered
-min_occurrences = 5
+min_occurrences = 3
 # Max interactions
-max_interaction_degree = 2
+max_interaction_degree = 3
+
+# Objects to explore
+object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
+                "Javert-Valjean", "Myriel", "Myriel-Valjean"]
 
 # -------------------------------
 #  Processing
@@ -83,6 +87,10 @@ row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df = \
     explore_correspondence_analysis(list(meta_variables[aggregation_level]), vocabulary, dim_max, row_coord, col_coord,
                                     row_contrib, col_contrib, row_cos2, col_cos2)
 
+# ----------------------------------------
+# ---- OCCURRENCES
+# ----------------------------------------
+
 # ---- Make the occurrences
 
 # Concat
@@ -90,14 +98,41 @@ occurrences = np.concatenate([character_occurrences, interaction_occurrences], a
 # Names
 occurrence_names = character_names + interaction_names
 
+# ---- Modification of occurrences
+
 # Threshold
 # occurrences[occurrences < min_occurrences] = 0
-# object_remaining = np.where(occurrences.sum(axis=0) > 0)[0]
-# occurrences = occurrences[:, object_remaining]
-# occurrence_names = list(np.array(occurrence_names)[object_remaining])
 
-# Binary
-# occurrences
+# Binary with threshold
+occurrences = occurrences >= min_occurrences
+
+# Make sure no columns are null
+object_remaining = np.where(occurrences.sum(axis=0) > 0)[0]
+occurrences = occurrences[:, object_remaining]
+occurrence_names = list(np.array(occurrence_names)[object_remaining])
+
+# ---- Occurrences with time
+
+# Get dummies for tomes
+tome_dummies = pd.get_dummies(meta_variables, columns=["tome"])
+tome_dummies = tome_dummies[["tome_1", "tome_2", "tome_3", "tome_4", "tome_5"]]
+tome_dummies.columns = [1, 2, 3, 4, 5]
+
+# Build occurences and names
+pre_occurrences = np.concatenate([character_occurrences, interaction_occurrences], axis=1)
+occurrences = tome_dummies.to_numpy()
+occurrence_names = [f"{col}" for col in tome_dummies.columns]
+for dummy in tome_dummies.columns:
+    new_elements = pre_occurrences * np.outer(tome_dummies[dummy].to_numpy(), np.ones(pre_occurrences.shape[1]))
+    non_zero_col = np.where(np.sum(new_elements, axis=0) > 0)[0]
+    occurrences = np.concatenate([occurrences, new_elements[:, non_zero_col]], axis=1)
+    occurrence_names = occurrence_names + \
+                       [f"{reg_name}-{dummy}" for id, reg_name in enumerate(character_names + interaction_names)
+                        if id in non_zero_col]
+
+# ----------------------------------------
+# ---- OCCURRENCES
+# ----------------------------------------
 
 # ---- Simple model of character + interactions
 
@@ -121,54 +156,7 @@ words_vs_regressions = pd.DataFrame(col_coord @ regression_coord.T, index=vocabu
 # Reorder by name
 words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.columns), axis=1)
 
+# ---- Explore the desired relationships
 
-# ---- Make weid means of characters and relationships
-
-# Character coordinates
-character_weights = character_occurrences.to_numpy() / sum(character_occurrences.to_numpy())
-character_coord = character_weights.T @ coord_row
-
-# Make relationships and weights
-relationships = []
-relationship_presences = []
-for i in range(len(characters) - 1):
-    for j in range(i + 1, len(characters)):
-        relationships.append([characters[i], characters[j]])
-        relationship_presences.append(list((character_occurrences[characters[i]] > 0) *
-                                           (character_occurrences[characters[j]] > 0)))
-relationship_presences = np.array(relationship_presences).T
-
-# Reduce existing relationships
-relationships = np.array(relationships)[relationship_presences.sum(axis=0) > relationship_threshold]
-relationship_presences = relationship_presences[:, relationship_presences.sum(axis=0) > relationship_threshold]
-
-# Compute coord
-relationship_weights = relationship_presences / sum(relationship_presences)
-relationship_coord = relationship_weights.T @ coord_row
-
-# ---- Result dataframes
-
-relationship_df = pd.DataFrame(relationship_coord, index=["-".join(relationship) for relationship in relationships])
-columns_whl_n = [(len(f"{dim_max}") - len(f"{dim}")) * "0" + f"{dim}" for dim in range(dim_max)]
-word_coord_df = pd.DataFrame(coord_col, index=vocabulary, columns=[whl_n + "_coord" for whl_n in columns_whl_n])
-word_contrib_df = pd.DataFrame(contrib_col, index=vocabulary, columns=[whl_n + "_contrib" for whl_n in columns_whl_n])
-word_cos_df = pd.DataFrame(cos2_col, index=vocabulary, columns=[whl_n + "_cos2" for whl_n in columns_whl_n])
-word_df = pd.concat([word_coord_df, word_contrib_df, word_cos_df], axis=1)
-word_df = word_df.reindex(sorted(word_df.columns), axis=1)
-
-# ---- Plots
-
-fig, ax = plt.subplots()
-ax.scatter(relationship_coord[:, displayed_axes[0]], relationship_coord[:, displayed_axes[1]], alpha=0, color="white")
-
-for i in range(relationships.shape[0]):
-    ax.annotate("-".join(relationships[i]),
-                (relationship_coord[i, displayed_axes[0]], relationship_coord[i, displayed_axes[1]]), size=10)
-
-ax.grid()
-plt.show()
-
-axis = 0
-display_char_network(relationships,
-                     relationship_coord[:, axis], relationship_coord[:, axis],
-                     edge_min_width=0.5, edge_max_width=8, node_min_width=200, node_max_width=2000)
+A_occurences = words_vs_occurrences[object_names]
+A_regression = words_vs_regressions[object_names]
