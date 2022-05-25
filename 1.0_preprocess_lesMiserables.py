@@ -26,7 +26,7 @@ target_characters = ["Valjean", "Cosette", "Fantine", "Marius", "Gavroche", "Jav
                      "Blachevelle", "Fauchelevent", "Mabeuf", "Toussaint", "Gillenormand", "Pontmercy", "Myriel",
                      "Baptistine", "Magloire", "Gervais", "Eponine", "Magnon", "Fameuil", "Azelma", "Champmathieu",
                      "Brevet", "Simplice", "Chenildieu", "Cochepaille", "Innocente", "Mademoiselle Gillenormand",
-                     "Bougon"]
+                     "Bougon", "Basque", "Nicolette"]
 # Alias dic
 aliases = {"Jean-le-cric": "Valjean",
            "Madeleine": "Valjean",
@@ -74,6 +74,7 @@ final_df = pd.DataFrame(columns=columns_name)
 
 # Setting tagger and divisions keywords (finer - coarser)
 flair_tagger = SequenceTagger.load("fr-ner")
+
 
 # Function for character treatment
 def recognise_character(tested_characters, ref_characters, ref_aliases):

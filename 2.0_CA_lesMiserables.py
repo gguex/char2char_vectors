@@ -14,16 +14,20 @@ corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
 aggregation_level = "chapitre"
 
 # Minimum occurrences for words
-word_min_occurrences = 20
+word_min_occurrences = 50
 
 # The minimum occurrences for an object to be considered
 min_occurrences = 3
 # Max interactions
-max_interaction_degree = 3
+max_interaction_degree = 2
 
 # Objects to explore
 object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
                 "Javert-Valjean", "Myriel", "Myriel-Valjean"]
+object_names_tome = ["1", "2", "3", 4, 5]
+for i in range(5):
+    object_names_tome.extend([f"{obj}-{i+1}" for obj in object_names])
+object_names.extend(object_names_tome)
 
 # -------------------------------
 #  Processing
@@ -158,5 +162,11 @@ words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.
 
 # ---- Explore the desired relationships
 
-A_occurences = words_vs_occurrences[object_names]
-A_regression = words_vs_regressions[object_names]
+# The subset of object
+present_object_names = []
+for obj in object_names:
+    if obj in words_vs_regressions.columns:
+        present_object_names.append(obj)
+
+A_occurrence = words_vs_occurrences[present_object_names]
+A_regression = words_vs_regressions[present_object_names]
