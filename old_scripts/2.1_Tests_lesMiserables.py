@@ -13,7 +13,7 @@ import spacy
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables.tsv"
+corpus_tsv_path = "../corpora/LesMiserables_fr/LesMiserables.tsv"
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
 # Axes displayed
