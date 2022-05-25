@@ -24,7 +24,7 @@ max_interaction_degree = 2
 # Objects to explore
 object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
                 "Javert-Valjean", "Myriel", "Myriel-Valjean"]
-object_names_tome = ["1", "2", "3", 4, 5]
+object_names_tome = ["1", "2", "3", "4", "5"]
 for i in range(5):
     object_names_tome.extend([f"{obj}-{i+1}" for obj in object_names])
 object_names.extend(object_names_tome)
@@ -108,7 +108,7 @@ occurrence_names = character_names + interaction_names
 # occurrences[occurrences < min_occurrences] = 0
 
 # Binary with threshold
-occurrences = occurrences >= min_occurrences
+# occurrences = occurrences >= min_occurrences
 
 # Make sure no columns are null
 object_remaining = np.where(occurrences.sum(axis=0) > 0)[0]

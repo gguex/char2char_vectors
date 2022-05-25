@@ -9,7 +9,7 @@ from collections import Counter
 # ---- PARAMETERS
 
 # Input/output paths
-input_corpus_path = "../corpora/LesMiserables_fr/LesMiserables1_fr.txt"  # french
+input_corpus_path = "../corpora/LesMiserables_fr/text/LesMiserables1_fr.txt"  # french
 #input_corpus_path = "corpora/LesMiserables_mini_en.txt" # english
 output_tsv_path = "corpora/LesMiserables_pp.txt"
 

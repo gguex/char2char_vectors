@@ -10,7 +10,7 @@ from tqdm import tqdm
 # -------------------------------
 
 # Input folder path
-input_corpus_path = "corpora/LesMiserables_fr"
+input_corpus_path = "corpora/LesMiserables_fr/text"
 
 # Ouput folder path
 output_tsv_path = "corpora/LesMiserables_fr/LesMiserables.tsv"
@@ -18,54 +18,29 @@ output_tsv_path = "corpora/LesMiserables_fr/LesMiserables.tsv"
 # Keywords for division
 division_keywords = ["Chapitre", "Livre"]
 
-# Target character list
-target_characters = ["Valjean", "Cosette", "Fantine", "Marius", "Gavroche", "Javert", "Monsieur Thénardier",
-                     "Madame Thénardier", "Babet", "Claquesous", "Montparnasse", "Gueulemer", "Brujon", "Bamatabois",
-                     "Madame Victurnien", "Enjolras", "Combeferre", "Courfeyrac", "Prouvaire", "Feuilly", "Bahorel",
-                     "Lesgle", "Joly", "Grantaire", "Favourite", "Dahlia", "Zéphine", "Tholomyès", "Listolier",
-                     "Blachevelle", "Fauchelevent", "Mabeuf", "Toussaint", "Gillenormand", "Pontmercy", "Myriel",
-                     "Baptistine", "Magloire", "Gervais", "Eponine", "Magnon", "Fameuil", "Azelma", "Champmathieu",
-                     "Brevet", "Simplice", "Chenildieu", "Cochepaille", "Innocente", "Mademoiselle Gillenormand",
-                     "Bougon", "Basque", "Nicolette"]
-# Alias dic
-aliases = {"Jean-le-cric": "Valjean",
-           "Madeleine": "Valjean",
-           "Ultime": "Valjean",
-           "Leblanc": "Valjean",
-           "Euphrasie": "Cosette",
-           "l'Alouette": "Cosette",
-           "Lenoir": "Cosette",
-           "Montmercy": "Marius",
-           "Petit Oiseau": "Gavroche",
-           "Gamin de Paris": "Gavroche",
-           "Inspecteur": "Javert",
-           "Mr. Jondrette": "Monsieur Thénardier",
-           "Thénardier": "Monsieur Thénardier",
-           "Fabantou": "Monsieur Thénardier",
-           "Thénard": "Monsieur Thénardier",
-           "Madame Jondrette": "Madame Thénardier",
-           "Jehan": "Prouvaire",
-           "L'Aigle de Meaux": "Lesgle",
-           "Laigle": "Lesgle",
-           "Lèsgle": "Lesgle",
-           "Bossuet": "Lesgle",
-           "Jolllly": "Joly",
-           "R": "Grantaire",
-           "Fauvent": "Fauchelevent",
-           "Zelma": "Azelma",
-           "Bienvenu": "Myriel",
-           "Monseigneur": "Myriel",
-           "L'évêque": "Myriel",
-           "Éponine": "Eponine"}
+# Target character file
+target_characters_path = "corpora/LesMiserables_fr/LesMiserables_characters.txt"
+
+# Aliases file
+aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 
 # -------------------------------
 #   Code
 # -------------------------------
 
+# Read characters
+with open(target_characters_path) as target_character_file:
+    target_characters = target_character_file.readlines()
+target_characters = [target_character.strip() for target_character in target_characters]
+
+# Read aliases
+with open(aliases_path) as aliases_file:
+    aliases = aliases_file.readlines()
+aliases = {alias.split(",")[0].strip(): alias.split(",")[1].strip() for alias in aliases}
+
 # Get tomes
 tomes = os.listdir(input_corpus_path)
 tomes.sort()
-tomes.remove("LesMiserables.tsv")
 
 # Create dataframe for results
 target_characters.sort()
