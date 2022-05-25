@@ -10,16 +10,22 @@ from local_functions import *
 # Corpus tsv path
 corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
 
+# Aliases file
+aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
+
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
 
 # Minimum occurrences for words
-word_min_occurrences = 50
+word_min_occurrences = 20
 
 # The minimum occurrences for an object to be considered
 min_occurrences = 3
 # Max interactions
 max_interaction_degree = 2
+
+# Tome separation
+tome_sep = True
 
 # Objects to explore
 object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
@@ -54,6 +60,11 @@ else:
 # Get char list
 character_names = list(character_occurrences.columns)
 
+# Read aliases
+with open(aliases_path) as aliases_file:
+    aliases = aliases_file.readlines()
+aliases = {alias.split(",")[0].strip(): alias.split(",")[1].strip() for alias in aliases}
+
 # --- Construct the document term matrix and remove
 
 # Build the document-term matrix
@@ -68,7 +79,8 @@ vocabulary = vocabulary[index_voc_ok]
 
 # Remove character names
 not_a_character = [i for i, word in enumerate(vocabulary)
-                   if word not in [process_text(character_name) for character_name in character_names]]
+                   if word not in [process_text(character_name)
+                                   for character_name in character_names + list(aliases.keys())]]
 dt_matrix = dt_matrix[:, not_a_character]
 vocabulary = vocabulary[not_a_character]
 
@@ -108,7 +120,7 @@ occurrence_names = character_names + interaction_names
 # occurrences[occurrences < min_occurrences] = 0
 
 # Binary with threshold
-# occurrences = occurrences >= min_occurrences
+occurrences = occurrences >= min_occurrences
 
 # Make sure no columns are null
 object_remaining = np.where(occurrences.sum(axis=0) > 0)[0]
@@ -117,22 +129,23 @@ occurrence_names = list(np.array(occurrence_names)[object_remaining])
 
 # ---- Occurrences with time
 
-# Get dummies for tomes
-tome_dummies = pd.get_dummies(meta_variables, columns=["tome"])
-tome_dummies = tome_dummies[["tome_1", "tome_2", "tome_3", "tome_4", "tome_5"]]
-tome_dummies.columns = [1, 2, 3, 4, 5]
+if tome_sep:
+    # Get dummies for tomes
+    tome_dummies = pd.get_dummies(meta_variables, columns=["tome"])
+    tome_dummies = tome_dummies[["tome_1", "tome_2", "tome_3", "tome_4", "tome_5"]]
+    tome_dummies.columns = [1, 2, 3, 4, 5]
 
-# Build occurences and names
-pre_occurrences = np.concatenate([character_occurrences, interaction_occurrences], axis=1)
-occurrences = tome_dummies.to_numpy()
-occurrence_names = [f"{col}" for col in tome_dummies.columns]
-for dummy in tome_dummies.columns:
-    new_elements = pre_occurrences * np.outer(tome_dummies[dummy].to_numpy(), np.ones(pre_occurrences.shape[1]))
-    non_zero_col = np.where(np.sum(new_elements, axis=0) > 0)[0]
-    occurrences = np.concatenate([occurrences, new_elements[:, non_zero_col]], axis=1)
-    occurrence_names = occurrence_names + \
-                       [f"{reg_name}-{dummy}" for id, reg_name in enumerate(character_names + interaction_names)
-                        if id in non_zero_col]
+    # Build occurences and names
+    pre_occurrences = np.concatenate([character_occurrences, interaction_occurrences], axis=1)
+    occurrences = tome_dummies.to_numpy()
+    occurrence_names = [f"{col}" for col in tome_dummies.columns]
+    for dummy in tome_dummies.columns:
+        new_elements = pre_occurrences * np.outer(tome_dummies[dummy].to_numpy(), np.ones(pre_occurrences.shape[1]))
+        non_zero_col = np.where(np.sum(new_elements, axis=0) > 0)[0]
+        occurrences = np.concatenate([occurrences, new_elements[:, non_zero_col]], axis=1)
+        occurrence_names = occurrence_names + \
+                           [f"{reg_name}-{dummy}" for id, reg_name in enumerate(character_names + interaction_names)
+                            if id in non_zero_col]
 
 # ----------------------------------------
 # ---- OCCURRENCES
@@ -153,7 +166,7 @@ words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.
 f_row = np.array(dt_matrix.sum(axis=1)).reshape(-1)
 f_row = f_row / sum(f_row)
 # Build regression vectors
-regression_coord = build_regression_vectors(occurrences, row_coord, f_row, regularization_parameter=1)
+regression_coord = build_regression_vectors(occurrences, row_coord, f_row, regularization_parameter=10)
 # Compute the scalar product between regression_coord and word_coord
 words_vs_regressions = pd.DataFrame(col_coord @ regression_coord.T, index=vocabulary,
                                     columns=["intercept"] + occurrence_names)
@@ -170,3 +183,6 @@ for obj in object_names:
 
 A_occurrence = words_vs_occurrences[present_object_names]
 A_regression = words_vs_regressions[present_object_names]
+
+occurrences_vs_words = words_vs_occurrences.transpose()
+regression_vs_words = words_vs_regressions.transpose()
