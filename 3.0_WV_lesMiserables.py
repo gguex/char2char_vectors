@@ -1,5 +1,6 @@
+import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from nltk.corpus import stopwords
 from local_functions import *
 import os
@@ -18,8 +19,12 @@ aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
 
+# Choice of weighting ("count" or "tfidf")
+weighting_scheme = "tfidf"
+
 # Minimum occurrences for words
 word_min_occurrences = 20
+word_min_tfidf = 0.01
 
 # The minimum occurrences for an object to be considered
 min_occurrences = 3
@@ -27,7 +32,7 @@ min_occurrences = 3
 max_interaction_degree = 2
 
 # Tome separation
-tome_sep = False
+tome_sep = True
 
 # Objects to explore
 object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
@@ -69,15 +74,35 @@ aliases = {alias.split(",")[0].strip(): alias.split(",")[1].strip() for alias in
 
 # --- Construct the document term matrix and remove
 
-# Build the document-term matrix
-vectorizer = CountVectorizer(stop_words=stopwords.words('french'))
-dt_matrix = vectorizer.fit_transform(texts)
-vocabulary = vectorizer.get_feature_names_out()
+# Check which weighting scheme, count
+if weighting_scheme == "count":
+    # Build the document-term matrix
+    vectorizer = CountVectorizer(stop_words=stopwords.words("french"))
+    dt_matrix = vectorizer.fit_transform(texts).toarray()
+    vocabulary = vectorizer.get_feature_names_out()
 
-# Make a threshold for the minimum vocabulary
-index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= word_min_occurrences)[1]
-dt_matrix = dt_matrix[:, index_voc_ok]
-vocabulary = vocabulary[index_voc_ok]
+    # Make a threshold for the minimum vocabulary
+    index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= word_min_occurrences)[0]
+    dt_matrix = dt_matrix[:, index_voc_ok]
+    vocabulary = vocabulary[index_voc_ok]
+# Or tfidf
+else:
+    # Build the document-term matrix
+    vectorizer = TfidfVectorizer(stop_words=stopwords.words("french"))
+    dt_matrix = vectorizer.fit_transform(texts).toarray()
+    vocabulary = vectorizer.get_feature_names_out()
+
+    # Make a threshold for the tfidf
+    dt_matrix[dt_matrix < word_min_tfidf] = 0
+    index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= 0)[0]
+    index_unit_ok = np.where(np.sum(dt_matrix, axis=1) >= 0)[0]
+    dt_matrix = dt_matrix[:, index_voc_ok]
+    dt_matrix = dt_matrix[index_unit_ok, :]
+    vocabulary = vocabulary[index_voc_ok]
+    meta_variables = meta_variables.iloc[index_unit_ok, :]
+    texts = list(np.array(texts)[index_unit_ok])
+    character_occurrences = character_occurrences.iloc[index_unit_ok, :]
+
 
 # Remove character names
 not_a_character = [i for i, word in enumerate(vocabulary)
@@ -168,8 +193,7 @@ remaining_unit_index = np.where(np.sum(dt_matrix, axis=1) >= 0)[0]
 dt_matrix = dt_matrix[remaining_unit_index, :]
 
 # Compute the unit vectors
-unit_coord = (np.outer(1 / dt_matrix.sum(axis=1), np.ones(dt_matrix.shape[1]))
-              * dt_matrix.toarray()) @ word_coord
+unit_coord = build_occurrences_vectors(dt_matrix.T, word_coord)
 
 # ----------------------------------------
 # ---- Occurrences vectors
@@ -189,10 +213,38 @@ occurrence_names = list(np.array(occurrence_names)[remaining_occurrences])
 
 # Compute their coordinates
 occurrence_coord = build_occurrences_vectors(occurrences, unit_coord)
-# Compute the scalar product between occurrences_coord and word_coord
-words_vs_occurrences = pd.DataFrame(word_coord @ occurrence_coord.T, index=vocabulary, columns=occurrence_names)
+# Compute the cosine sim between occurrences_coord and word_coord
+norm_word_coord = (word_coord.T / np.sqrt(np.sum(word_coord ** 2, axis=1))).T
+norm_occurrence_coord = (occurrence_coord.T / np.sqrt(np.sum(occurrence_coord ** 2, axis=1))).T
+words_vs_occurrences = pd.DataFrame(norm_word_coord @ norm_occurrence_coord.T, index=common_vocabulary,
+                                    columns=occurrence_names)
 # Reorder by occurrences name
 words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.columns), axis=1)
 
+# ---- Make the regression
 
+# Get units weights
+f_row = np.array(dt_matrix.sum(axis=1)).reshape(-1)
+f_row = f_row / sum(f_row)
+# Build regression vectors
+regression_coord = build_regression_vectors(occurrences, unit_coord, f_row, regularization_parameter=1)
+# Compute the cosine between regression_coord and word_coord
+norm_regression_coord = (regression_coord.T / np.sqrt(np.sum(regression_coord ** 2, axis=1))).T
+words_vs_regressions = pd.DataFrame(norm_word_coord @ norm_regression_coord.T, index=common_vocabulary,
+                                    columns=["intercept"] + occurrence_names)
+# Reorder by name
+words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.columns), axis=1)
 
+# ---- Explore the desired relationships
+
+# The subset of object
+present_object_names = []
+for obj in object_names:
+    if obj in words_vs_regressions.columns:
+        present_object_names.append(obj)
+
+A_occurrence = words_vs_occurrences[present_object_names]
+A_regression = words_vs_regressions[present_object_names]
+
+occurrences_vs_words = words_vs_occurrences.transpose()
+regression_vs_words = words_vs_regressions.transpose()
