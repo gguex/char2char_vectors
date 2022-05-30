@@ -161,6 +161,74 @@ if tome_sep:
 #  Analysis
 # -------------------------------
 
-# Build word-unit stochastic matrix
+# Create binary variable for character occurences
+dc_binary = 1*(character_occurrences >= min_occurrences).to_numpy()
+unit_with_char = np.where(dc_binary.sum(axis=1) > 0)[0]
+char_with_unit = np.where(dc_binary.sum(axis=0) > 0)[0]
+dc_binary = dc_binary[unit_with_char, :]
+dc_binary = dc_binary[:, char_with_unit]
 
-dt_transition = dt_matrix.
+# Document-character transition and character-document transition
+dc_transition = dc_binary / dc_binary.sum(axis=1).reshape(-1, 1)
+cd_transition = dc_binary.T / dc_binary.T.sum(axis=1).reshape(-1, 1)
+
+# unit-term and term unit transition matrix
+dt_matrix = dt_matrix[unit_with_char, :]
+dt_transition = dt_matrix / dt_matrix.sum(axis=1)
+td_transition = dt_matrix.T / dt_matrix.T.sum(axis=1)
+
+# character-term and term-character transition matrix
+ct_transition = cd_transition @ dt_transition
+tc_transition = td_transition @ dc_transition
+
+# Char-char and term-term transition matrix
+cc_transition = ct_transition @ tc_transition
+tt_transition = tc_transition @ ct_transition
+
+# Find the stationary distribution (TO MODIFY)
+final_cc = cc_transition
+final_tt = tt_transition
+for i in range(1000):
+    final_cc = final_cc @ cc_transition
+    final_tt = final_tt @ tt_transition
+
+stationary_cc = np.array(final_cc)[0]
+stationary_tt = np.array(final_tt)[0]
+
+# Compute the kernels
+kernel_cc = cc_transition @ np.diag(stationary_cc) @ cc_transition.T
+kernel_tt = tt_transition @ np.diag(stationary_tt) @ tt_transition.T
+
+# Perform the eigen-decomposition of character
+cc_eig_val, cc_eig_vec = np.linalg.eig(kernel_cc)
+# Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
+cc_idx = cc_eig_val.argsort()[::-1]
+cc_eig_val = np.abs(cc_eig_val[cc_idx])
+cc_eig_vec = np.real(cc_eig_vec[:, cc_idx])
+
+# Perform the eigen-decomposition of terms
+tt_eig_val, tt_eig_vec = np.linalg.eig(kernel_tt)
+# Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
+tt_idx = tt_eig_val.argsort()[::-1]
+tt_eig_val = np.abs(tt_eig_val[tt_idx])
+tt_eig_vec = np.real(tt_eig_vec[:, tt_idx])
+
+# Coordinates
+char_coord = np.sqrt(cc_eig_val) * np.array(cc_eig_vec)
+term_coord = np.sqrt(tt_eig_val) * np.array(tt_eig_vec)
+
+# Max dim
+max_dim = char_coord.shape[1] - 1
+char_coord = char_coord[:, :max_dim]
+term_coord = term_coord[:, :max_dim]
+
+# Compute the scalar product between occurrences_coord and word_coord
+words_vs_occurrences = pd.DataFrame(term_coord @ char_coord.T, index=vocabulary,
+                                    columns=np.array(character_names)[char_with_unit])
+# Reorder by occurrences name
+words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.columns), axis=1)
+
+
+
+
+
