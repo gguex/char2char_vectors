@@ -67,8 +67,14 @@ aliases = {alias.split(",")[0].strip(): alias.split(",")[1].strip() for alias in
 
 # --- Construct the document term matrix and remove
 
+# Choice of stopwords
+#used_stop_words = stopwords.words('french')
+with open("aux_files/frenchST.txt") as stopwords_file:
+    used_stop_words = stopwords_file.readlines()
+used_stop_words = [process_text(stop_word) for stop_word in used_stop_words]
+
 # Build the document-term matrix
-vectorizer = CountVectorizer(stop_words=stopwords.words('french'))
+vectorizer = CountVectorizer(stop_words=used_stop_words)
 dt_matrix = vectorizer.fit_transform(texts)
 vocabulary = vectorizer.get_feature_names_out()
 

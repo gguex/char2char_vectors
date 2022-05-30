@@ -1,5 +1,6 @@
+import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from nltk.corpus import stopwords
 from local_functions import *
 
@@ -10,29 +11,34 @@ from local_functions import *
 # Corpus tsv path
 corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
 
-# Aliases file
+# Aliases file path
 aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
 
+# Choice of weighting ("count" or "tfidf")
+weighting_scheme = "tfidf"
+
 # Minimum occurrences for words
 word_min_occurrences = 20
+word_min_tfidf = 0
 
 # The minimum occurrences for an object to be considered
 min_occurrences = 3
+
 # Max interactions
 max_interaction_degree = 2
 
 # Tome separation
-tome_sep = True
+tome_sep = False
 
 # Objects to explore
 object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
                 "Javert-Valjean", "Myriel", "Myriel-Valjean"]
 object_names_tome = ["1", "2", "3", "4", "5"]
 for i in range(5):
-    object_names_tome.extend([f"{obj}-{i+1}" for obj in object_names])
+    object_names_tome.extend([f"{obj}-{i + 1}" for obj in object_names])
 object_names.extend(object_names_tome)
 
 # -------------------------------
@@ -67,15 +73,34 @@ aliases = {alias.split(",")[0].strip(): alias.split(",")[1].strip() for alias in
 
 # --- Construct the document term matrix and remove
 
-# Build the document-term matrix
-vectorizer = CountVectorizer(stop_words=stopwords.words('french'))
-dt_matrix = vectorizer.fit_transform(texts)
-vocabulary = vectorizer.get_feature_names_out()
+# Check which weighting scheme, count
+if weighting_scheme == "count":
+    # Build the document-term matrix
+    vectorizer = CountVectorizer(stop_words=stopwords.words("french"))
+    dt_matrix = vectorizer.fit_transform(texts).toarray()
+    vocabulary = vectorizer.get_feature_names_out()
 
-# Make a threshold for the minimum vocabulary
-index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= word_min_occurrences)[1]
-dt_matrix = dt_matrix[:, index_voc_ok]
-vocabulary = vocabulary[index_voc_ok]
+    # Make a threshold for the minimum vocabulary
+    index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= word_min_occurrences)[0]
+    dt_matrix = dt_matrix[:, index_voc_ok]
+    vocabulary = vocabulary[index_voc_ok]
+# Or tfidf
+else:
+    # Build the document-term matrix
+    vectorizer = TfidfVectorizer(stop_words=stopwords.words("french"))
+    dt_matrix = vectorizer.fit_transform(texts).toarray()
+    vocabulary = vectorizer.get_feature_names_out()
+
+    # Make a threshold for the tfidf
+    dt_matrix[dt_matrix < word_min_tfidf] = 0
+    index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= 0)[0]
+    index_unit_ok = np.where(np.sum(dt_matrix, axis=1) >= 0)[0]
+    dt_matrix = dt_matrix[:, index_voc_ok]
+    dt_matrix = dt_matrix[index_unit_ok, :]
+    vocabulary = vocabulary[index_voc_ok]
+    meta_variables = meta_variables.iloc[index_unit_ok, :]
+    texts = list(np.array(texts)[index_unit_ok])
+    character_occurrences = character_occurrences.iloc[index_unit_ok, :]
 
 # Remove character names
 not_a_character = [i for i, word in enumerate(vocabulary)
@@ -89,7 +114,7 @@ interaction_occurrences = build_interactions(character_occurrences, max_interact
 interaction_names = list(interaction_occurrences.columns)
 
 # ----------------------------------------
-#  Occurrences
+# ---- OCCURRENCES
 # ----------------------------------------
 
 # ---- Make the occurrences
@@ -128,12 +153,14 @@ if tome_sep:
         new_elements = pre_occurrences * np.outer(tome_dummies[dummy].to_numpy(), np.ones(pre_occurrences.shape[1]))
         non_zero_col = np.where(np.sum(new_elements, axis=0) > 0)[0]
         occurrences = np.concatenate([occurrences, new_elements[:, non_zero_col]], axis=1)
-        occurrence_names = occurrence_names + \
-                           [f"{reg_name}-{dummy}" for id, reg_name in enumerate(character_names + interaction_names)
-                            if id in non_zero_col]
+        occurrence_names = occurrence_names + [f"{reg_name}-{dummy}"
+                                               for id_reg, reg_name in enumerate(character_names + interaction_names)
+                                               if id_reg in non_zero_col]
 
 # -------------------------------
 #  Analysis
 # -------------------------------
 
-# ---- Make the MCA
+# Build word-unit stochastic matrix
+
+dt_transition = dt_matrix.
