@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.decomposition import NMF, LatentDirichletAllocation
 from nltk.corpus import stopwords
 from local_functions import *
 import os
@@ -20,11 +21,14 @@ aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 aggregation_level = "chapitre"
 
 # Choice of weighting ("count" or "tfidf")
-weighting_scheme = "tfidf"
+weighting_scheme = "count"
+
+# Numbers of groups
+n_groups = 10
 
 # Minimum occurrences for words
 word_min_occurrences = 20
-word_min_tfidf = 0
+word_min_tfidf = 0.01
 
 # The minimum occurrences for an object to be considered
 min_occurrences = 3
@@ -33,7 +37,7 @@ min_occurrences = 3
 max_interaction_degree = 2
 
 # Tome separation
-tome_sep = False
+tome_sep = True
 
 # Objects to explore
 object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
@@ -163,88 +167,14 @@ if tome_sep:
 #  Analysis
 # -------------------------------
 
-# --- Loading wordvector models
+# --- Make the NMF model
 
-home = os.path.expanduser("~")
-wv_model = KeyedVectors.load(f"{home}/Documents/data/pretrained_word_vectors/enwiki.model")
+nmf_model = NMF(n_components=n_groups)
+nmf_model.fit(dt_matrix)
 
-# Getting wv model data
-wv_vocabulary = wv_model.index_to_key
-wv_dim = wv_model.vector_size
+# Getting components for units and words
+unit_prob = nmf_model.transform(dt_matrix)
+word_prob = nmf_model.components_
 
-# Save common voc
-common_vocabulary = list(set(vocabulary) & set(wv_vocabulary))
-# Get the index of existing voc
-existing_word_index = [word in common_vocabulary for word in vocabulary]
-# Reodrer common_vocabulary in the same order found in vocabulary
-common_vocabulary = list(np.array(vocabulary)[existing_word_index])
-
-# --- Build vectors for words and units
-
-# Making vectors for words
-word_coord = np.zeros((len(common_vocabulary), wv_dim))
-for i, word in enumerate(common_vocabulary):
-    word_coord[i, :] = wv_model.get_vector(word)
-
-# Reduce dt matrix to the common voc
-dt_matrix = dt_matrix[:, existing_word_index]
-# Remove empty units
-remaining_unit_index = np.where(np.sum(dt_matrix, axis=1) >= 0)[0]
-dt_matrix = dt_matrix[remaining_unit_index, :]
-
-# Compute the unit vectors
-unit_coord = build_occurrences_vectors(dt_matrix.T, word_coord)
-
-# ----------------------------------------
-# ---- Occurrences vectors
-# ----------------------------------------
-
-# --- Reduce the occurrences to remaining units
-
-# Reduce them
-occurrences = occurrences[remaining_unit_index, :]
-# See if there are empty occurrences
-remaining_occurrences = np.where(np.sum(occurrences, axis=0) >= 0)[0]
-# Restrain occurrences and their names
-occurrences = occurrences[:, remaining_occurrences]
-occurrence_names = list(np.array(occurrence_names)[remaining_occurrences])
-
-# --- Simple model of character + interactions
-
-# Compute their coordinates
-occurrence_coord = build_occurrences_vectors(occurrences, unit_coord)
-# Compute the cosine sim between occurrences_coord and word_coord
-norm_word_coord = (word_coord.T / np.sqrt(np.sum(word_coord ** 2, axis=1))).T
-norm_occurrence_coord = (occurrence_coord.T / np.sqrt(np.sum(occurrence_coord ** 2, axis=1))).T
-words_vs_occurrences = pd.DataFrame(norm_word_coord @ norm_occurrence_coord.T, index=common_vocabulary,
-                                    columns=occurrence_names)
-# Reorder by occurrences name
-words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.columns), axis=1)
-
-# ---- Make the regression
-
-# Get units weights
-f_row = np.array(dt_matrix.sum(axis=1)).reshape(-1)
-f_row = f_row / sum(f_row)
-# Build regression vectors
-regression_coord = build_regression_vectors(occurrences, unit_coord, f_row, regularization_parameter=1)
-# Compute the cosine between regression_coord and word_coord
-norm_regression_coord = (regression_coord.T / np.sqrt(np.sum(regression_coord ** 2, axis=1))).T
-words_vs_regressions = pd.DataFrame(norm_word_coord @ norm_regression_coord.T, index=common_vocabulary,
-                                    columns=["intercept"] + occurrence_names)
-# Reorder by name
-words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.columns), axis=1)
-
-# ---- Explore the desired relationships
-
-# The subset of object
-present_object_names = []
-for obj in object_names:
-    if obj in words_vs_regressions.columns:
-        present_object_names.append(obj)
-
-A_occurrence = words_vs_occurrences[present_object_names]
-A_regression = words_vs_regressions[present_object_names]
-
-occurrences_vs_words = words_vs_occurrences.transpose()
-regression_vs_words = words_vs_regressions.transpose()
+comp_vs_word = pd.DataFrame(word_prob.T, index=vocabulary)
+comp_vs_unit = pd.DataFrame(unit_prob)
