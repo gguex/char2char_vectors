@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from nltk.corpus import stopwords
 from local_functions import *
+import scipy
 
 # -------------------------------
 #  Parameters
@@ -174,8 +175,10 @@ cd_transition = dc_binary.T / dc_binary.T.sum(axis=1).reshape(-1, 1)
 
 # unit-term and term unit transition matrix
 dt_matrix = dt_matrix[unit_with_char, :]
-dt_transition = dt_matrix / dt_matrix.sum(axis=1)
-td_transition = dt_matrix.T / dt_matrix.T.sum(axis=1)
+term_remaining = np.where(dt_matrix.sum(axis=0) > 0)[0]
+dt_matrix = dt_matrix[:, term_remaining]
+dt_transition = dt_matrix / dt_matrix.sum(axis=1).reshape(-1, 1)
+td_transition = dt_matrix.T / dt_matrix.T.sum(axis=1).reshape(-1, 1)
 
 # character-term and term-character transition matrix
 ct_transition = cd_transition @ dt_transition
@@ -186,28 +189,29 @@ cc_transition = ct_transition @ tc_transition
 tt_transition = tc_transition @ ct_transition
 
 # Find the stationary distribution (TO MODIFY)
-final_cc = cc_transition
-final_tt = tt_transition
-for i in range(1000):
-    final_cc = final_cc @ cc_transition
-    final_tt = final_tt @ tt_transition
-
-stationary_cc = np.array(final_cc)[0]
-stationary_tt = np.array(final_tt)[0]
+cc_transition_eig_val, cc_transition_eig_vec = scipy.sparse.linalg.eigs(cc_transition.T, 1)
+cc_stationary = np.real(np.abs(cc_transition_eig_vec[:, 0]))
+cc_stationary = cc_stationary / sum(cc_stationary)
+tt_transition_eig_val, tt_transition_eig_vec = scipy.sparse.linalg.eigs(tt_transition.T, 1)
+tt_stationary = np.real(np.abs(tt_transition_eig_vec[:, 0]))
+tt_stationary = tt_stationary / sum(tt_stationary)
 
 # Compute the kernels
-kernel_cc = cc_transition @ np.diag(stationary_cc) @ cc_transition.T
-kernel_tt = tt_transition @ np.diag(stationary_tt) @ tt_transition.T
+cc_kernel = cc_transition @ np.diag(1/cc_stationary) @ cc_transition.T
+tt_kernel = tt_transition @ np.diag(1/tt_stationary) @ tt_transition.T
+
+# Maximum of dim
+dim_max = min(cc_kernel.shape[0], tt_kernel.shape[0]) - 1
 
 # Perform the eigen-decomposition of character
-cc_eig_val, cc_eig_vec = np.linalg.eig(kernel_cc)
+cc_eig_val, cc_eig_vec = scipy.linalg.eig(cc_kernel)
 # Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
 cc_idx = cc_eig_val.argsort()[::-1]
 cc_eig_val = np.abs(cc_eig_val[cc_idx])
 cc_eig_vec = np.real(cc_eig_vec[:, cc_idx])
 
 # Perform the eigen-decomposition of terms
-tt_eig_val, tt_eig_vec = np.linalg.eig(kernel_tt)
+tt_eig_val, tt_eig_vec = scipy.linalg.eig(tt_kernel)
 # Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
 tt_idx = tt_eig_val.argsort()[::-1]
 tt_eig_val = np.abs(tt_eig_val[tt_idx])
