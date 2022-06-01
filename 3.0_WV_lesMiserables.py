@@ -3,7 +3,6 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from nltk.corpus import stopwords
 from local_functions import *
-import os
 from gensim.models import KeyedVectors
 
 # -------------------------------
@@ -16,15 +15,19 @@ corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
 # Aliases file path
 aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 
+# Word vectors to use
+#word_vectors_path = "/home/gguex/Documents/data/pretrained_word_vectors/frwiki.model"
+word_vectors_path = "/home/gguex/Documents/data/pretrained_word_vectors/fr_fasttext.model"
+
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
 
 # Choice of weighting ("count" or "tfidf")
-weighting_scheme = "tfidf"
+weighting_scheme = "count"
 
 # Minimum occurrences for words
 word_min_occurrences = 20
-word_min_tfidf = 0
+word_min_tfidf = 0.05
 
 # The minimum occurrences for an object to be considered
 min_occurrences = 3
@@ -33,7 +36,7 @@ min_occurrences = 3
 max_interaction_degree = 2
 
 # Tome separation
-tome_sep = False
+tome_sep = True
 
 # Objects to explore
 object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
@@ -75,10 +78,16 @@ aliases = {alias.split(",")[0].strip(): alias.split(",")[1].strip() for alias in
 
 # --- Construct the document term matrix and remove
 
+# Choice of stopwords
+#used_stop_words = stopwords.words('french')
+with open("aux_files/frenchST.txt") as stopwords_file:
+    used_stop_words = stopwords_file.readlines()
+used_stop_words = [process_text(stop_word) for stop_word in used_stop_words]
+
 # Check which weighting scheme, count
 if weighting_scheme == "count":
     # Build the document-term matrix
-    vectorizer = CountVectorizer(stop_words=stopwords.words("french"))
+    vectorizer = CountVectorizer(stop_words=used_stop_words)
     dt_matrix = vectorizer.fit_transform(texts).toarray()
     vocabulary = vectorizer.get_feature_names_out()
 
@@ -89,7 +98,7 @@ if weighting_scheme == "count":
 # Or tfidf
 else:
     # Build the document-term matrix
-    vectorizer = TfidfVectorizer(stop_words=stopwords.words("french"))
+    vectorizer = TfidfVectorizer(stop_words=used_stop_words)
     dt_matrix = vectorizer.fit_transform(texts).toarray()
     vocabulary = vectorizer.get_feature_names_out()
 
@@ -163,10 +172,10 @@ if tome_sep:
 #  Analysis
 # -------------------------------
 
-# --- Loading wordvector models
+# --- Word vector model
 
-home = os.path.expanduser("~")
-wv_model = KeyedVectors.load(f"{home}/Documents/data/pretrained_word_vectors/enwiki.model")
+# Loading word vectors model
+wv_model = KeyedVectors.load(word_vectors_path)
 
 # Getting wv model data
 wv_vocabulary = wv_model.index_to_key
@@ -193,7 +202,23 @@ remaining_unit_index = np.where(np.sum(dt_matrix, axis=1) >= 0)[0]
 dt_matrix = dt_matrix[remaining_unit_index, :]
 
 # Compute the unit vectors
-unit_coord = build_occurrences_vectors(dt_matrix.T, word_coord)
+# choice 1
+#unit_coord = build_occurrences_vectors(dt_matrix.T, word_coord)
+
+# choice 2
+weighting_param = 0.001
+word_weights = dt_matrix.sum(axis=0)
+word_weights = word_weights / sum(word_weights)
+smoothed_word_weights = weighting_param / (weighting_param + word_weights)
+dt_probability = dt_matrix / dt_matrix.sum(axis=1).reshape(-1, 1)
+weighted_dt_matrix = dt_probability * smoothed_word_weights
+unit_coord = dt_probability @ word_coord
+
+# Remove first singular vector residuals
+first_eigen_vec = scipy.sparse.linalg.svds(unit_coord.T, 1)[0]
+first_eigen_residual = first_eigen_vec @ first_eigen_vec.T @ unit_coord.T
+unit_coord = unit_coord - first_eigen_residual.T
+
 
 # ----------------------------------------
 # ---- Occurrences vectors

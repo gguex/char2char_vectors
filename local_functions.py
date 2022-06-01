@@ -6,6 +6,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 from scipy.stats import rankdata
+import scipy
 from itertools import combinations
 from sklearn import linear_model
 
@@ -115,6 +116,29 @@ def build_directed_interactions(speaking_characters, character_presences_df, max
     return pd.DataFrame(interaction_presences, columns=interactions_name)
 
 
+def sorted_eig(matrix, dim_max=None):
+    """
+    A function to compute, and sort real part of eigenvalues and eigenvector to dim_max
+    :param matrix: the matrix to decompose
+    :param dim_max: the maximum number of dimensions
+    :return: eigen_values and eigen_vectors arrays
+    """
+
+    # Choice of computation depending of dim_max
+    if (dim_max is not None) and dim_max < matrix.shape[0] - 1:
+        eigen_values, eigen_vectors = scipy.sparse.linalg.eigs(matrix, dim_max)
+    else:
+        eigen_values, eigen_vectors = scipy.linalg.eigs(matrix)
+
+    # Sort the values
+    sorted_indices = eigen_values.argsort()[::-1]
+    eigen_values = eigen_values[sorted_indices]
+    eigen_vectors = np.real(eigen_vectors[:, sorted_indices])
+
+    # Return
+    return eigen_values, eigen_vectors
+
+
 def correspondence_analysis(contingency):
     """
     A function to perform a correspondence analysis from a contingency table
@@ -148,11 +172,10 @@ def correspondence_analysis(contingency):
     # Compute the weighted scalar products matrix
     k_mat = np.outer(np.sqrt(f_row), np.sqrt(f_row)) * b_mat
     # Perform the eigen-decomposition
-    eig_val, eig_vec = np.linalg.eig(k_mat)
-    # Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
-    idx = eig_val.argsort()[::-1]
-    eig_val = np.abs(eig_val[idx])[:dim_max]
-    eig_vec = eig_vec[:, idx][:, :dim_max]
+    eig_val, eig_vec = sorted_eig(k_mat)
+    # Cut to the maximum of dimensions
+    eig_val = eig_val[:dim_max]
+    eig_vec = eig_vec[:, :dim_max]
 
     # Compute the percentage of variance
     percentage_var = eig_val / sum(eig_val)

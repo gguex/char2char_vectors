@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from nltk.corpus import stopwords
 from local_functions import *
 import scipy
+import matplotlib.pyplot as plt
 
 # -------------------------------
 #  Parameters
@@ -162,25 +163,77 @@ if tome_sep:
 #  Analysis
 # -------------------------------
 
-# Create binary variable for character occurences
+# ------------1
+
+# Units-character matrix
+dc_matrix = character_occurrences.to_numpy()
+unit_with_char = np.where(dc_matrix.sum(axis=1) > 0)[0]
+char_with_unit = np.where(dc_matrix.sum(axis=0) > 0)[0]
+dc_matrix = dc_matrix[unit_with_char, :]
+dc_matrix = dc_matrix[:, char_with_unit]
+dc_transition = dc_matrix / dc_matrix.sum(axis=1).reshape(-1, 1)
+cd_transition = dc_matrix.T / dc_matrix.T.sum(axis=1).reshape(-1, 1)
+
+# Char-char transition matrix
+cc_transition = cd_transition @ dc_transition
+
+# Compute the stationary distribution
+cc_transition_eig_val, cc_transition_eig_vec = sorted_eig(cc_transition.T, 1)
+cc_stationary = np.abs(cc_transition_eig_vec[:, 0])
+cc_stationary = cc_stationary / sum(cc_stationary)
+
+# Compute the power
+pow = 1
+cc_pow_transition = cc_transition
+for _ in range(pow - 1):
+    cc_pow_transition = cc_pow_transition @ cc_transition
+
+cc_kernel = cc_pow_transition @ np.diag(1/cc_stationary) @ cc_pow_transition.T
+
+# Max dim
+dim_max = cc_kernel.shape[0] - 1
+
+# Perform the eigen-decomposition of character
+cc_eig_val, cc_eig_vec = scipy.sparse.linalg.eigs(cc_kernel, dim_max)
+# Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
+cc_idx = cc_eig_val.argsort()[::-1]
+cc_eig_val = np.abs(cc_eig_val[cc_idx])[:dim_max]
+cc_eig_vec = np.real(cc_eig_vec[:, cc_idx])[:, :dim_max]
+
+# Coordinates
+char_coord = np.sqrt(cc_eig_val) * np.array(cc_eig_vec)
+
+# Plot
+fig, ax = plt.subplots()
+ax.scatter(char_coord[:, 0], char_coord[:, 1], alpha=0, color="white")
+
+for i in range(char_coord.shape[0]):
+    ax.annotate(np.array(character_names)[char_with_unit][i], (char_coord[i, 0], char_coord[i, 1]), size=10)
+
+ax.grid()
+plt.show()
+
+# ------------2
+
+# Create binary variable for character occurrences
 dc_binary = 1*(character_occurrences >= min_occurrences).to_numpy()
 unit_with_char = np.where(dc_binary.sum(axis=1) > 0)[0]
 char_with_unit = np.where(dc_binary.sum(axis=0) > 0)[0]
 dc_binary = dc_binary[unit_with_char, :]
 dc_binary = dc_binary[:, char_with_unit]
 
-# Document-character transition and character-document transition
+# Documents-characters and characters-documents transition matrices
 dc_transition = dc_binary / dc_binary.sum(axis=1).reshape(-1, 1)
 cd_transition = dc_binary.T / dc_binary.T.sum(axis=1).reshape(-1, 1)
 
-# unit-term and term unit transition matrix
+# Units-terms and terms-units transition matrices
 dt_matrix = dt_matrix[unit_with_char, :]
 term_remaining = np.where(dt_matrix.sum(axis=0) > 0)[0]
 dt_matrix = dt_matrix[:, term_remaining]
 dt_transition = dt_matrix / dt_matrix.sum(axis=1).reshape(-1, 1)
 td_transition = dt_matrix.T / dt_matrix.T.sum(axis=1).reshape(-1, 1)
 
-# character-term and term-character transition matrix
+# Characters-terms and terms-characters transition matrices
 ct_transition = cd_transition @ dt_transition
 tc_transition = td_transition @ dc_transition
 
@@ -188,51 +241,60 @@ tc_transition = td_transition @ dc_transition
 cc_transition = ct_transition @ tc_transition
 tt_transition = tc_transition @ ct_transition
 
-# Find the stationary distribution (TO MODIFY)
-cc_transition_eig_val, cc_transition_eig_vec = scipy.sparse.linalg.eigs(cc_transition.T, 1)
-cc_stationary = np.real(np.abs(cc_transition_eig_vec[:, 0]))
+# Compute the stationary distribution
+cc_transition_eig_val, cc_transition_eig_vec = sorted_eig(cc_transition.T, 1)
+cc_stationary = np.abs(cc_transition_eig_vec[:, 0])
 cc_stationary = cc_stationary / sum(cc_stationary)
-tt_transition_eig_val, tt_transition_eig_vec = scipy.sparse.linalg.eigs(tt_transition.T, 1)
-tt_stationary = np.real(np.abs(tt_transition_eig_vec[:, 0]))
+tt_transition_eig_val, tt_transition_eig_vec = sorted_eig(tt_transition.T, 1)
+tt_stationary = np.abs(tt_transition_eig_vec[:, 0])
 tt_stationary = tt_stationary / sum(tt_stationary)
 
 # Compute the kernels
-cc_kernel = cc_transition @ np.diag(1/cc_stationary) @ cc_transition.T
-tt_kernel = tt_transition @ np.diag(1/tt_stationary) @ tt_transition.T
+pow = 4
+cc_pow_transition = cc_transition
+tt_pow_transition = tt_transition
+for _ in range(pow - 1):
+    cc_pow_transition = cc_pow_transition @ cc_transition
+    tt_pow_transition = tt_pow_transition @ tt_transition
+
+
+cc_kernel = cc_pow_transition @ np.diag(1/cc_stationary) @ cc_pow_transition.T
+tt_kernel = tt_pow_transition @ np.diag(1/tt_stationary) @ tt_pow_transition.T
 
 # Maximum of dim
 dim_max = min(cc_kernel.shape[0], tt_kernel.shape[0]) - 1
 
 # Perform the eigen-decomposition of character
-cc_eig_val, cc_eig_vec = scipy.linalg.eig(cc_kernel)
+cc_eig_val, cc_eig_vec = scipy.sparse.linalg.eigs(cc_kernel, dim_max)
 # Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
 cc_idx = cc_eig_val.argsort()[::-1]
-cc_eig_val = np.abs(cc_eig_val[cc_idx])
-cc_eig_vec = np.real(cc_eig_vec[:, cc_idx])
+cc_eig_val = np.abs(cc_eig_val[cc_idx])[:dim_max]
+cc_eig_vec = np.real(cc_eig_vec[:, cc_idx])[:, :dim_max]
 
 # Perform the eigen-decomposition of terms
-tt_eig_val, tt_eig_vec = scipy.linalg.eig(tt_kernel)
+tt_eig_val, tt_eig_vec = scipy.sparse.linalg.eigs(tt_kernel, dim_max)
 # Reorder eigen-vector and eigen-values, and cut to the maximum of dimensions
 tt_idx = tt_eig_val.argsort()[::-1]
-tt_eig_val = np.abs(tt_eig_val[tt_idx])
-tt_eig_vec = np.real(tt_eig_vec[:, tt_idx])
+tt_eig_val = np.abs(tt_eig_val[tt_idx])[:dim_max]
+tt_eig_vec = np.real(tt_eig_vec[:, tt_idx])[:, :dim_max]
 
 # Coordinates
 char_coord = np.sqrt(cc_eig_val) * np.array(cc_eig_vec)
 term_coord = np.sqrt(tt_eig_val) * np.array(tt_eig_vec)
 
-# Max dim
-max_dim = char_coord.shape[1] - 1
-char_coord = char_coord[:, :max_dim]
-term_coord = term_coord[:, :max_dim]
+# Plot
+fig, ax = plt.subplots()
+ax.scatter(char_coord[:, 0], char_coord[:, 1], alpha=0, color="white")
+
+for i in range(char_coord.shape[0]):
+    ax.annotate(np.array(character_names)[char_with_unit][i], (char_coord[i, 0], char_coord[i, 1]), size=10)
+
+ax.grid()
+plt.show()
 
 # Compute the scalar product between occurrences_coord and word_coord
-words_vs_occurrences = pd.DataFrame(term_coord @ char_coord.T, index=vocabulary,
+words_vs_occurrences = pd.DataFrame(term_coord @ char_coord.T,
+                                    index=np.array(vocabulary)[term_remaining],
                                     columns=np.array(character_names)[char_with_unit])
 # Reorder by occurrences name
 words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.columns), axis=1)
-
-
-
-
-
