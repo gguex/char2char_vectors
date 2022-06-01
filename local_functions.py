@@ -11,6 +11,15 @@ from itertools import combinations
 from sklearn import linear_model
 
 
+# class CharacterCorpus:
+#
+#     def __init__(self):
+#         self.n_unit = 0
+#         self.text = []
+#         self.meta_variables = pd.DataFrame()
+#         self.texts = pd.DataFrame()
+#         self.occurrences = pd.DataFrame()
+
 def process_text(text):
     """
     A function that take a string and remove punctuation, remove numbers, lower cases and remove extra spaces
@@ -34,6 +43,35 @@ def process_text(text):
     processed_text = re.sub(" +", " ", processed_text).strip()
     # Return the sentence
     return processed_text
+
+
+def aggregates_split_df(corpus_df, aggregation_level=None):
+    """
+    Aggregate and split the corpus dataframe in the standard format, along on meta-variable (if given)
+
+    :param corpus_df: the corpus dataframe. Meta-variable must be before the "text" variable,
+    character occurrences after.
+    :param aggregation_level: the name of the desired aggregation
+
+    :return: the meta variables, the texts and character occurrences, all aggregated.
+    """
+
+    # Get the columns name for separation and words
+    meta_columns = corpus_df.iloc[:, :(np.where(corpus_df.columns == "text")[0][0])].columns
+    character_columns = corpus_df.iloc[:, ((np.where(corpus_df.columns == "text")[0][0]) + 1):].columns
+
+    # Aggregate at the defined level and split the df
+    if aggregation_level is not None:
+        meta_variables = corpus_df.groupby([aggregation_level])[meta_columns].max()
+        texts = list(corpus_df.groupby([aggregation_level])["text"].apply(lambda x: " ".join(x)))
+        character_occurrences = corpus_df.groupby([aggregation_level])[character_columns].sum()
+    else:
+        meta_variables = corpus_df[meta_columns]
+        texts = list(corpus_df["text"])
+        character_occurrences = corpus_df[character_columns]
+
+    # Return the results
+    return meta_variables, texts, character_occurrences
 
 
 def build_interactions(character_occurrences_df, max_interaction_degree):

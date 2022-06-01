@@ -44,18 +44,7 @@ object_names.extend(object_names_tome)
 # Load the dataframe
 corpus_df = pd.read_csv(corpus_tsv_path, sep="\t", index_col=0)
 # Get the columns name for separation and words
-meta_columns = corpus_df.iloc[:, :(np.where(corpus_df.columns == "text")[0][0])].columns
-character_columns = corpus_df.iloc[:, ((np.where(corpus_df.columns == "text")[0][0]) + 1):].columns
-
-# Aggregate at the defined level and split the df
-if aggregation_level is not None:
-    meta_variables = corpus_df.groupby([aggregation_level])[meta_columns].max()
-    texts = list(corpus_df.groupby([aggregation_level])["text"].apply(lambda x: " ".join(x)))
-    character_occurrences = corpus_df.groupby([aggregation_level])[character_columns].sum()
-else:
-    meta_variables = corpus_df[meta_columns]
-    texts = list(corpus_df["text"])
-    character_occurrences = corpus_df[character_columns]
+meta_variables, texts, character_occurrences = aggregates_split_df(corpus_df, aggregation_level)
 
 # Get char list
 character_names = list(character_occurrences.columns)
