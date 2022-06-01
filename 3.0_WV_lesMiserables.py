@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import stopwords
 from local_functions import *
 from gensim.models import KeyedVectors
@@ -22,15 +22,11 @@ word_vectors_path = "/home/gguex/Documents/data/pretrained_word_vectors/fr_fastt
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
 
-# Choice of weighting ("count" or "tfidf")
-weighting_scheme = "count"
-
 # Minimum occurrences for words
 word_min_occurrences = 20
-word_min_tfidf = 0.05
 
 # The minimum occurrences for an object to be considered
-min_occurrences = 3
+min_occurrences = 1
 
 # Max interactions
 max_interaction_degree = 2
@@ -84,34 +80,16 @@ with open("aux_files/frenchST.txt") as stopwords_file:
     used_stop_words = stopwords_file.readlines()
 used_stop_words = [process_text(stop_word) for stop_word in used_stop_words]
 
-# Check which weighting scheme, count
-if weighting_scheme == "count":
-    # Build the document-term matrix
-    vectorizer = CountVectorizer(stop_words=used_stop_words)
-    dt_matrix = vectorizer.fit_transform(texts).toarray()
-    vocabulary = vectorizer.get_feature_names_out()
 
-    # Make a threshold for the minimum vocabulary
-    index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= word_min_occurrences)[0]
-    dt_matrix = dt_matrix[:, index_voc_ok]
-    vocabulary = vocabulary[index_voc_ok]
-# Or tfidf
-else:
-    # Build the document-term matrix
-    vectorizer = TfidfVectorizer(stop_words=used_stop_words)
-    dt_matrix = vectorizer.fit_transform(texts).toarray()
-    vocabulary = vectorizer.get_feature_names_out()
+# Build the document-term matrix
+vectorizer = CountVectorizer(stop_words=used_stop_words)
+dt_matrix = vectorizer.fit_transform(texts).toarray()
+vocabulary = vectorizer.get_feature_names_out()
 
-    # Make a threshold for the tfidf
-    dt_matrix[dt_matrix < word_min_tfidf] = 0
-    index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= 0)[0]
-    index_unit_ok = np.where(np.sum(dt_matrix, axis=1) >= 0)[0]
-    dt_matrix = dt_matrix[:, index_voc_ok]
-    dt_matrix = dt_matrix[index_unit_ok, :]
-    vocabulary = vocabulary[index_voc_ok]
-    meta_variables = meta_variables.iloc[index_unit_ok, :]
-    texts = list(np.array(texts)[index_unit_ok])
-    character_occurrences = character_occurrences.iloc[index_unit_ok, :]
+# Make a threshold for the minimum vocabulary
+index_voc_ok = np.where(np.sum(dt_matrix, axis=0) >= word_min_occurrences)[0]
+dt_matrix = dt_matrix[:, index_voc_ok]
+vocabulary = vocabulary[index_voc_ok]
 
 # Remove character names
 not_a_character = [i for i, word in enumerate(vocabulary)
