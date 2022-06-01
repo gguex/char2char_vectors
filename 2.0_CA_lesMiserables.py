@@ -14,7 +14,7 @@ corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
 aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 
 # Set aggregation level (None for each line)
-aggregation_level = "chapitre"
+aggregation_level = None
 
 # Minimum occurrences for words
 word_min_occurrences = 20
@@ -89,6 +89,12 @@ not_a_character = [i for i, word in enumerate(vocabulary)
                                    for character_name in character_names + list(aliases.keys())]]
 dt_matrix = dt_matrix[:, not_a_character]
 vocabulary = vocabulary[not_a_character]
+
+# Remove empty units
+remaining_unit_index = np.where(np.sum(dt_matrix, axis=1) > 0)[0]
+dt_matrix = dt_matrix[remaining_unit_index, :]
+meta_variables = meta_variables.iloc[remaining_unit_index, :]
+character_occurrences = character_occurrences.iloc[remaining_unit_index, :]
 
 # Build interactions
 interaction_occurrences = build_interactions(character_occurrences, max_interaction_degree)

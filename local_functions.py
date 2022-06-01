@@ -128,7 +128,7 @@ def sorted_eig(matrix, dim_max=None):
     if (dim_max is not None) and dim_max < matrix.shape[0] - 1:
         eigen_values, eigen_vectors = scipy.sparse.linalg.eigs(matrix, dim_max)
     else:
-        eigen_values, eigen_vectors = scipy.linalg.eigs(matrix)
+        eigen_values, eigen_vectors = scipy.linalg.eig(matrix)
 
     # Sort the values
     sorted_indices = eigen_values.argsort()[::-1]

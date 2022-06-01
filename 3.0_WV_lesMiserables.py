@@ -20,10 +20,10 @@ aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 word_vectors_path = "/home/gguex/Documents/data/pretrained_word_vectors/fr_fasttext.model"
 
 # Set aggregation level (None for each line)
-aggregation_level = "chapitre"
+aggregation_level = None
 
 # Minimum occurrences for words
-word_min_occurrences = 20
+word_min_occurrences = 5
 
 # The minimum occurrences for an object to be considered
 min_occurrences = 1
@@ -176,7 +176,7 @@ for i, word in enumerate(common_vocabulary):
 # Reduce dt matrix to the common voc
 dt_matrix = dt_matrix[:, existing_word_index]
 # Remove empty units
-remaining_unit_index = np.where(np.sum(dt_matrix, axis=1) >= 0)[0]
+remaining_unit_index = np.where(np.sum(dt_matrix, axis=1) > 0)[0]
 dt_matrix = dt_matrix[remaining_unit_index, :]
 
 # Compute the unit vectors
