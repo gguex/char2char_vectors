@@ -20,7 +20,7 @@ aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 word_vectors_path = "/home/gguex/Documents/data/pretrained_word_vectors/fr_fasttext.model"
 
 # Set aggregation level (None for each line)
-aggregation_level = None
+aggregation_level = "chapitre"
 
 # Minimum occurrences for words
 word_min_occurrences = 5

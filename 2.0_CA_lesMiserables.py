@@ -14,7 +14,7 @@ corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
 aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 
 # Set aggregation level (None for each line)
-aggregation_level = None
+aggregation_level = "chapitre"
 
 # Minimum occurrences for words
 word_min_occurrences = 20
@@ -155,9 +155,15 @@ dim_max, percentage_var, row_coord, col_coord, row_contrib, col_contrib, row_cos
     correspondence_analysis(dt_matrix.todense())
 
 # Explore the CA
-row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df = \
-    explore_correspondence_analysis(list(meta_variables[aggregation_level]), vocabulary, dim_max, row_coord, col_coord,
-                                    row_contrib, col_contrib, row_cos2, col_cos2)
+if aggregation_level is not None:
+    row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df = \
+        explore_correspondence_analysis(list(meta_variables[aggregation_level]), vocabulary, dim_max, row_coord,
+                                        col_coord, row_contrib, col_contrib, row_cos2, col_cos2)
+else:
+    row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df = \
+        explore_correspondence_analysis(list(meta_variables.index), vocabulary, dim_max, row_coord,
+                                        col_coord,
+                                        row_contrib, col_contrib, row_cos2, col_cos2)
 
 # ----------------------------------------
 # --- Occurrences vectors

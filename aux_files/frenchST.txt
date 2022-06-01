@@ -343,6 +343,7 @@ quelconque
 quelle
 quelles
 quelque
+quelqu
 quelques
 quelqu'un
 quels
