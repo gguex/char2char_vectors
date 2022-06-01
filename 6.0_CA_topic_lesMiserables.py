@@ -1,11 +1,7 @@
-import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn.decomposition import NMF, LatentDirichletAllocation
+from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import stopwords
 from local_functions import *
-import os
-from gensim.models import KeyedVectors
 
 # -------------------------------
 #  Parameters
@@ -141,15 +137,74 @@ if tome_sep:
 #  Analysis
 # -------------------------------
 
-# --- Make the NMF model
-n_groups = 50
+# ---- Make the CA
 
-nmf_model = NMF(n_components=n_groups)
-nmf_model.fit(dt_matrix)
+# Perform the CA
+dim_max, percentage_var, row_coord, col_coord, row_contrib, col_contrib, row_cos2, col_cos2 = \
+    correspondence_analysis(dt_matrix.todense())
 
-# Getting components for units and words
-unit_prob = nmf_model.transform(dt_matrix)
-word_prob = nmf_model.components_
+# Explore the CA
+if aggregation_level is not None:
+    row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df = \
+        explore_correspondence_analysis(list(meta_variables[aggregation_level]), vocabulary, dim_max, row_coord,
+                                        col_coord, row_contrib, col_contrib, row_cos2, col_cos2)
+else:
+    row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df = \
+        explore_correspondence_analysis(list(meta_variables.index), vocabulary, dim_max, row_coord,
+                                        col_coord,
+                                        row_contrib, col_contrib, row_cos2, col_cos2)
 
-comp_vs_word = pd.DataFrame(word_prob.T, index=vocabulary)
-comp_vs_unit = pd.DataFrame(unit_prob)
+# ----------------------------------------
+# --- Occurrences vectors
+# ----------------------------------------
+
+# --- Simple model of character + interactions
+
+# Compute their coordinates
+occurrence_coord = build_occurrences_vectors(occurrences, row_coord)
+# Compute the scalar product between occurrences_coord and word_coord
+words_vs_occurrences = pd.DataFrame(col_coord @ occurrence_coord.T, index=vocabulary, columns=occurrence_names)
+# Reorder by occurrences name
+words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.columns), axis=1)
+
+# ---- Make the regression
+
+# Get units weights
+f_row = np.array(dt_matrix.sum(axis=1)).reshape(-1)
+f_row = f_row / sum(f_row)
+# Build regression vectors
+regression_coord = build_regression_vectors(occurrences, row_coord, f_row, regularization_parameter=10)
+# Compute the scalar product between regression_coord and word_coord
+words_vs_regressions = pd.DataFrame(col_coord @ regression_coord.T, index=vocabulary,
+                                    columns=["intercept"] + occurrence_names)
+# Reorder by name
+words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.columns), axis=1)
+
+# ---- Explore the desired relationships
+
+# The subset of object
+present_object_names = []
+for obj in object_names:
+    if obj in words_vs_regressions.columns:
+        present_object_names.append(obj)
+
+A_occurrence = words_vs_occurrences[present_object_names]
+A_regression = words_vs_regressions[present_object_names]
+
+occurrences_vs_words = words_vs_occurrences.transpose()
+regression_vs_words = words_vs_regressions.transpose()
+
+# ----------------------------------------
+# --- Topic clustering
+# ----------------------------------------
+
+from sklearn.cluster import AgglomerativeClustering, SpectralClustering
+
+n_groups = 2
+
+clust = SpectralClustering(n_groups)
+clust_res = clust.fit(np.real(col_coord))
+
+res = pd.DataFrame()
+for i in range(n_groups):
+    res = pd.concat([res, pd.Series(np.array(vocabulary)[np.where(clust_res.labels_ == i)])], axis=1, ignore_index=True)

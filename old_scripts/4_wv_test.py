@@ -15,7 +15,7 @@ from local_functions import display_char_network
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/Romeo&Juliet/Romeo&Juliet.tsv"
+corpus_tsv_path = "../corpora/Romeo&Juliet/Romeo&Juliet.tsv"
 # File for node position
 corpus_node_pos = "corpora/Romeo&Juliet.pkl"
 # Global or per_act
