@@ -2,17 +2,19 @@ import string
 import re
 import numpy as np
 import pandas as pd
+import scipy
 import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
-from scipy.stats import rankdata
-import scipy
 from itertools import combinations
 from sklearn import linear_model
 from sklearn.feature_extraction.text import CountVectorizer
 
 
 class CharacterCorpus:
+    """
+    The CharacterCorpus class is a structure object containing a corpora with character occurrences
+    """
 
     def __init__(self):
         """
@@ -593,8 +595,8 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
         node_unscaled_width_list = node_weight_list
         edge_unscaled_width_list = np.array([graph[u][v]["weight"] for u, v in graph.edges()])
     if width_rank:
-        node_unscaled_width_list = rankdata(node_unscaled_width_list)
-        edge_unscaled_width_list = rankdata(edge_unscaled_width_list)
+        node_unscaled_width_list = scipy.stats.rankdata(node_unscaled_width_list)
+        edge_unscaled_width_list = scipy.stats.rankdata(edge_unscaled_width_list)
     node_lambda = (node_unscaled_width_list - min(node_unscaled_width_list)) / \
                   (max(node_unscaled_width_list) - min(node_unscaled_width_list))
     edge_lambda = (edge_unscaled_width_list - min(edge_unscaled_width_list)) / \

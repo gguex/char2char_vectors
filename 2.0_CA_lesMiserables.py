@@ -6,24 +6,20 @@ from local_functions import *
 
 # Corpus tsv path
 corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
-
 # Aliases file
 aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
-
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
-
 # Minimum occurrences for words
 min_word_frequency = 20
-
 # Max interactions
 max_interaction_degree = 2
-
 # The minimum occurrences for an object to be considered
 min_occurrences = 3
-
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = "tome"
+# Regularization parameter
+regularization_parameter = 1
 
 # -------------------------------
 #  Loading
@@ -99,7 +95,8 @@ words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.
 # Get units weights
 f_row = (corpus.units_words.sum(axis=1) / corpus.units_words.sum().sum()).to_numpy()
 # Build regression vectors
-regression_coord = build_regression_vectors(corpus.occurrences, row_coord, f_row, regularization_parameter=1)
+regression_coord = build_regression_vectors(corpus.occurrences, row_coord, f_row,
+                                            regularization_parameter=regularization_parameter)
 # Compute the scalar product between regression_coord and word_coord
 words_vs_regressions = pd.DataFrame(col_coord @ regression_coord.T, index=corpus.units_words.columns,
                                     columns=["intercept"] + list(corpus.occurrences.columns))
