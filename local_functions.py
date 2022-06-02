@@ -9,16 +9,194 @@ from scipy.stats import rankdata
 import scipy
 from itertools import combinations
 from sklearn import linear_model
+from sklearn.feature_extraction.text import CountVectorizer
 
 
-# class CharacterCorpus:
-#
-#     def __init__(self):
-#         self.n_unit = 0
-#         self.text = []
-#         self.meta_variables = pd.DataFrame()
-#         self.texts = pd.DataFrame()
-#         self.occurrences = pd.DataFrame()
+class CharacterCorpus:
+
+    def __init__(self):
+        """
+        Empty constructor
+        """
+        self.meta_variables = pd.DataFrame()
+        self.texts = pd.DataFrame
+        self.occurrences = pd.DataFrame()
+        self.units_words = pd.DataFrame()
+
+    def load_corpus(self, corpus_path, sep="\t"):
+        """
+        Fill the object from an external file
+        :param corpus_path: the path of the external file
+        :param sep: the used separator in the external file
+        """
+        # Load the dataframe
+        corpus_df = pd.read_csv(corpus_path, sep=sep, index_col=0)
+
+        # Get the columns name for separation and words
+        meta_columns = corpus_df.iloc[:, :(np.where(corpus_df.columns == "text")[0][0])].columns
+        occurrences_columns = corpus_df.iloc[:, ((np.where(corpus_df.columns == "text")[0][0]) + 1):].columns
+
+        # Save data
+        self.meta_variables = corpus_df[meta_columns]
+        self.texts = corpus_df["text"]
+        self.occurrences = corpus_df[occurrences_columns]
+
+    def aggregate_on(self, aggregation_column_name):
+        """
+        Aggregate the rows on a meta variable
+        :param aggregation_column_name: The name of the column, which must be in meta variables
+        """
+        # Get the name of meta columns
+        meta_columns = self.meta_variables.columns
+        if aggregation_column_name in meta_columns:
+            # Get the name of occurrences
+            occurrences_columns = self.occurrences.columns
+
+            # Make the complete dataframe
+            corpus_df = pd.concat([self.meta_variables, self.texts, self.occurrences], axis=1)
+
+            # Make the aggregation
+            self.meta_variables = corpus_df.groupby([aggregation_column_name])[meta_columns].max()
+            self.texts = corpus_df.groupby([aggregation_column_name])["text"].apply(lambda x: " ".join(x))
+            self.occurrences = corpus_df.groupby([aggregation_column_name])[occurrences_columns].sum()
+
+    def build_units_words(self, vectorizer=None):
+        """
+        Build the units-words dataframe from textual ressources
+        :param vectorizer: an optional sklearn vectorizer. If None, it uses the CountVectorizer()
+        """
+        # Choice of vectorizer
+        if vectorizer is None:
+            vectorizer = CountVectorizer()
+
+        # Build the ut matrix
+        uw_matrix = vectorizer.fit_transform(list(self.texts))
+        vocabulary = vectorizer.get_feature_names_out()
+
+        # Store in the units_terms df
+        self.units_words = pd.DataFrame(uw_matrix.todense(), index=self.meta_variables.index, columns=vocabulary)
+
+    def remove_words(self, word_names):
+        """
+        Remove words given by the list
+        :param word_names: the list of words to remove
+        """
+        # Get the units-word matrix and vocabulary
+        uw_matrix = self.units_words.to_numpy()
+        vocabulary = self.units_words.columns
+
+        # Get the remaining index
+        remaining_indices = [i for i, word in enumerate(vocabulary) if word not in word_names]
+
+        # Remove columns and vocabulary
+        uw_matrix = uw_matrix[:, remaining_indices]
+        vocabulary = vocabulary[remaining_indices]
+
+        # Store the new units_words
+        self.units_words = pd.DataFrame(uw_matrix, index=self.meta_variables.index, columns=vocabulary)
+
+    def remove_words_with_frequency(self, min_frequency=0, max_frequency=np.Inf):
+        """
+        Remove words with frequencies outside range
+        :param min_frequency: The minimum frequency of words
+        :param max_frequency: The maximum frequency of words
+        """
+        # Get words outside the frequency range
+        words_to_remove = list(self.units_words.columns[(self.units_words.sum(axis=0) < min_frequency) +
+                                                        (self.units_words.sum(axis=0) > max_frequency)])
+
+        # Remove them
+        self.remove_words(words_to_remove)
+
+    def remove_occurrences(self, occurrences_names):
+        """
+        Remove occurrences given by the list
+        :param occurrences_names: the list of occurrences to remove
+        """
+        # Get the units-word matrix and vocabulary
+        occurrences_matrix = self.occurrences.to_numpy()
+        current_occurrences_names = self.occurrences.columns
+
+        # Get the remaining index
+        remaining_indices = [i for i, word in enumerate(current_occurrences_names) if word not in occurrences_names]
+
+        # Remove columns and current occurrences names
+        occurrences_matrix = occurrences_matrix[:, remaining_indices]
+        current_occurrences_names = current_occurrences_names[remaining_indices]
+
+        # Store the new units_words
+        self.occurrences = pd.DataFrame(occurrences_matrix, index=self.meta_variables.index,
+                                        columns=current_occurrences_names)
+
+    def remove_occurrences_with_frequency(self, min_frequency=0, max_frequency=np.Inf):
+        """
+        Remove occurrences with frequencies outside range
+        :param min_frequency: The minimum frequency of words
+        :param max_frequency: The maximum frequency of words
+        """
+        # Get words outside the frequency range
+        occurrences_to_remove = list(self.occurrences.columns[(self.occurrences.sum(axis=0) < min_frequency) +
+                                                              (self.occurrences.sum(axis=0) > max_frequency)])
+
+        # Remove them
+        self.remove_occurrences(occurrences_to_remove)
+
+    def remove_units_without_words(self):
+        """
+        Remove units which do not contain any words
+        """
+        # Compute the index
+        remaining_unit_index = np.where(np.sum(self.units_words.to_numpy(), axis=1) > 0)[0]
+
+        # Update tables
+        self.meta_variables = self.meta_variables.iloc[remaining_unit_index, :]
+        self.texts = self.texts.iloc[remaining_unit_index]
+        self.occurrences = self.occurrences.iloc[remaining_unit_index, :]
+        self.units_words = self.units_words.iloc[remaining_unit_index, :]
+
+    def remove_units_without_occurrences(self):
+        """
+        Remove units which do not contain any words
+        """
+        # Compute the index
+        remaining_unit_index = np.where(np.sum(self.occurrences.to_numpy(), axis=1) > 0)[0]
+
+        # Update tables
+        self.meta_variables = self.meta_variables.iloc[remaining_unit_index, :]
+        self.texts = self.texts.iloc[remaining_unit_index]
+        self.occurrences = self.occurrences.iloc[remaining_unit_index, :]
+        self.units_words = self.units_words.iloc[remaining_unit_index, :]
+
+    def update_occurrences_across_meta(self, meta_name):
+        """
+        Update the occurrences depending on a meta variable
+        :param meta_name: the name of the columns containing the desirable variable
+        """
+        # Get the name of meta columns
+        meta_columns = self.meta_variables.columns
+        # If the name is in the columns, do the update
+        if meta_name in meta_columns:
+            # Get dummies for tomes
+            dummies = pd.get_dummies(self.meta_variables[meta_name], columns=[meta_name])
+
+            # Build new occurrences
+            new_occurrences = pd.DataFrame(index=self.occurrences.index)
+            for dummy in dummies.columns:
+                # Get the presence of occurrences relative to dummy, transform them, rename them
+                dummy_occurrences = self.occurrences * np.outer(dummies[dummy].to_numpy(),
+                                                                  np.ones(self.occurrences.shape[1]))
+                dummy_occurrences = dummy_occurrences.astype(int)
+                dummy_occurrences.columns = [f"{occurrence_name}_{dummy}" for occurrence_name in
+                                             self.occurrences.columns]
+                # Keep non-empty columns
+                non_zero_col = np.where(np.sum(dummy_occurrences, axis=0) > 0)[0]
+                dummy_occurrences = dummy_occurrences.iloc[:, non_zero_col]
+                # Add them to new_occurrences
+                new_occurrences = pd.concat([new_occurrences, dummy_occurrences], axis=1)
+
+            # Update occurrences
+            self.occurrences = new_occurrences
+
 
 def process_text(text):
     """
@@ -45,7 +223,7 @@ def process_text(text):
     return processed_text
 
 
-def aggregates_split_df(corpus_df, aggregation_level=None):
+def aggregate_split_df(corpus_df, aggregation_level=None):
     """
     Aggregate and split the corpus dataframe in the standard format, along on meta-variable (if given)
 
@@ -109,7 +287,7 @@ def build_interactions(character_occurrences_df, max_interaction_degree):
     # Build the dataframe of interaction and return it
     interactions_name = ["-".join(interaction) for interaction in interactions]
 
-    return pd.DataFrame(interaction_presences, columns=interactions_name)
+    return pd.DataFrame(interaction_presences, index=character_occurrences_df.index, columns=interactions_name)
 
 
 def build_directed_interactions(speaking_characters, character_presences_df, max_interaction_degree):
@@ -151,7 +329,7 @@ def build_directed_interactions(speaking_characters, character_presences_df, max
     # Build the dataframe of interaction and return it
     interactions_name = ["-".join(interaction) for interaction in interactions]
 
-    return pd.DataFrame(interaction_presences, columns=interactions_name)
+    return pd.DataFrame(interaction_presences, index=character_occurrences_df.index, columns=interactions_name)
 
 
 def sorted_eig(matrix, dim_max=None):
@@ -171,11 +349,10 @@ def sorted_eig(matrix, dim_max=None):
     # Sort the values
     sorted_indices = eigen_values.argsort()[::-1]
     eigen_values = eigen_values[sorted_indices]
-    eigen_vectors = np.real(eigen_vectors[:, sorted_indices])
+    eigen_vectors = eigen_vectors[:, sorted_indices]
 
-    # Return
-    return eigen_values, eigen_vectors
-
+    # Return real part
+    return np.real(eigen_values), np.real(eigen_vectors)
 
 def correspondence_analysis(contingency):
     """
