@@ -331,7 +331,7 @@ def build_directed_interactions(speaking_characters, character_presences_df, max
     # Build the dataframe of interaction and return it
     interactions_name = ["-".join(interaction) for interaction in interactions]
 
-    return pd.DataFrame(interaction_presences, index=character_occurrences_df.index, columns=interactions_name)
+    return pd.DataFrame(interaction_presences, index=character_presences_df.index, columns=interactions_name)
 
 
 def sorted_eig(matrix, dim_max=None):
