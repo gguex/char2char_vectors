@@ -1,3 +1,5 @@
+import pandas as pd
+
 from local_functions import *
 
 # -------------------------------
@@ -39,6 +41,10 @@ aliases = {alias.split(",")[0].strip(): alias.split(",")[1].strip() for alias in
 corpus = CharacterCorpus()
 corpus.load_corpus(corpus_tsv_path)
 
+# Get character names
+character_names = [process_text(character_name)
+                   for character_name in list(corpus.occurrences.columns) + list(aliases.keys())]
+
 # -------------------------------
 #  Processing
 # -------------------------------
@@ -52,9 +58,13 @@ corpus.build_units_words(CountVectorizer(stop_words=used_stop_words))
 # Make a threshold for the minimum vocabulary and remove units without words
 corpus.remove_words_with_frequency(min_word_frequency)
 
+# Remove characters from words
+corpus.remove_words(character_names)
+
 # Build interactions and add them to data
 interaction_occurrences = build_interactions(corpus.occurrences, max_interaction_degree)
-corpus.occurrences = pd.concat([corpus.occurrences, interaction_occurrences], axis=1)
+#corpus.occurrences = pd.concat([corpus.occurrences, interaction_occurrences], axis=1)
+corpus.occurrences = interaction_occurrences
 
 # Make occurrences binary
 corpus.occurrences = 1*(corpus.occurrences >= min_occurrences)
@@ -64,6 +74,8 @@ corpus.update_occurrences_across_meta(meta_for_occurrences)
 
 # Make sure no units are empty
 corpus.remove_units_without_words()
+corpus.remove_units_without_occurrences()
+corpus.remove_words_with_frequency(1e-10)
 
 # -------------------------------
 #  Analyses
@@ -102,6 +114,15 @@ words_vs_regressions = pd.DataFrame(col_coord @ regression_coord.T, index=corpus
                                     columns=["intercept"] + list(corpus.occurrences.columns))
 # Reorder by name
 words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.columns), axis=1)
+
+# ---- Examine relations with axes
+
+regressions_vs_axes = pd.DataFrame(regression_coord, index=["intercept"] + list(corpus.occurrences.columns))
+occurrences_vs_axes = pd.DataFrame(occurrence_coord, index=list(corpus.occurrences.columns))
+axes_vs_regressions = regressions_vs_axes.transpose()
+axes_vs_regressions = axes_vs_regressions.reindex(sorted(axes_vs_regressions.columns), axis=1)
+axes_vs_occurrences = occurrences_vs_axes.transpose()
+axes_vs_occurrences = axes_vs_occurrences.reindex(sorted(axes_vs_occurrences.columns), axis=1)
 
 # ---- Explore the desired relationships
 
