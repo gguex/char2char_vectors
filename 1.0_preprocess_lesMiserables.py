@@ -4,6 +4,7 @@ import numpy as np
 from flair.models import SequenceTagger
 from flair.data import Sentence
 from tqdm import tqdm
+import re
 
 # -------------------------------
 #  Parameters
@@ -95,10 +96,10 @@ for tome_id, tome in enumerate(tomes):
             # Else store the paragraph
             else:
                 # Get characters with flair and references
-                flair_sentence = Sentence(paragraph, use_tokenizer=True)
+                paragraph_treated = re.sub("['_]", " ", paragraph)
+                flair_sentence = Sentence(paragraph_treated, use_tokenizer=True)
                 flair_tagger.predict(flair_sentence)
-                potential_characters = [entity.text for entity in flair_sentence.get_spans("ner") if
-                                        entity.tag == "PER"]
+                potential_characters = [entity.text for entity in flair_sentence.get_spans("ner")]
                 recognised_characters = recognise_character(potential_characters, target_characters, aliases)
                 character_counter = [recognised_characters.count(target_character)
                                      for target_character in target_characters]
