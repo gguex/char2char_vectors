@@ -1,5 +1,3 @@
-import pandas as pd
-
 from local_functions import *
 
 # -------------------------------
@@ -63,8 +61,7 @@ corpus.remove_words(character_names)
 
 # Build interactions and add them to data
 interaction_occurrences = build_interactions(corpus.occurrences, max_interaction_degree)
-#corpus.occurrences = pd.concat([corpus.occurrences, interaction_occurrences], axis=1)
-corpus.occurrences = interaction_occurrences
+corpus.occurrences = pd.concat([corpus.occurrences, interaction_occurrences], axis=1)
 
 # Make occurrences binary
 corpus.occurrences = 1*(corpus.occurrences >= min_occurrences)

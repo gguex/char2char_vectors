@@ -518,6 +518,23 @@ def build_regression_vectors(occurrences, vectors, weights, reg_type="Ridge", re
     return np.array(regression_vectors).T
 
 
+def compute_cosine(vectors_1, vectors_2):
+    """
+    Compute cosine similarities between two matrices (nxp) and (mxp), containing vectors on rows
+    :param vectors_1: the (nxp) matrix containing vectors
+    :param vectors_2: the (mxp) matrix containing vectors
+    :return: the (nxm) matrix containing cosine similarities
+    """
+    # Make sure matrix are arrays
+    vectors_1 = np.array(vectors_1)
+    vectors_2 = np.array(vectors_2)
+    # Normalize them
+    norm_vectors_1 = (vectors_1.T / np.sqrt(np.sum(vectors_1 ** 2, axis=1))).T
+    norm_vectors_2 = (vectors_2.T / np.sqrt(np.sum(vectors_2 ** 2, axis=1))).T
+    # Return the matrix of cosine
+    return norm_vectors_1 @ norm_vectors_2.T
+
+
 def display_char_network(interact_list, edge_polarity_list, edge_weight_list, color="polarity", width="weight",
                          width_rank=False, node_min_width=50, node_max_width=1000, edge_min_width=0.2, edge_max_width=5,
                          string_strength="weight", min_alpha=0.5, max_alpha=1, cmap=plt.cm.coolwarm,
