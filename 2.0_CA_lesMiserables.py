@@ -81,7 +81,7 @@ corpus.remove_words_with_frequency(1e-10)
 # --- CA
 
 # Perform the CA
-dim_max, percentage_var, row_coord, col_coord, row_contrib, col_contrib, row_cos2, col_cos2 = \
+dim_max, eig_val, row_coord, col_coord, row_contrib, col_contrib, row_cos2, col_cos2 = \
     correspondence_analysis(corpus.units_words.to_numpy())
 
 # Explore the CA

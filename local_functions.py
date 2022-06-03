@@ -356,6 +356,7 @@ def sorted_eig(matrix, dim_max=None):
     # Return real part
     return np.real(eigen_values), np.real(eigen_vectors)
 
+
 def correspondence_analysis(contingency):
     """
     A function to perform a correspondence analysis from a contingency table
@@ -394,8 +395,6 @@ def correspondence_analysis(contingency):
     eig_val = eig_val[:dim_max]
     eig_vec = eig_vec[:, :dim_max]
 
-    # Compute the percentage of variance
-    percentage_var = eig_val / sum(eig_val)
     # Compute row and col coordinates
     row_coord = np.real(np.outer(1 / np.sqrt(f_row), np.sqrt(eig_val)) * eig_vec)
     col_coord = (normalized_quotient.T * f_row) @ row_coord / np.sqrt(eig_val)
@@ -408,7 +407,7 @@ def correspondence_analysis(contingency):
     col_cos2 = col_coord ** 2
     col_cos2 = (col_cos2.T / col_cos2.sum(axis=1)).T
 
-    return dim_max, percentage_var, row_coord, col_coord, row_contrib, col_contrib, row_cos2, col_cos2
+    return dim_max, eig_val, row_coord, col_coord, row_contrib, col_contrib, row_cos2, col_cos2
 
 
 def explore_correspondence_analysis(row_names, col_names, dim_max, row_coord, col_coord,
