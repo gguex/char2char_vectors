@@ -8,11 +8,11 @@ from tqdm import tqdm
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/NotreDame_fr/NotreDame.tsv"
+corpus_tsv_path = "corpora/Romeo&Juliet/Romeo&Juliet.tsv"
 # Outfile
-output_tsv_path = "corpora/NotreDame_fr/NotreDame_tokens.tsv"
+output_tsv_path = "corpora/Romeo&Juliet/Romeo&Juliet_tokens.tsv"
 # Language ("fr" or "en")
-language = "fr"
+language = "en"
 
 # -------------------------------
 #  Code

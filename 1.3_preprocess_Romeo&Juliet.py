@@ -28,6 +28,8 @@ entrances = []
 actions = []
 for id_line, line in enumerate(corpus_lines):
 
+    # Strip line
+    line = line.strip()
     # Detect act or scene
     act_bool = ("ACT" in line)
     scene_bool = ("SCENE" in line)
@@ -68,11 +70,6 @@ for id_line, line in enumerate(corpus_lines):
 # Get the characters
 unique_character = [char.lower().strip() for char in set(speaking_characters) if char != ""]
 unique_character = list(set(unique_character))
-unique_character.remove("all")
-unique_character.remove("first player")
-unique_character.append("player")
-unique_character.remove("both")
-unique_character.remove("lords")
 
 # Treat entrances
 list_of_entrances = []
@@ -104,6 +101,8 @@ def add_line():
         scenes.append(scene)
         speaking_chars.append(speaking_char)
         sentences.append(sentence)
+        if speaking_char not in char_presence:
+            char_presence.append(speaking_char)
         char_presences.append(char_presence)
         char_presence_line = np.zeros(len(unique_character))
         char_presence_line[np.where([char in char_presence for char in unique_character])[0]] = 1
@@ -127,6 +126,8 @@ for i, line in enumerate(speaking_lines):
         add_line()
         sentence = ""
         speaking_char = speaking_characters[i].lower().strip()
+        if speaking_char not in char_presence:
+            char_presence.append(speaking_char)
 
     # Update sentence
     sentence += speaking_lines[i]
@@ -139,12 +140,13 @@ for i, line in enumerate(speaking_lines):
 
     # Outgoing char
     if actions[i] != "":
-        if actions[i] == "Exit." or actions[i] == "Dies.":
+        if actions[i] in ["Exit", "Dies", "Going", "Retiring slowly", "Retires", "Retire"]:
             add_line()
-            char_presence.remove(speaking_char)
+            if speaking_char in char_presence:
+                char_presence.remove(speaking_char)
             sentence = ""
             speaking_char = ""
-        elif actions[i] == "Exeunt.":
+        elif actions[i] == "Exeunt":
             add_line()
             sentence = ""
             speaking_char = ""
