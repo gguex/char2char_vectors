@@ -392,7 +392,7 @@ def correspondence_analysis(contingency):
     # Perform the eigen-decomposition
     eig_val, eig_vec = sorted_eig(k_mat)
     # Cut to the maximum of dimensions
-    eig_val = eig_val[:dim_max]
+    eig_val = np.abs(eig_val[:dim_max])
     eig_vec = eig_vec[:, :dim_max]
 
     # Compute row and col coordinates

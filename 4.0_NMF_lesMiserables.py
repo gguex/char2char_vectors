@@ -1,4 +1,5 @@
 from sklearn.decomposition import NMF
+from sklearn.feature_extraction.text import TfidfVectorizer
 from local_functions import *
 
 # -------------------------------
@@ -52,10 +53,11 @@ character_names = [process_text(character_name)
 corpus.aggregate_on(aggregation_level)
 
 # Construct the unit-term matrix and remove rare words
-corpus.build_units_words(CountVectorizer(stop_words=used_stop_words))
+#corpus.build_units_words(CountVectorizer(stop_words=used_stop_words))
+corpus.build_units_words(TfidfVectorizer(max_df=0.95, min_df=2, max_features=1000, stop_words=used_stop_words))
 
 # Make a threshold for the minimum vocabulary and remove units without words
-corpus.remove_words_with_frequency(min_word_frequency)
+#corpus.remove_words_with_frequency(min_word_frequency)
 
 # Remove characters from words
 corpus.remove_words(character_names)
@@ -82,7 +84,7 @@ corpus.remove_words_with_frequency(1e-10)
 # --- Make the NMF model
 n_groups = 10
 
-nmf_model = NMF(n_components=n_groups)
+nmf_model = NMF(n_components=n_groups, init="nndsvd")
 nmf_model.fit(corpus.units_words.to_numpy())
 
 # Getting components for units and words
