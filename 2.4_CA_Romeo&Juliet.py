@@ -1,3 +1,4 @@
+from nltk.corpus import stopwords
 from local_functions import *
 
 # -------------------------------
@@ -5,50 +6,41 @@ from local_functions import *
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/NotreDame_fr/NotreDame_tokens.tsv"
-# Aliases file
-aliases_path = "corpora/NotreDame_fr/NotreDame_aliases.txt"
-# Set aggregation level (None for each line)
-aggregation_level = "chapitre"
+corpus_tsv_path = "corpora/Romeo&Juliet/Romeo&Juliet_tokens.tsv"
+# Word vectors to use
+word_vectors_path = "/home/gguex/Documents/data/pretrained_word_vectors/en_fasttext.model"
 # Minimum occurrences for words
-min_word_frequency = 20
+min_word_frequency = 5
 # Max interactions
 max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
-min_occurrences = 1
+min_occurrences = 1e-10
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
 # Regularization parameter
 regularization_parameter = 1
 
 # -------------------------------
+#  Code
+# -------------------------------
+
+
+# -------------------------------
 #  Loading
 # -------------------------------
 
 # Load stopwords
-with open("aux_files/frenchST.txt") as stopwords_file:
-    used_stop_words = stopwords_file.readlines()
-used_stop_words = [process_text(stop_word) for stop_word in used_stop_words]
-
-# Read aliases
-with open(aliases_path) as aliases_file:
-    aliases = aliases_file.readlines()
-aliases = {alias.split(",")[0].strip(): alias.split(",")[1].strip() for alias in aliases}
-
+used_stop_words = stopwords.words('english')
 # Load dataframe
 corpus = CharacterCorpus()
 corpus.load_corpus(corpus_tsv_path)
 
 # Get character names
 character_names = [process_text(character_name)
-                   for character_name in list(corpus.occurrences.columns) + list(aliases.keys())]
-
+                   for character_name in list(corpus.occurrences.columns)]
 # -------------------------------
 #  Processing
 # -------------------------------
-
-# Aggregate on the level
-corpus.aggregate_on(aggregation_level)
 
 # Construct the unit-term matrix and remove rare words
 corpus.build_units_words(CountVectorizer(stop_words=used_stop_words))
@@ -56,12 +48,10 @@ corpus.build_units_words(CountVectorizer(stop_words=used_stop_words))
 # Make a threshold for the minimum vocabulary and remove units without words
 corpus.remove_words_with_frequency(min_word_frequency)
 
-# Remove characters from words
-corpus.remove_words(character_names)
-
 # Build interactions and add them to data
-interaction_occurrences = build_interactions(corpus.occurrences, max_interaction_degree)
-corpus.occurrences = pd.concat([corpus.occurrences, interaction_occurrences], axis=1)
+interaction_occurrences = build_directed_interactions(list(corpus.meta_variables.speaking), corpus.occurrences,
+                                                      max_interaction_degree)
+corpus.occurrences = interaction_occurrences
 
 # Make occurrences binary
 corpus.occurrences = 1*(corpus.occurrences >= min_occurrences)
