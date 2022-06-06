@@ -485,7 +485,7 @@ def build_occurrences_vectors(occurrences, vectors, vector_weights=None):
     return coord_object
 
 
-def build_regression_vectors(occurrences, vectors, weights, reg_type="Ridge", regularization_parameter=1):
+def build_regression_vectors(occurrences, vectors, weights=None, reg_type="Ridge", regularization_parameter=1):
     """
     Build the vectors of objects regarding their regression coefficient with respect to the vectors.
     :param occurrences: the (units x objects) matrix containing occurrences of objects in units.
@@ -495,6 +495,10 @@ def build_regression_vectors(occurrences, vectors, weights, reg_type="Ridge", re
     :param regularization_parameter: the regularization parameter for the regression (default = 1)
     :return: regression_vectors: a (objects x dim) dataframe containing regression vectors of objects.
     """
+    # If weight are None, give uniform weights
+    if weights is None:
+        weights = np.ones(vectors.shape[0])
+        weights = weights / np.sum(weights)
 
     # Get the maximum of dimension
     dim_max = vectors.shape[1]
@@ -522,6 +526,55 @@ def build_regression_vectors(occurrences, vectors, weights, reg_type="Ridge", re
     # Return the resulting vectors
     return np.array(regression_vectors).T
 
+
+
+def build_logistic_regression_vectors(occurrences, probabilities, weights=None,
+                                      reg_type="multinomial", regularization_parameter=1):
+    """
+    Build the vectors of objects regarding their regression coefficient with respect to the vectors.
+    :param occurrences: the (units x objects) matrix containing occurrences of objects in units.
+    :param probabilities: the (units x dim) matrix containing probabilities vectors with dim dimensions.
+    :param weights: the (units) vector containing unit weights.
+    :param reg_type: the type of regression, between "multinomial", "auto", or "ovr" (default = "multinomial")
+    :param regularization_parameter: the regularization parameter for the regression (default = 1)
+    :return: regression_vectors: a (objects x dim) dataframe containing regression vectors of objects.
+    """
+    # If weight are None, give uniform weights
+    if weights is None:
+        weights = np.ones(probabilities.shape[0])
+        weights = weights / np.sum(weights)
+
+    # Get the maximum of dimension
+    dim_max = probabilities.shape[1]
+
+    # An empty array for results
+    regression_vectors = []
+
+    # Make the regressor
+    reg = linear_model.LogisticRegression(multi_class="multinomial")
+
+
+
+    # Loop on dimensions
+    for i in range(dim_max):
+        # Get coordinates for the dimension
+        coordinates = vectors[:, i]
+        # Chose the regression
+        if reg_type == "Ridge":
+            reg = linear_model.Ridge(regularization_parameter)
+        elif reg_type == "Lasso":
+            reg = linear_model.Lasso(regularization_parameter)
+        else:
+            reg = linear_model.LinearRegression()
+        # Fit the regression
+        reg.fit(occurrences, coordinates, sample_weight=weights)
+        # Store the intercept and the coefficients
+        regression_vector = np.concatenate([[reg.intercept_], reg.coef_])
+        # Append the results to the result array
+        regression_vectors.append(regression_vector)
+
+    # Return the resulting vectors
+    return np.array(regression_vectors).T
 
 def compute_cosine(vectors_1, vectors_2):
     """

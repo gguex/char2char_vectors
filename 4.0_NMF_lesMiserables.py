@@ -1,3 +1,4 @@
+import sklearn.linear_model
 from sklearn.decomposition import NMF
 from sklearn.feature_extraction.text import TfidfVectorizer
 from local_functions import *
@@ -19,7 +20,7 @@ max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
 min_occurrences = 3
 # Use a meta variable to build occurrences (None for original)
-meta_for_occurrences = "tome"
+meta_for_occurrences = None
 # Regularization parameter
 regularization_parameter = 1
 
@@ -95,5 +96,15 @@ nmf_model.fit(corpus.units_words.to_numpy())
 unit_prob = nmf_model.transform(corpus.units_words.to_numpy())
 word_prob = nmf_model.components_
 
-comp_vs_word = pd.DataFrame(word_prob.T, index=corpus.units_words.columns)
-comp_vs_unit = pd.DataFrame(unit_prob)
+theme_vs_word = pd.DataFrame(word_prob.T, index=corpus.units_words.columns)
+theme_vs_unit = pd.DataFrame(unit_prob)
+
+# Computing the character theme
+char_vs_theme = build_occurrences_vectors(corpus.occurrences, unit_prob)
+reg_vs_theme = build_regression_vectors(corpus.occurrences, unit_prob, f_row)
+reg_vs_theme = pd.DataFrame(reg_vs_theme, index=["intercept"] + list(corpus.occurrences.columns))
+
+norm_unit_prob = unit_prob / unit_prob.sum(axis=1).reshape(-1, 1)
+reg = sklearn.linear_model.LogisticRegression(multi_class="multinomial")
+unit_prob_i = unit_prob[:, 0]
+reg.fit(corpus.occurrences, unit_prob_i)
