@@ -71,7 +71,7 @@ corpus.update_occurrences_across_meta(meta_for_occurrences)
 
 # Make sure no units are empty
 corpus.remove_units_without_words()
-#corpus.remove_units_without_occurrences()
+corpus.remove_units_without_occurrences()
 corpus.remove_occurrences_with_frequency(1e-10)
 corpus.remove_words_with_frequency(1e-10)
 

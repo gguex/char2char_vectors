@@ -78,6 +78,9 @@ corpus.remove_units_without_occurrences()
 corpus.remove_occurrences_with_frequency(1e-10)
 corpus.remove_words_with_frequency(1e-10)
 
+# Get units weights
+f_row = (corpus.units_words.sum(axis=1) / corpus.units_words.sum().sum()).to_numpy()
+
 # -------------------------------
 #  Analysis
 # -------------------------------
@@ -148,8 +151,6 @@ words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.
 
 # ---- Make the regression
 
-# Get units weights
-f_row = (corpus.units_words.sum(axis=1) / corpus.units_words.sum().sum()).to_numpy()
 # Build regression vectors
 regression_coord = build_regression_vectors(corpus.occurrences, unit_coord, f_row,
                                             regularization_parameter=regularization_parameter)
