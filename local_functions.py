@@ -461,16 +461,22 @@ def explore_correspondence_analysis(row_names, col_names, dim_max, row_coord, co
     return row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df
 
 
-def build_occurrences_vectors(occurrences, vectors):
+def build_occurrences_vectors(occurrences, vectors, vector_weights=None):
     """
     Build the vectors of objects regarding their occurrences in the text.
     :param occurrences: the (units x objects) matrix containing occurrences of objects in units.
     :param vectors: the (units x dim) matrix containing units vectors with dim dimensions.
+    :param vector_weights: the (units-length) vector containing units weights.
     :return: object_vectors: a (objects x dim) dataframe containing vectors of objects.
     """
 
+    # If vector weights is None put uniform weights
+    if vector_weights is None:
+        vector_weights = np.ones([vectors.shape[0]])
+
     # Build weighted occurrences
-    weighted_occurrences = occurrences / occurrences.sum(axis=0)
+    weighted_occurrences = occurrences * vector_weights.reshape(-1, 1)
+    weighted_occurrences = weighted_occurrences / weighted_occurrences.sum(axis=0)
 
     # Compute coordinates
     coord_object = weighted_occurrences.T @ vectors

@@ -17,7 +17,7 @@ max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
 min_occurrences = 3
 # Use a meta variable to build occurrences (None for original)
-meta_for_occurrences = "tome"
+meta_for_occurrences = None
 # Regularization parameter
 regularization_parameter = 1
 
@@ -71,8 +71,12 @@ corpus.update_occurrences_across_meta(meta_for_occurrences)
 
 # Make sure no units are empty
 corpus.remove_units_without_words()
-corpus.remove_units_without_occurrences()
+#corpus.remove_units_without_occurrences()
+corpus.remove_occurrences_with_frequency(1e-10)
 corpus.remove_words_with_frequency(1e-10)
+
+# Get units weights
+f_row = (corpus.units_words.sum(axis=1) / corpus.units_words.sum().sum()).to_numpy()
 
 # -------------------------------
 #  Analyses
@@ -92,17 +96,15 @@ row_explore_df, row_cos2_explore_df, col_explore_df, col_cos2_explore_df = \
 # --- Make the occurrences frequency vectors
 
 # Compute occurrence_coord
-occurrence_coord = build_occurrences_vectors(corpus.occurrences, row_coord)
+occurrence_coord = build_occurrences_vectors(corpus.occurrences, row_coord, f_row)
 # Compute the scalar product between occurrences_coord and word_coord
-words_vs_occurrences = pd.DataFrame(col_coord @ occurrence_coord.T, index=corpus.units_words.columns,
-                                    columns=corpus.occurrences.columns)
+words_vs_occurrences = pd.DataFrame(col_coord @ occurrence_coord.T, columns=list(corpus.occurrences.columns))
+words_vs_occurrences.index = corpus.units_words.columns
 # Reorder by occurrences name
 words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.columns), axis=1)
 
 # ---- Make the regression
 
-# Get units weights
-f_row = (corpus.units_words.sum(axis=1) / corpus.units_words.sum().sum()).to_numpy()
 # Build regression vectors
 regression_coord = build_regression_vectors(corpus.occurrences, row_coord, f_row,
                                             regularization_parameter=regularization_parameter)
@@ -126,10 +128,11 @@ axes_vs_occurrences = axes_vs_occurrences.reindex(sorted(axes_vs_occurrences.col
 # Objects to explore
 object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
                 "Javert-Valjean", "Myriel", "Myriel-Valjean"]
-object_names_tome = ["1", "2", "3", "4", "5"]
-for i in range(5):
-    object_names_tome.extend([f"{obj}_{i+1}" for obj in object_names])
-object_names.extend(object_names_tome)
+if meta_for_occurrences is not None:
+    separation_name = list(set(corpus.meta_variables[meta_for_occurrences]))
+    for i in range(len(separation_name)):
+        separation_name.extend([f"{obj}_{i+1}" for obj in object_names])
+    object_names.extend(separation_name)
 
 # The subset of object
 present_object_names = []
