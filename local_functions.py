@@ -9,6 +9,7 @@ from matplotlib.collections import PatchCollection
 from itertools import combinations
 from sklearn import linear_model
 from sklearn.feature_extraction.text import CountVectorizer
+from itertools import chain
 
 
 class CharacterCorpus:
@@ -186,7 +187,7 @@ class CharacterCorpus:
             for dummy in dummies.columns:
                 # Get the presence of occurrences relative to dummy, transform them, rename them
                 dummy_occurrences = self.occurrences * np.outer(dummies[dummy].to_numpy(),
-                                                                  np.ones(self.occurrences.shape[1]))
+                                                                np.ones(self.occurrences.shape[1]))
                 dummy_occurrences = dummy_occurrences.astype(int)
                 dummy_occurrences.columns = [f"{occurrence_name}_{dummy}" for occurrence_name in
                                              self.occurrences.columns]
@@ -527,54 +528,39 @@ def build_regression_vectors(occurrences, vectors, weights=None, reg_type="Ridge
     return np.array(regression_vectors).T
 
 
-
-def build_logistic_regression_vectors(occurrences, probabilities, weights=None,
-                                      reg_type="multinomial", regularization_parameter=1):
+def build_logistic_regression_vectors(occurrences, unit_prob, unit_sizes, reg_type="multinomial"):
     """
-    Build the vectors of objects regarding their regression coefficient with respect to the vectors.
+    Build the probabilities of objects regarding their regression coefficient with respect to the unit probabilities.
     :param occurrences: the (units x objects) matrix containing occurrences of objects in units.
-    :param probabilities: the (units x dim) matrix containing probabilities vectors with dim dimensions.
-    :param weights: the (units) vector containing unit weights.
+    :param unit_prob: the (units x dim) matrix containing probabilities vectors with dim dimensions.
+    :param unit_sizes: the (units) vector containing unit weights.
     :param reg_type: the type of regression, between "multinomial", "auto", or "ovr" (default = "multinomial")
     :param regularization_parameter: the regularization parameter for the regression (default = 1)
     :return: regression_vectors: a (objects x dim) dataframe containing regression vectors of objects.
     """
-    # If weight are None, give uniform weights
-    if weights is None:
-        weights = np.ones(probabilities.shape[0])
-        weights = weights / np.sum(weights)
 
-    # Get the maximum of dimension
-    dim_max = probabilities.shape[1]
+    # Normalize unit
+    norm_unit_prob = unit_prob / unit_prob.sum(axis=1).reshape(-1, 1)
 
-    # An empty array for results
-    regression_vectors = []
+    # Make the regression model
+    reg = linear_model.LogisticRegression(multi_class=reg_type, max_iter=1e4)
 
-    # Make the regressor
-    reg = linear_model.LogisticRegression(multi_class="multinomial")
+    # Construct the dataset for regression
+    constructed_unit_size = []
+    response_vector = []
+    for i in range(norm_unit_prob.shape[0]):
+        class_numbers = np.round(norm_unit_prob[i] * unit_sizes[i]).astype(int)
+        constructed_unit_size.append(sum(class_numbers))
+        unit_classes = [[class_index] * class_number for class_index, class_number in enumerate(class_numbers)]
+        response_vector.extend(list(chain.from_iterable(unit_classes)))
+    regressors = np.repeat(occurrences.to_numpy(), constructed_unit_size, axis=0)
 
-
-
-    # Loop on dimensions
-    for i in range(dim_max):
-        # Get coordinates for the dimension
-        coordinates = vectors[:, i]
-        # Chose the regression
-        if reg_type == "Ridge":
-            reg = linear_model.Ridge(regularization_parameter)
-        elif reg_type == "Lasso":
-            reg = linear_model.Lasso(regularization_parameter)
-        else:
-            reg = linear_model.LinearRegression()
-        # Fit the regression
-        reg.fit(occurrences, coordinates, sample_weight=weights)
-        # Store the intercept and the coefficients
-        regression_vector = np.concatenate([[reg.intercept_], reg.coef_])
-        # Append the results to the result array
-        regression_vectors.append(regression_vector)
+    # Make the regression
+    reg.fit(regressors, response_vector)
 
     # Return the resulting vectors
-    return np.array(regression_vectors).T
+    return reg.predict_proba(np.eye(occurrences.shape[1]))
+
 
 def compute_cosine(vectors_1, vectors_2):
     """

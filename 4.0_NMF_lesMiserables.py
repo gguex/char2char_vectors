@@ -1,3 +1,4 @@
+import numpy as np
 import sklearn.linear_model
 from sklearn.decomposition import NMF
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -54,7 +55,6 @@ character_names = [process_text(character_name)
 corpus.aggregate_on(aggregation_level)
 
 # Construct the unit-term matrix and remove rare words
-#corpus.build_units_words(CountVectorizer(stop_words=used_stop_words))
 corpus.build_units_words(TfidfVectorizer(max_df=0.95, min_df=2, max_features=1000, stop_words=used_stop_words))
 
 # Make a threshold for the minimum vocabulary and remove units without words
@@ -101,10 +101,8 @@ theme_vs_unit = pd.DataFrame(unit_prob)
 
 # Computing the character theme
 char_vs_theme = build_occurrences_vectors(corpus.occurrences, unit_prob)
-reg_vs_theme = build_regression_vectors(corpus.occurrences, unit_prob, f_row)
-reg_vs_theme = pd.DataFrame(reg_vs_theme, index=["intercept"] + list(corpus.occurrences.columns))
 
-norm_unit_prob = unit_prob / unit_prob.sum(axis=1).reshape(-1, 1)
-reg = sklearn.linear_model.LogisticRegression(multi_class="multinomial")
-unit_prob_i = unit_prob[:, 0]
-reg.fit(corpus.occurrences, unit_prob_i)
+# Make the regression vectors
+unit_sizes = corpus.units_words.sum(axis=1).to_numpy()
+reg_vs_theme = build_logistic_regression_vectors(corpus.occurrences, unit_prob, unit_sizes)
+reg_vs_theme = pd.DataFrame(reg_vs_theme, list(corpus.occurrences.columns))
