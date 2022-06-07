@@ -79,7 +79,7 @@ corpus.remove_occurrences_with_frequency(1e-10)
 corpus.remove_words_with_frequency(1e-10)
 
 # Get units weights
-f_row = (corpus.units_words.sum(axis=1) / corpus.units_words.sum().sum()).to_numpy()
+f_row = corpus.n_tokens / corpus.n_tokens.sum()
 
 # -------------------------------
 #  Analysis
