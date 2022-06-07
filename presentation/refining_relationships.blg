@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2019/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: refining_relationships.aux
+The style file: apalike.bst
+Database file #1: charnet.bib
+You've used 7 entries,
+            1935 wiz_defined-function locations,
+            523 strings with 5284 characters,
+and the built_in function-call counts, 3194 in all, are:
+= -- 340
+> -- 90
+< -- 10
++ -- 28
+- -- 28
+* -- 252
+:= -- 511
+add.period$ -- 26
+call.type$ -- 7
+change.case$ -- 48
+chr.to.int$ -- 7
+cite$ -- 7
+duplicate$ -- 137
+empty$ -- 244
+format.name$ -- 45
+if$ -- 673
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 8
+newline$ -- 39
+num.names$ -- 21
+pop$ -- 42
+preamble$ -- 1
+purify$ -- 49
+quote$ -- 0
+skip$ -- 108
+stack$ -- 0
+substring$ -- 263
+swap$ -- 35
+text.length$ -- 4
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 40
+warning$ -- 0
+while$ -- 28
+width$ -- 0
+write$ -- 102

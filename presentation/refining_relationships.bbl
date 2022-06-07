@@ -1,0 +1,51 @@
+\begin{thebibliography}{}
+
+\bibitem[Elsner, 2012]{elsner_character-based_2012}
+Elsner, M. (2012).
+\newblock Character-based kernels for novelistic plot structure.
+\newblock In {\em Proceedings of the 13th {Conference} of the {European}
+  {Chapter} of the {Association} for {Computational} {Linguistics}}, pages
+  634--644, Avignon, France. Association for Computational Linguistics.
+
+\bibitem[Labatut and Bost, 2019]{labatut_extraction_2019}
+Labatut, V. and Bost, X. (2019).
+\newblock Extraction and {Analysis} of {Fictional} {Character} {Networks}: {A}
+  {Survey}.
+\newblock {\em ACM Computing Surveys}, 52(5):89:1--89:40.
+
+\bibitem[Lebart et~al., 2019]{lebart_analyse_2019}
+Lebart, L., Pincemin, B., and Poudat, C. (2019).
+\newblock {\em Analyse des données textuelles}.
+\newblock Number~11 in Mesure et évaluation. Presses de l'Université du
+  Québec, Québec.
+
+\bibitem[Min and Park, 2019]{min_modeling_2019}
+Min, S. and Park, J. (2019).
+\newblock Modeling narrative structure and dynamics with networks, sentiment
+  analysis, and topic modeling.
+\newblock {\em PLOS ONE}, 14(12):e0226025.
+
+\bibitem[Nalisnick and Baird, 2013]{nalisnick_character--character_2013}
+Nalisnick, E.~T. and Baird, H.~S. (2013).
+\newblock Character-to-{Character} {Sentiment} {Analysis} in {Shakespeare}'s
+  {Plays}.
+\newblock In {\em Proceedings of the 51st {Annual} {Meeting} of the
+  {Association} for {Computational} {Linguistics} ({Volume} 2: {Short}
+  {Papers})}, pages 479--483, Sofia, Bulgaria. Association for Computational
+  Linguistics.
+
+\bibitem[Rochat and Kaplan, 2014]{rochat_analyse_2014}
+Rochat, Y. and Kaplan, F. (2014).
+\newblock Analyse des réseaux de personnages dans {Les} {Confessions} de
+  {Jean}-{Jacques} {Rousseau}.
+\newblock {\em Les Cahiers du numérique}, 10(3):109--133.
+\newblock Place: Cachan Publisher: Lavoisier.
+
+\bibitem[Trovati and Brady, 2014]{trovati_towards_2014}
+Trovati, M. and Brady, J. (2014).
+\newblock Towards an {Automated} {Approach} to {Extract} and {Compare}
+  {Fictional} {Networks}: {An} {Initial} {Evaluation}.
+\newblock In {\em 2014 25th {International} {Workshop} on {Database} and
+  {Expert} {Systems} {Applications}}, pages 246--250, Munich, Germany. IEEE.
+
+\end{thebibliography}
