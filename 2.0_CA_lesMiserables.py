@@ -1,3 +1,5 @@
+import numpy as np
+
 from local_functions import *
 
 # -------------------------------
@@ -19,7 +21,7 @@ min_occurrences = 3
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
 # Regularization parameter (0.1)
-regularization_parameter = 0.001
+regularization_parameter = 0.1
 
 # -------------------------------
 #  Loading
@@ -71,7 +73,7 @@ corpus.update_occurrences_across_meta(meta_for_occurrences)
 
 # Make sure no units are empty
 corpus.remove_units_without_words()
-corpus.remove_units_without_occurrences()
+#corpus.remove_units_without_occurrences()
 corpus.remove_occurrences_with_frequency(1e-10)
 corpus.remove_words_with_frequency(1e-10)
 
@@ -102,6 +104,7 @@ words_vs_occurrences = pd.DataFrame(col_coord @ occurrence_coord.T, columns=list
 words_vs_occurrences.index = corpus.units_words.columns
 # Reorder by occurrences name
 words_vs_occurrences = words_vs_occurrences.reindex(sorted(words_vs_occurrences.columns), axis=1)
+occurrences_vs_words = words_vs_occurrences.transpose()
 
 # ---- Make the regression
 
@@ -113,6 +116,7 @@ words_vs_regressions = pd.DataFrame(col_coord @ regression_coord.T, index=corpus
                                     columns=["intercept"] + list(corpus.occurrences.columns))
 # Reorder by name
 words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.columns), axis=1)
+regression_vs_words = words_vs_regressions.transpose()
 
 # ---- Examine relations with axes
 
@@ -143,5 +147,27 @@ for obj in object_names:
 A_occurrence = words_vs_occurrences[present_object_names]
 A_regression = words_vs_regressions[present_object_names]
 
-occurrences_vs_words = words_vs_occurrences.transpose()
-regression_vs_words = words_vs_regressions.transpose()
+# ---- Plot
+
+# Selection of axes
+axes = [0, 1]
+
+# Filter top words
+top_word_index = np.where(corpus.units_words.to_numpy().sum(axis=0) > 100)[0]
+sel_col_coord = col_coord[top_word_index, :]
+top_words = np.array(corpus.units_words.columns)[top_word_index]
+
+# Compute all coord
+all_coord = np.concatenate([row_coord, sel_col_coord])
+
+fig, ax = plt.subplots()
+ax.scatter(all_coord[:, axes[0]], all_coord[:, axes[1]], alpha=0, color="white")
+
+for i, txt in enumerate(list(corpus.units_words.index)):
+    ax.annotate(txt, (row_coord[i, 0], row_coord[i, 1]), size=10, color="red")
+
+for i, txt in enumerate(top_words):
+    ax.annotate(txt, (sel_col_coord[i, 0], sel_col_coord[i, 1]), size=12, color="blue", alpha=0.8)
+
+ax.grid()
+plt.show()
