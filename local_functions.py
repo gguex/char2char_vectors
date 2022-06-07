@@ -25,6 +25,8 @@ class CharacterCorpus:
         self.texts = pd.DataFrame
         self.occurrences = pd.DataFrame()
         self.units_words = pd.DataFrame()
+        self.type_dictionaries = []
+        self.n_tokens = np.array([])
 
     def load_corpus(self, corpus_path, sep="\t"):
         """
@@ -63,6 +65,16 @@ class CharacterCorpus:
             self.texts = corpus_df.groupby([aggregation_column_name])["text"].apply(lambda x: " ".join(x))
             self.occurrences = corpus_df.groupby([aggregation_column_name])[occurrences_columns].sum()
 
+    def update_n_tokens(self):
+        """
+        Permit to update the number of tokens from the type dictionaries
+        """
+        # Check if the type dictionaries is not empty
+        if len(self.type_dictionaries) > 0:
+            n_tokens = [sum(type_dictionary.values()) for type_dictionary in self.type_dictionaries]
+            # Update the number of tokens
+            self.n_tokens = np.array(n_tokens)
+
     def build_units_words(self, vectorizer=None):
         """
         Build the units-words dataframe from textual ressources
@@ -76,8 +88,21 @@ class CharacterCorpus:
         uw_matrix = vectorizer.fit_transform(list(self.texts))
         vocabulary = vectorizer.get_feature_names_out()
 
-        # Store in the units_terms df
+        # Get the preprocessed texts
+        preprocessor = vectorizer.build_preprocessor()
+        tokenizer = vectorizer.build_tokenizer()
+        texts = [tokenizer(preprocessor(text)) for text in self.texts]
+
+        # Get the type dictionaries
+        used_types = vectorizer.inverse_transform(uw_matrix)
+        type_dictionaries = []
+        for id_text, text in enumerate(texts):
+            type_dictionaries.append({word: text.count(word) for word in used_types[id_text]})
+
+        # Store in the units_terms df, the type dictionaries and the number of tokens
         self.units_words = pd.DataFrame(uw_matrix.todense(), index=self.meta_variables.index, columns=vocabulary)
+        self.type_dictionaries = type_dictionaries
+        self.update_n_tokens()
 
     def remove_words(self, word_names):
         """
@@ -94,6 +119,12 @@ class CharacterCorpus:
         # Remove columns and vocabulary
         uw_matrix = uw_matrix[:, remaining_indices]
         vocabulary = vocabulary[remaining_indices]
+
+        # Remove from type dict and update n_tokens
+        for type_dictionary in self.type_dictionaries:
+            for word in word_names:
+                type_dictionary.pop(word, None)
+        self.update_n_tokens()
 
         # Store the new units_words
         self.units_words = pd.DataFrame(uw_matrix, index=self.meta_variables.index, columns=vocabulary)
@@ -156,6 +187,9 @@ class CharacterCorpus:
         self.texts = self.texts.iloc[remaining_unit_index]
         self.occurrences = self.occurrences.iloc[remaining_unit_index, :]
         self.units_words = self.units_words.iloc[remaining_unit_index, :]
+        self.type_dictionaries = [type_dictionary for id_dict, type_dictionary in enumerate(self.type_dictionaries)
+                                  if id_dict in remaining_unit_index]
+        self.n_tokens = self.n_tokens[remaining_unit_index]
 
     def remove_units_without_occurrences(self):
         """
@@ -169,6 +203,9 @@ class CharacterCorpus:
         self.texts = self.texts.iloc[remaining_unit_index]
         self.occurrences = self.occurrences.iloc[remaining_unit_index, :]
         self.units_words = self.units_words.iloc[remaining_unit_index, :]
+        self.type_dictionaries = [type_dictionary for id_dict, type_dictionary in enumerate(self.type_dictionaries)
+                                  if id_dict in remaining_unit_index]
+        self.n_tokens = self.n_tokens[remaining_unit_index]
 
     def update_occurrences_across_meta(self, meta_name):
         """

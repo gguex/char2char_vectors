@@ -55,7 +55,7 @@ character_names = [process_text(character_name)
 corpus.aggregate_on(aggregation_level)
 
 # Construct the unit-term matrix and remove rare words
-corpus.build_units_words(TfidfVectorizer(max_df=0.95, min_df=2, max_features=1000, stop_words=used_stop_words))
+corpus.build_units_words(CountVectorizer(max_df=0.95, min_df=2, max_features=1000, stop_words=used_stop_words))
 
 # Make a threshold for the minimum vocabulary and remove units without words
 #corpus.remove_words_with_frequency(min_word_frequency)
