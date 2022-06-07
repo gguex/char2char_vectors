@@ -18,8 +18,8 @@ max_interaction_degree = 2
 min_occurrences = 3
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
-# Regularization parameter
-regularization_parameter = 1
+# Regularization parameter (0.1)
+regularization_parameter = 0.001
 
 # -------------------------------
 #  Loading
