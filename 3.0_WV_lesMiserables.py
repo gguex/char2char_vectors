@@ -22,7 +22,7 @@ min_occurrences = 3
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
 # Regularization parameter
-regularization_parameter = 1
+regularization_parameter = 0.01
 
 # -------------------------------
 #  Loading
@@ -121,7 +121,7 @@ corpus.remove_occurrences_with_frequency(1e-10)
 #unit_coord = build_occurrences_vectors(dt_matrix.T, word_coord)
 
 # choice 2
-weighting_param = 0.001
+weighting_param = 0.01
 word_weights = corpus.units_words.to_numpy().sum(axis=0)
 word_weights = word_weights / sum(word_weights)
 smoothed_word_weights = weighting_param / (weighting_param + word_weights)
@@ -182,17 +182,16 @@ A_regression = words_vs_regressions[present_object_names]
 occurrences_vs_words = words_vs_occurrences.transpose()
 regression_vs_words = words_vs_regressions.transpose()
 
-to_explore_words = ["aimer", "rue", "justice", "guerre"]
-word_vs_occ = pd.DataFrame(index=range(10))
-for to_explore_word in to_explore_words:
-    object_largest = occurrences_vs_words[to_explore_word].nlargest()
-    object_smallest = occurrences_vs_words[to_explore_word].nsmallest()
+reg_v_word = pd.DataFrame(index=range(10))
+for object_name in present_object_names:
+    object_largest = A_regression[object_name].nlargest()
+    object_smallest = A_regression[object_name].nsmallest()
     object_col = []
     for i in range(object_largest.shape[0]):
         object_col.append(f"{object_largest.index[i]} ({np.round(object_largest.iloc[i], 2)})")
     for i in range(object_smallest.shape[0]):
         object_col.append(f"{object_smallest.index[i]} ({np.round(object_smallest.iloc[i], 2)})")
-    object_df = pd.DataFrame({to_explore_word: object_col})
-    word_vs_occ = pd.concat([word_vs_occ, object_df], axis=1)
-word_vs_occ.to_csv("word_vs_occ_wv_LM.csv")
+    object_df = pd.DataFrame({object_name: object_col})
+    reg_v_word = pd.concat([reg_v_word, object_df], axis=1)
+reg_v_word.to_csv("reg_v_word.csv")
 

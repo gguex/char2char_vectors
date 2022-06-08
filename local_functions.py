@@ -747,7 +747,7 @@ def display_char_o_network(interact_list, edge_polarity_list, edge_weight_list, 
 def display_char_network(interact_list, edge_polarity_list, edge_weight_list, color="polarity", width="weight",
                            width_rank=False, node_min_width=50, node_max_width=1000, edge_min_width=0.2, edge_max_width=5,
                            string_strength="weight", min_alpha=0.5, max_alpha=1, cmap=plt.cm.coolwarm,
-                           node_pos=None, font_size=10, arrowsize=10):
+                           node_pos=None, font_size=10, plt_title=None):
     """
     A function to diplay a graph between character interactions
     """
@@ -833,6 +833,10 @@ def display_char_network(interact_list, edge_polarity_list, edge_weight_list, co
 
     # Starting the graph
     plt.figure()
+
+    # Title
+    if plt_title is not None:
+        plt.title(plt_title, fontsize=20)
 
     # Create the nodes
     nx.draw_networkx_nodes(graph,

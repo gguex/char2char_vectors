@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage{bm} 
 \usepackage{multicol}
+\usepackage{hyperref}
 
 \MakeOuterQuote{"}
 \newcommand{\imp}[1]{\textbf{\color{cyan}#1}}
@@ -14,11 +15,11 @@
 %---------------------------------------------------
 % Title 
 
-\title{Refining Character Relationships in a Textual Narrative using Embeddings of Interactions}
+\title{Refining Character Relationships using Embeddings of Textual Units}
 \subtitle{With case studies on \emph{Les Misérables}}
 \date{}
-\author{Guillaume Guex}
-\institute{University of Lausanne}
+\author{Guillaume Guex \\ \href{mailto:guillaume.guex@unil.ch}{\color{blue} guillaume.guex@unil.ch}}
+\institute{Departement of Language and Information Sciences \\ University of Lausanne}
 
 \begin{document}
 	
@@ -42,16 +43,16 @@
 	\begin{frame}{The construction of a character network}
 		The construction of a character network takes generally 3 steps \cite{labatut_extraction_2019}:
 		\begin{itemize}
-			\item Identification of \imp{characters} 
-			\item Detection of \imp{interactions}
-			\item Construction of the \imp{graph}
+			\item Identification of \imp{characters}.
+			\item Detection of \imp{interactions}.
+			\item Construction of the \imp{graph}.
 		\end{itemize}
 	\end{frame}
 
 	%------------------------------------------------------------------
 	
 	\begin{frame}{The construction of a character network}
-		When dealing with \imp{textual narratives}, a frequently used method is to count \imp{character co-occurrences} in predefined \imp{textual units} \\(see, e.g., \cite{elsner_character-based_2012, rochat_analyse_2014}). \\
+		When dealing with \imp{text}, a frequently used method is to count \imp{character co-occurrences} in predefined \imp{textual units} \\(see, e.g., \cite{elsner_character-based_2012, rochat_analyse_2014}). \\
 		\vspace{-0.4cm}
 		\begin{columns}
 			\begin{column}{0.5\textwidth}
@@ -109,8 +110,8 @@
 				\centering
 				\includegraphics[width=0.8\textwidth]{img/unit_term.png}
 			\end{figure}
-			\item \imp{Embeddings of textual units}. The unit-term matrix is used to construct \imp{vectors} representing units. 
-			\item \imp{Embeddings of characters and relationships}, which derive from the embedding of textual units.
+			\item \imp{Embeddings of textual units}. The unit-term matrix is used to construct vectors representing units. 
+			\item \imp{Embeddings of characters and relationships}, which derive from unit vectors.
 		\end{itemize}
 	\end{frame}
 	
@@ -118,12 +119,13 @@
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Approaches}
-		More specifically, two types "embeddings" are studied:
+		More specifically, three types embeddings are studied:
 		\begin{itemize}
-			\item \imp{Correspondence Analysis (CA)}.
-			\item \imp{"Topic Modeling vectors"} build from \imp{Non-negative Matrix Factorization (NMF)}.
+			\item \imp{Correspondence Analysis (CA)} (main work).
+			\item \imp{Pre-trained word embeddings (WE)} (work in progress).
+			\item "Topical" vectors build from \imp{Non-negative Matrix Factorization (NMF)} (work in progress).
 		\end{itemize}
-		With two methods for constructing character/relationship vectors:
+		There also is two methods for constructing character/relationship vectors:
 		\begin{itemize}
 			\item \imp{Centroids}.
 			\item \imp{Regression coefficients}.
@@ -134,17 +136,17 @@
 	%------------------------------------------------------------------
 	
 	
-	\section[Correspondence Analysis (CA) - centroids]{Correspondence Analysis (CA) - centroids}
+	\section[Correspondence Analysis - Centroids]{Correspondence Analysis - Centroids}
 	
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Principles}
-		Correspondence Analysis is the natural tool for analyzing textual resources if data are organized in a $(n \times p)$ \imp{document-term matrix} \cite{lebart_analyse_2019} (here, documents are our textual units). It gives:
+		Correspondence Analysis is the natural tool for analyzing textual resources if data is organized in a $(n \times p)$ \imp{document-term matrix} \cite{lebart_analyse_2019} (here, documents are our textual units). It gives:
 		\begin{itemize}
-			\item $\min(n, p) - 1$ \imp{factorial axes}, by decreasing order of importance, which can be interpreted as latent variables.
-			\item \imp{Coordinates of each document} along these factors, where proximity can be interpreted as similar profile in term of words.
-			\item \imp{Coordinates of each word} along the same factors, where proximity can be interpreted as similar profile in term of documents.
-			\item \imp{Affinities between a document and a term}, which is computed by the \imp{scalar product} between their vectors.
+			\item $\min(n, p) - 1$ \imp{factorial axes}, by decreasing order of importance, which can be interpreted as \imp{latent variables}.
+			\item \imp{Coordinates of each document} along these factors, where proximity can be interpreted as similarity in word distributions.
+			\item \imp{Coordinates of each word} along the same factors, where proximity can be interpreted as similarity in document distributions.
+			\item \imp{Affinities between documents and terms}, which are computed by the \imp{scalar product}.
 		\end{itemize}
 	\end{frame}
 	
@@ -171,7 +173,7 @@
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Relationship embeddings - centroids}
-		The same idea can be applied to \imp{relationships}, In fact, in our data table, we can extend our table to include \imp{interactions}.
+		The same idea can be applied to \imp{relationships}, In fact, in our dataset, we can extend our table to include \imp{interactions} (up to a certain order).
 		\begin{figure}
 			\centering
 			\includegraphics[width=\textwidth]{img/occurences_data.png}
@@ -191,7 +193,9 @@
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Character/relationship embeddings - usages}
-		What can we do with these character/relationship embeddings ? As they are in the same space as textual units, we can: 
+		What can we do with these character/relationship embeddings ? \\
+		\vspace{0.3cm}
+		As they are in the same space as textual units, we can: 
 		\begin{itemize}
 			\item Get the Euclidean distance between \imp{relationships}.
 			\item Get the Euclidean distance between \imp{relationships and the textual units}.
@@ -203,7 +207,7 @@
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Characters/relationships vs axes}
-		Sometimes, \imp{factorial axes can be interpreted with coordinates of the words}. \imp{Positions of characters/relationships on this axis} reflect their affinity with this particular scale:
+		Sometimes, \imp{factorial axes can be interpreted with coordinates of the words}. \imp{Positions of characters/relationships on this axis} reflect polarities on this scale:
 		\begin{figure}
 			\centering
 			\includegraphics[width=\textwidth]{img/relationship_vs_axes.png}
@@ -213,7 +217,7 @@
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Characters/relationships vs words}
-		We can also get the \imp{similarities between characters/relationships vs words} with the help of the \imp{scalar product}:
+		We can also get the \imp{similarities between characters/relationships vs words} with the \imp{scalar product}:
 		\begin{figure}
 			\centering
 			\includegraphics[width=0.8\textwidth]{img/relationships_vs_words.png}
@@ -223,7 +227,7 @@
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Words vs characters/relationships}
-		By transposing the previous table, particular words (or group of words, i.e. a query) can give a ranking of characters/relationships:
+		By transposing the previous table, particular words (or group of words, i.e. a query) can give a \imp{ranking of characters/relationships}:
 		\begin{figure}
 			\centering
 			\includegraphics[width=\textwidth]{img/word_vs_occ.png}
@@ -234,16 +238,16 @@
 	%------------------------------------------------------------------
 	
 	
-	\section[Correspondence Analysis (CA) - regressions]{Correspondence Analysis (CA) - regressions}
+	\section[Correspondence Analysis - Regressions]{Correspondence Analysis - Regressions}
 	
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Relationship embeddings - 1st idea problems}
-		In fact, building these character/relationship vectors as \imp{centroids} is like considering them as \imp{additional variables} in the CA. It leads to \imp{additive relationships}, i.e., for a character $c$
+		In fact, building these character/relationship vectors as \imp{centroids} is like considering them as \imp{supplementary variables} in the CA. It leads to \imp{additive relationships}, i.e., for a character $c$
 		$$
 		v_{c} = \sum_{d \in \text{characters}} v_{cd}
 		$$
-		where $v_{cd}$ is the vector of relationship between $c$ and $d$, and $v_{cc}$ is defined as the centroid of units where $c$ is alone. This means
+		where $v_{cd}$ is the vector of relationship between $c$ and $d$, and $v_{cc}$ is defined as the centroid of units where $c$ is alone. It means that:
 		\begin{itemize}
 			\item If a character have \imp{contrasted relationships}, its vector might represent it poorly.
 			\item If \imp{two characters are often together}, their respective specificities might be hidden.
@@ -261,7 +265,7 @@
 			\item The appearance of character \imp{$d$ alone} gives another profile to units.
 			\item The appearance of character \imp{$c$ and $d$} might give a totally \imp{different profile} to units.
 		\end{itemize}
-		We can use a \imp{regression model with interaction}.
+		We can use a \imp{regression model}.
 	\end{frame}
 	
 	%------------------------------------------------------------------
@@ -282,7 +286,7 @@
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Relationship embeddings - 2nd idea}
-		Resulting coordinates of opposite characters point at \imp{different directions}:
+		Resulting coordinates point at \imp{different directions}:
 		\begin{figure}
 			\centering
 			\includegraphics[width=\textwidth]{img/reg_embeddings.png}
@@ -296,7 +300,7 @@
 		\begin{itemize}
 			\item When $\lambda$ is \imp{high}, the \imp{vectors are similar to centroids} (with a different scaling).
 			\item When $\lambda$ is \imp{low}, the solution focuses on \imp{very specific, small parts of the text} to define characters and relationships.
-			\item An \imp{average} $\lambda$ (but which one?) is able to \imp{highlight character/relationship specificities relatively to corpus size.}
+			\item An \imp{average} $\lambda$ (but which one?) is able to \imp{highlight character/relationship specificities} while using \imp{sufficient information}.
 		\end{itemize}
 	\end{frame}
 	
@@ -314,7 +318,7 @@
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Words vs characters/relationships - regression}
-		And relationships according to words are more coherent:
+		And characters/relationships according to words seems more adjusted:
 		\vspace{-0.2cm}
 		\begin{figure}
 			\centering
@@ -325,7 +329,18 @@
 	%------------------------------------------------------------------
 	
 	\begin{frame}{Words vs characters/relationships - regression}
-		This method give also good results if regressors are constructed according to a \imp{narrative timeline} (here, the \emph{Tomes}):
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.49\textwidth]{img/aimer_g.png} \includegraphics[width=0.49\textwidth]{img/rue_g.png} \\
+			\includegraphics[width=0.49\textwidth]{img/justice_g.png}
+			\includegraphics[width=0.49\textwidth]{img/guerre_g.png}
+		\end{figure}
+	\end{frame}
+	
+	%------------------------------------------------------------------
+	
+	\begin{frame}{Words vs characters/relationships - regression}
+		This method give also good results if regressors are constructed according to a \imp{narrative time division} (here, \emph{tomes}):
 		\vspace{-0.2cm}
 		\begin{figure}
 			\centering
@@ -335,8 +350,8 @@
 	
 	%------------------------------------------------------------------
 	
-	\begin{frame}{CA quick summary}
-		To recap the CA method:
+	\begin{frame}{Quick summary}
+		To recap from here:
 		\begin{itemize}
 			\item \imp{Words and units vectors} are obtained from the \imp{unit-term matrix}.
 			\item \imp{Characters/Relationships vectors} are obtained with 2 different methods:
@@ -344,19 +359,19 @@
 				\item \imp{Centroids}
 				\item \imp{Regressions}
 			\end{itemize}
-			\item These characters/relationships vectors can be \imp{explored} regarding:
+			\item These character/relationship vectors can be \imp{explored} regarding:
 			\begin{itemize}
 				\item \imp{Axes}
 				\item \imp{Words} (or group of words)
 			\end{itemize}
-			\item Moreover, we can explore characters/relationships vectors according to a \imp{Timeline}.
+			\item Moreover, character/relationship vectors can be constructed according to a \imp{time division}.
 		\end{itemize}
 	\end{frame}
 	
 	%------------------------------------------------------------------
 	
 	
-	\section[Pre-trained Word Embeddings]{Pre-trained Word Embeddings}
+	\section[Other types of Embeddings]{Other types of Embeddings}
 	
 	%------------------------------------------------------------------
 	
@@ -366,12 +381,128 @@
 		\vspace{0.4cm}
 		It can be interesting to get insights on \imp{how characters/relationships are perceived in an absolute referential}. \\
 		\vspace{0.4cm}
-		An idea to overcome this problem is to embed units/characters/relationships in a \imp{absolute referential} such as a \imp{pre-trained word embedding space}.
+		To perform this idea, units/characters/relationships are embedded in a \imp{pre-trained word embedding space}.
 		
 	\end{frame}
 	
 	%------------------------------------------------------------------
 	
+	\begin{frame}{Pre-trained Word Embeddings}
+		
+		\imp{Type-based embeddings} (no transformers) must be used, because we would like to have \imp{reference points}, such as the \imp{word vectors}, to explore results. \\
+		\vspace{0.3cm}
+		Some examples of type-based embedding methods:
+		\begin{itemize}
+			\item \imp{Word2Vec} \cite{mikolov_efficient_2013}
+			\item \imp{GloVe} \cite{pennington_glove_2014}
+			\item \imp{FastText} \cite{bojanowski_enriching_2017}
+		\end{itemize}
+		Here, we will use pre-trained word vectors constructed with \imp{FastText} {\color{blue} \url{https://fasttext.cc/docs/en/crawl-vectors.html}}.
+		
+	\end{frame}
+	
+	%------------------------------------------------------------------
+	
+	\begin{frame}{Pre-trained Word Embeddings}
+		
+		There also exists various ways to construct \imp{sentences, paragraphs, or documents embeddings} (in our case units) into the \imp{same space as words}. \\
+		\vspace{0.3cm}
+		The method proposed by \cite{arora2017simple} seems to perform very well in various tasks. Quickly explained:
+		
+		\begin{itemize}
+			\item Units are embedded by making the average of their words, \imp{weighted by $\frac{\theta}{\theta + f_w}$}, where $f_w$ is the word frequency and $\theta$ a "smoothing parameter".
+			\item We \imp{substract} from all vectors, contained in the columns of $\mathbf{X}$, their projection alongside the first (left) singular vector of $\mathbf{X}$.  
+		\end{itemize}
+	
+		The first operation gives more importance to \imp{rare words}, the second helps to remove \imp{syntactic information}.
+		
+	\end{frame}
+	
+	%------------------------------------------------------------------
+	
+	\begin{frame}{Pre-trained Word Embeddings}
+		
+		Embedding of characters/relationships is obtained again with centroids and regressions. The \imp{cosine similarity} is used to measure characters/relationships affinities with words:
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.8\textwidth]{img/reg_vs_word_wv.png}
+		\end{figure}
+		
+	\end{frame}
+	
+	%------------------------------------------------------------------
+	
+	\begin{frame}{Pre-trained Word Embeddings}
+		
+		Still a work in progress. However, we can see that:
+		\begin{itemize}
+			\item The found words are \imp{less specific to the text} (easier to make a general interpretation).
+			\item Some characters/relationships are mainly defined by \imp{verbs}, others by \imp{nouns}, and others by \imp{adjectives}.
+			\item The \imp{negative words} actually give information.
+		\end{itemize}
+		More importantly, the characters/relationships are in an \imp{absolute space}, \imp{comparison between works should be made}.
+		
+	\end{frame}
+	
+	%------------------------------------------------------------------
+	
+	\begin{frame}{Non-negative matrix factorization}
+		
+		The last idea is \imp{Non-negative Matrix Factorization}, which is a \imp{Topic Modeling} method. \\
+		\vspace{0.3cm}
+		Its usage permits to get associations between \imp{characters/relationships} and \imp{automatically found topics} (not only words).\\
+		\vspace{0.3cm}
+		As the method gives \imp{probabilities of using each topic}, for all units, character/relationship embeddings have to be adapted:
+		\begin{itemize}
+			\item Centroid $\rightarrow$ \imp{Probability Chain Rule}.
+			\item Regression $\rightarrow$ \imp{Multinomial Logistic Regression}. 
+		\end{itemize} 
+	\end{frame}
+	
+	%------------------------------------------------------------------
+	
+	\begin{frame}{Non-negative matrix factorization}
+		This method seems promising, but, for the moment, not as accurate as the other two:
+		\begin{figure}
+			\centering
+			\includegraphics[width=\textwidth]{img/nmf.png}
+		\end{figure}		
+	\end{frame}
+	
+	%------------------------------------------------------------------
+	
+	\section[Conclusion]{Conclusion}
+	
+	%------------------------------------------------------------------
+	
+	\begin{frame}{Conclusion}
+		The proposed framework to analyse characters and relationships seems promising:
+		\begin{itemize}
+			\item Works on \imp{various corpus size}.
+			\item Works with \imp{various type of textual units} (e.g., lines in plays).
+			\item Works with \imp{oriented relationships}.
+			\item \imp{Two types of character/relationship} construction.
+			\item \imp{Multiple ways to explore} the results.
+		\end{itemize}
+		However, some remarks:
+		\begin{itemize}
+			\item \imp{Choices in pre-processing} (stop words, lemmatization, thresholds on word frequencies, thresholds on character occurrences) can strongly affect results.
+			\item \imp{Hyperparameters} can be hard to tune.
+			\item Results can be \imp{hard to interpret}.
+			\item \imp{How can we know for sure that results are accurate?}
+		\end{itemize}
+	\end{frame}
+	
+	%------------------------------------------------------------------
+	
+	\begin{frame}{}
+		\begin{center}
+			\huge Thank you for your attention ! \\
+			\imp{Questions ?}
+		\end{center}
+	\end{frame}
+	
+	%------------------------------------------------------------------
 	
 	\appendix
 	

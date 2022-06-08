@@ -155,7 +155,7 @@ A_regression = words_vs_regressions[present_object_names]
 #  Network
 # -------------------------------
 
-studied_word = "guerre"
+studied_word = "justice"
 polarity = regression_vs_words[studied_word]
 min_occ = 20
 
@@ -183,7 +183,7 @@ with open("corpora/LesMiserables_fr/node_pos.pkl", "rb") as pkl_file:
     node_pos = pickle.load(pkl_file)
 
 display_char_network(interact_list, interaction_polarity, edge_weights, edge_min_width=0.1, edge_max_width=10,
-                     node_pos=node_pos, node_min_width=10, node_max_width=200, font_size=10, arrowsize=10)
+                     node_pos=node_pos, node_min_width=10, node_max_width=200, font_size=15, plt_title=studied_word)
 
 # with open("corpora/LesMiserables_fr/node_pos.pkl", "wb") as pkl_file:
 #     pickle.dump(node_pos, pkl_file)

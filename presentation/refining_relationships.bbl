@@ -1,5 +1,16 @@
 \begin{thebibliography}{}
 
+\bibitem[Arora et~al., 2017]{arora2017simple}
+Arora, S., Liang, Y., and Ma, T. (2017).
+\newblock A simple but tough-to-beat baseline for sentence embeddings.
+\newblock In {\em International conference on learning representations}.
+
+\bibitem[Bojanowski et~al., 2017]{bojanowski_enriching_2017}
+Bojanowski, P., Grave, E., Joulin, A., and Mikolov, T. (2017).
+\newblock Enriching {Word} {Vectors} with {Subword} {Information}.
+\newblock {\em Transactions of the Association for Computational Linguistics},
+  5:135--146.
+
 \bibitem[Elsner, 2012]{elsner_character-based_2012}
 Elsner, M. (2012).
 \newblock Character-based kernels for novelistic plot structure.
@@ -19,6 +30,13 @@ Lebart, L., Pincemin, B., and Poudat, C. (2019).
 \newblock Number~11 in Mesure et évaluation. Presses de l'Université du
   Québec, Québec.
 
+\bibitem[Mikolov et~al., 2013]{mikolov_efficient_2013}
+Mikolov, T., Chen, K., Corrado, G., and Dean, J. (2013).
+\newblock Efficient {Estimation} of {Word} {Representations} in {Vector}
+  {Space}.
+\newblock {\em arXiv:1301.3781 [cs]}.
+\newblock arXiv: 1301.3781.
+
 \bibitem[Min and Park, 2019]{min_modeling_2019}
 Min, S. and Park, J. (2019).
 \newblock Modeling narrative structure and dynamics with networks, sentiment
@@ -33,6 +51,13 @@ Nalisnick, E.~T. and Baird, H.~S. (2013).
   {Association} for {Computational} {Linguistics} ({Volume} 2: {Short}
   {Papers})}, pages 479--483, Sofia, Bulgaria. Association for Computational
   Linguistics.
+
+\bibitem[Pennington et~al., 2014]{pennington_glove_2014}
+Pennington, J., Socher, R., and Manning, C. (2014).
+\newblock Glove: {Global} {Vectors} for {Word} {Representation}.
+\newblock In {\em Proceedings of the 2014 {Conference} on {Empirical} {Methods}
+  in {Natural} {Language} {Processing} ({EMNLP})}, pages 1532--1543, Doha,
+  Qatar. Association for Computational Linguistics.
 
 \bibitem[Rochat and Kaplan, 2014]{rochat_analyse_2014}
 Rochat, Y. and Kaplan, F. (2014).

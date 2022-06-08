@@ -15,7 +15,7 @@ aggregation_level = "chapitre"
 # Max interactions
 max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
-min_occurrences = 5
+min_occurrences = 3
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
 
@@ -49,7 +49,7 @@ character_names = [process_text(character_name)
 corpus.aggregate_on(aggregation_level)
 
 # Construct the unit-term matrix and remove rare words
-corpus.build_units_words(TfidfVectorizer(max_df=0.95, min_df=2, max_features=1000, stop_words=used_stop_words))
+corpus.build_units_words(TfidfVectorizer(max_df=0.95, min_df=2, max_features=2000, stop_words=used_stop_words))
 
 # Remove characters from words
 corpus.remove_words(character_names)
@@ -78,9 +78,9 @@ tfidf_sums = corpus.units_words.sum(axis=1).to_numpy()
 # -------------------------------
 
 # --- Make the NMF model
-n_groups = 20
+n_groups = 10
 
-nmf_model = NMF(n_components=n_groups, init="nndsvd", max_iter=2000)
+nmf_model = NMF(n_components=n_groups, init="nndsvd", max_iter=1000)
 #nmf_model = LatentDirichletAllocation(n_components=n_groups)
 nmf_model.fit(corpus.units_words.to_numpy())
 
@@ -97,8 +97,7 @@ char_vs_theme = build_occurrences_vectors(corpus.occurrences, unit_prob)
 
 # Make the regression vectors
 unit_sizes = corpus.units_words.sum(axis=1).to_numpy()
-reg_vs_theme = build_logistic_regression_vectors(corpus.occurrences, unit_prob, tfidf_sums)
-reg_vs_theme = build_occurrences_vectors(corpus.occurrences, unit_prob)
+reg_vs_theme = build_logistic_regression_vectors(corpus.occurrences, unit_prob, tfidf_sums*100, reg_type="auto")
 reg_vs_theme = pd.DataFrame(reg_vs_theme, list(corpus.occurrences.columns))
 theme_vs_reg = reg_vs_theme.transpose()
 theme_vs_reg = theme_vs_reg.reindex(sorted(theme_vs_reg.columns), axis=1)
@@ -119,3 +118,4 @@ for obj in object_names:
         present_object_names.append(obj)
 
 A_regression = theme_vs_reg[present_object_names]
+A_regression.to_csv("char_topics.csv")

@@ -242,11 +242,4 @@ Publisher: Lavoisier},
 	pages = {24--29},
 }
 
-@InProceedings{arora2017simple,
-  author    = {Arora, Sanjeev and Liang, Yingyu and Ma, Tengyu},
-  booktitle = {International conference on learning representations},
-  title     = {A simple but tough-to-beat baseline for sentence embeddings},
-  year      = {2017},
-}
-
 @Comment{jabref-meta: databaseType:bibtex;}
