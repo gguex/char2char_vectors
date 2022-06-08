@@ -216,11 +216,13 @@ class CharacterCorpus:
         meta_columns = self.meta_variables.columns
         # If the name is in the columns, do the update
         if meta_name in meta_columns:
-            # Get dummies for tomes
+            # Get dummies for metavariable
             dummies = pd.get_dummies(self.meta_variables[meta_name], columns=[meta_name])
 
             # Build new occurrences
             new_occurrences = pd.DataFrame(index=self.occurrences.index)
+            new_occurrences = pd.concat([new_occurrences, dummies], axis=1)
+            new_occurrences.columns = [f"T{col_name}" for col_name in new_occurrences.columns]
             for dummy in dummies.columns:
                 # Get the presence of occurrences relative to dummy, transform them, rename them
                 dummy_occurrences = self.occurrences * np.outer(dummies[dummy].to_numpy(),
@@ -572,7 +574,6 @@ def build_logistic_regression_vectors(occurrences, unit_prob, unit_sizes, reg_ty
     :param unit_prob: the (units x dim) matrix containing probabilities vectors with dim dimensions.
     :param unit_sizes: the (units) vector containing unit weights.
     :param reg_type: the type of regression, between "multinomial", "auto", or "ovr" (default = "multinomial")
-    :param regularization_parameter: the regularization parameter for the regression (default = 1)
     :return: regression_vectors: a (objects x dim) dataframe containing regression vectors of objects.
     """
 
@@ -580,7 +581,7 @@ def build_logistic_regression_vectors(occurrences, unit_prob, unit_sizes, reg_ty
     norm_unit_prob = unit_prob / unit_prob.sum(axis=1).reshape(-1, 1)
 
     # Make the regression model
-    reg = linear_model.LogisticRegression(multi_class=reg_type, max_iter=1e4)
+    reg = linear_model.LogisticRegression(multi_class=reg_type, max_iter=2000)
 
     # Construct the dataset for regression
     constructed_unit_size = []

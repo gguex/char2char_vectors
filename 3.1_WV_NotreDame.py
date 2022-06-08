@@ -6,9 +6,9 @@ from gensim.models import KeyedVectors
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
+corpus_tsv_path = "corpora/NotreDame_fr/NotreDame.tsv"
 # Aliases file
-aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
+aliases_path = "corpora/NotreDame_fr/NotreDame_aliases.txt"
 # Word vectors to use
 word_vectors_path = "/home/gguex/Documents/data/pretrained_word_vectors/fr_fasttext.model"
 # Set aggregation level (None for each line)
@@ -18,7 +18,7 @@ min_word_frequency = 5
 # Max interactions
 max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
-min_occurrences = 3
+min_occurrences = 1
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
 # Regularization parameter
@@ -134,7 +134,6 @@ first_eigen_vec = scipy.sparse.linalg.svds(unit_coord.T, 1)[0]
 first_eigen_residual = first_eigen_vec @ first_eigen_vec.T @ unit_coord.T
 unit_coord = unit_coord - first_eigen_residual.T
 
-
 # ----------------------------------------
 # ---- Occurrences vectors
 # ----------------------------------------
@@ -164,8 +163,9 @@ words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.
 # ---- Explore the desired relationships
 
 # Objects to explore
-object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
-                "Javert-Valjean", "Myriel", "Myriel-Valjean"]
+object_names = ["Esmeralda", "Claude Frollo-Esmeralda", "Esmeralda-Quasimodo", "Claude Frollo", "Quasimodo",
+                "Gringoire", "Esmeralda-Gringoire", "Châteaupers-Emeralada", "Châteaupers-Claude Frollo",
+                "Châteaupers-Quasimodo", "Claude Frollo-Quasimodo"]
 object_names_tome = ["1", "2", "3", "4", "5"]
 for i in range(5):
     object_names_tome.extend([f"{obj}_{i+1}" for obj in object_names])
@@ -194,5 +194,4 @@ for to_explore_word in to_explore_words:
         object_col.append(f"{object_smallest.index[i]} ({np.round(object_smallest.iloc[i], 2)})")
     object_df = pd.DataFrame({to_explore_word: object_col})
     word_vs_occ = pd.concat([word_vs_occ, object_df], axis=1)
-word_vs_occ.to_csv("word_vs_occ_wv_LM.csv")
-
+word_vs_occ.to_csv("word_vs_occ_wv_ND.csv")

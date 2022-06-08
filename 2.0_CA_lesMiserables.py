@@ -1,5 +1,3 @@
-import numpy as np
-
 from local_functions import *
 
 # -------------------------------
@@ -17,11 +15,11 @@ min_word_frequency = 20
 # Max interactions
 max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
-min_occurrences = 3
+min_occurrences = 1
 # Use a meta variable to build occurrences (None for original)
-meta_for_occurrences = None
+meta_for_occurrences = "tome"
 # Regularization parameter (0.1)
-regularization_parameter = 0.1
+regularization_parameter = 1
 
 # -------------------------------
 #  Loading
@@ -130,8 +128,8 @@ axes_vs_occurrences = axes_vs_occurrences.reindex(sorted(axes_vs_occurrences.col
 # ---- Explore the desired relationships
 
 # Objects to explore
-object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
-                "Javert-Valjean", "Myriel", "Myriel-Valjean"]
+object_names = ["T1", "T2", "T3", "T4", "T5", "Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean",
+                "Marius-Valjean", "Javert", "Javert-Valjean", "Myriel", "Myriel-Valjean"]
 if meta_for_occurrences is not None:
     separation_name = list(set(corpus.meta_variables[meta_for_occurrences]))
     for i in range(len(separation_name)):
@@ -147,7 +145,64 @@ for obj in object_names:
 A_occurrence = words_vs_occurrences[present_object_names]
 A_regression = words_vs_regressions[present_object_names]
 
-# ---- Plot
+occ_v_word = pd.DataFrame(index=range(10))
+for object_name in present_object_names:
+    object_largest = A_occurrence[object_name].nlargest()
+    object_smallest = A_occurrence[object_name].nsmallest()
+    object_col = []
+    for i in range(object_largest.shape[0]):
+        object_col.append(f"{object_largest.index[i]} ({np.round(object_largest.iloc[i], 2)})")
+    for i in range(object_smallest.shape[0]):
+        object_col.append(f"{object_smallest.index[i]} ({np.round(object_smallest.iloc[i], 2)})")
+    object_df = pd.DataFrame({object_name: object_col})
+    occ_v_word = pd.concat([occ_v_word, object_df], axis=1)
+occ_v_word.to_csv("occ_v_word.csv")
+
+reg_v_word = pd.DataFrame(index=range(10))
+for object_name in present_object_names:
+    object_largest = A_regression[object_name].nlargest()
+    object_smallest = A_regression[object_name].nsmallest()
+    object_col = []
+    for i in range(object_largest.shape[0]):
+        object_col.append(f"{object_largest.index[i]} ({np.round(object_largest.iloc[i], 2)})")
+    for i in range(object_smallest.shape[0]):
+        object_col.append(f"{object_smallest.index[i]} ({np.round(object_smallest.iloc[i], 2)})")
+    object_df = pd.DataFrame({object_name: object_col})
+    reg_v_word = pd.concat([reg_v_word, object_df], axis=1)
+reg_v_word.to_csv("reg_v_word_long2.csv")
+
+to_explore_words = ["aimer", "rue", "justice", "guerre"]
+word_vs_occ = pd.DataFrame(index=range(10))
+for to_explore_word in to_explore_words:
+    object_largest = occurrences_vs_words[to_explore_word].nlargest()
+    object_smallest = occurrences_vs_words[to_explore_word].nsmallest()
+    object_col = []
+    for i in range(object_largest.shape[0]):
+        object_col.append(f"{object_largest.index[i]} ({np.round(object_largest.iloc[i], 2)})")
+    for i in range(object_smallest.shape[0]):
+        object_col.append(f"{object_smallest.index[i]} ({np.round(object_smallest.iloc[i], 2)})")
+    object_df = pd.DataFrame({to_explore_word: object_col})
+    word_vs_occ = pd.concat([word_vs_occ, object_df], axis=1)
+word_vs_occ.to_csv("word_vs_occ.csv")
+
+to_explore_words = ["aimer", "rue", "justice", "guerre"]
+word_vs_reg = pd.DataFrame(index=range(10))
+for to_explore_word in to_explore_words:
+    object_largest = regression_vs_words[to_explore_word].nlargest()
+    object_smallest = regression_vs_words[to_explore_word].nsmallest()
+    object_col = []
+    for i in range(object_largest.shape[0]):
+        object_col.append(f"{object_largest.index[i]} ({np.round(object_largest.iloc[i], 2)})")
+    for i in range(object_smallest.shape[0]):
+        object_col.append(f"{object_smallest.index[i]} ({np.round(object_smallest.iloc[i], 2)})")
+    object_df = pd.DataFrame({to_explore_word: object_col})
+    word_vs_reg = pd.concat([word_vs_reg, object_df], axis=1)
+word_vs_reg.to_csv("word_vs_reg.csv")
+
+
+# -------------------------------
+#  Analyses
+# -------------------------------
 
 # Selection of axes
 axes = [0, 1]
@@ -160,14 +215,139 @@ top_words = np.array(corpus.units_words.columns)[top_word_index]
 # Compute all coord
 all_coord = np.concatenate([row_coord, sel_col_coord])
 
+# --- Plot 1
+
 fig, ax = plt.subplots()
+
 ax.scatter(all_coord[:, axes[0]], all_coord[:, axes[1]], alpha=0, color="white")
 
 for i, txt in enumerate(list(corpus.units_words.index)):
-    ax.annotate(txt, (row_coord[i, 0], row_coord[i, 1]), size=10, color="red")
+    ax.annotate(txt, (row_coord[i, axes[0]], row_coord[i, axes[1]]), size=10, color="red")
 
 for i, txt in enumerate(top_words):
-    ax.annotate(txt, (sel_col_coord[i, 0], sel_col_coord[i, 1]), size=12, color="blue", alpha=0.8)
+    ax.annotate(txt, (sel_col_coord[i, axes[0]], sel_col_coord[i, axes[1]]), size=12, color="blue", alpha=0.8)
 
 ax.grid()
 plt.show()
+
+# --- Plot 2
+
+plotted_characters = ["Cosette", "Javert", "Marius"]
+character_colors = ["green", "purple", "red"]
+other_color = "grey"
+shift = 0.005
+
+plotted_character = plotted_characters[0]
+
+fig, ax = plt.subplots()
+
+ax.scatter(all_coord[:, axes[0]], all_coord[:, axes[1]], alpha=0, color="white")
+
+for i, txt in enumerate(top_words):
+    ax.annotate(txt, (sel_col_coord[i, 0], sel_col_coord[i, 1]), size=10, color="blue", alpha=0.2)
+
+all_char_index = []
+for id_char, plotted_character in enumerate(plotted_characters):
+    character_indices = np.where(corpus.occurrences[plotted_character].to_numpy())[0]
+    char_unit_names = corpus.units_words.index.to_numpy()[character_indices]
+    character_coords = row_coord[character_indices, :]
+    mean_coords = character_coords.mean(axis=0)
+    all_char_index.extend(char_unit_names)
+    for i, index in enumerate(char_unit_names):
+        ax.annotate(index,
+                    (character_coords[i, axes[0]] + shift*id_char,
+                     character_coords[i, axes[1]] + shift*id_char),
+                    size=12, color=character_colors[id_char], alpha=0.8)
+    ax.annotate(plotted_characters[id_char], (mean_coords[axes[0]], mean_coords[axes[1]]), size=20,
+                color=character_colors[id_char])
+
+for i, txt in enumerate(list(corpus.units_words.index)):
+    if txt not in set(all_char_index):
+        ax.annotate(txt, (row_coord[i, axes[0]], row_coord[i, axes[1]]), size=8, color=other_color, alpha=0.2)
+
+ax.grid()
+plt.show()
+
+# --- Plot 3
+
+plotted_characters = ["Cosette", "Javert", "Cosette-Javert"]
+character_colors = ["green", "red", "orange"]
+other_color = "grey"
+
+plotted_character = plotted_characters[0]
+
+fig, ax = plt.subplots()
+
+ax.scatter(all_coord[:, axes[0]], all_coord[:, axes[1]], alpha=0, color="white")
+
+for i, txt in enumerate(top_words):
+    ax.annotate(txt, (sel_col_coord[i, 0], sel_col_coord[i, 1]), size=10, color="blue", alpha=0.2)
+
+all_char_index = []
+interaction_indices = np.where(corpus.occurrences[plotted_characters[2]].to_numpy())[0]
+for id_char, plotted_character in enumerate(plotted_characters):
+    character_indices = np.where(corpus.occurrences[plotted_character].to_numpy())[0]
+    if id_char < 2:
+        character_indices = np.array([ind for ind in character_indices if ind not in interaction_indices])
+    char_unit_names = corpus.units_words.index.to_numpy()[character_indices]
+    character_coords = row_coord[character_indices, :]
+    mean_coords = character_coords.mean(axis=0)
+    all_char_index.extend(char_unit_names)
+    for i, index in enumerate(char_unit_names):
+        ax.annotate(index,
+                    (character_coords[i, axes[0]],
+                     character_coords[i, axes[1]]),
+                    size=12, color=character_colors[id_char], alpha=0.8)
+    ax.annotate(plotted_characters[id_char], (mean_coords[axes[0]], mean_coords[axes[1]]), size=16,
+                color=character_colors[id_char])
+
+for i, txt in enumerate(list(corpus.units_words.index)):
+    if txt not in set(all_char_index):
+        ax.annotate(txt, (row_coord[i, axes[0]], row_coord[i, axes[1]]), size=8, color=other_color, alpha=0.2)
+
+ax.grid()
+plt.show()
+
+
+# --- Plot 4
+
+plotted_characters = ["Cosette", "Javert", "Cosette-Javert"]
+character_colors = ["green", "red", "orange"]
+other_color = "grey"
+scale = 50
+
+plotted_character = plotted_characters[0]
+
+fig, ax = plt.subplots()
+
+ax.scatter(all_coord[:, axes[0]], all_coord[:, axes[1]], alpha=0, color="white")
+
+for i, txt in enumerate(top_words):
+    ax.annotate(txt, (sel_col_coord[i, 0], sel_col_coord[i, 1]), size=10, color="blue", alpha=0.2)
+
+all_char_index = []
+interaction_indices = np.where(corpus.occurrences[plotted_characters[2]].to_numpy())[0]
+for id_char, plotted_character in enumerate(plotted_characters):
+    character_indices = np.where(corpus.occurrences[plotted_character].to_numpy())[0]
+    if id_char < 2:
+        character_indices = np.array([ind for ind in character_indices if ind not in interaction_indices])
+    char_unit_names = corpus.units_words.index.to_numpy()[character_indices]
+    character_coords = row_coord[character_indices, :]
+    mean_coords_idx = np.where(corpus.occurrences.columns.to_numpy() == plotted_character)[0][0]
+    mean_coords = regression_coord[mean_coords_idx, :].reshape(-1) * scale
+    all_char_index.extend(char_unit_names)
+    for i, index in enumerate(char_unit_names):
+        ax.annotate(index,
+                    (character_coords[i, axes[0]],
+                     character_coords[i, axes[1]]),
+                    size=12, color=character_colors[id_char], alpha=0.8)
+    ax.annotate(plotted_characters[id_char], (mean_coords[axes[0]], mean_coords[axes[1]]), size=16,
+                color=character_colors[id_char])
+
+for i, txt in enumerate(list(corpus.units_words.index)):
+    if txt not in set(all_char_index):
+        ax.annotate(txt, (row_coord[i, axes[0]], row_coord[i, axes[1]]), size=8, color=other_color, alpha=0.2)
+
+ax.grid()
+plt.show()
+

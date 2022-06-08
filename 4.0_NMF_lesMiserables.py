@@ -1,4 +1,4 @@
-from sklearn.decomposition import NMF
+from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.feature_extraction.text import TfidfVectorizer
 from local_functions import *
 
@@ -12,16 +12,12 @@ corpus_tsv_path = "corpora/LesMiserables_fr/LesMiserables_tokens.tsv"
 aliases_path = "corpora/LesMiserables_fr/LesMiserables_aliases.txt"
 # Set aggregation level (None for each line)
 aggregation_level = "chapitre"
-# Minimum occurrences for words
-min_word_frequency = 20
 # Max interactions
 max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
-min_occurrences = 3
+min_occurrences = 5
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
-# Regularization parameter
-regularization_parameter = 1
 
 # -------------------------------
 #  Loading
@@ -55,9 +51,6 @@ corpus.aggregate_on(aggregation_level)
 # Construct the unit-term matrix and remove rare words
 corpus.build_units_words(TfidfVectorizer(max_df=0.95, min_df=2, max_features=1000, stop_words=used_stop_words))
 
-# Make a threshold for the minimum vocabulary and remove units without words
-#corpus.remove_words_with_frequency(min_word_frequency)
-
 # Remove characters from words
 corpus.remove_words(character_names)
 
@@ -73,7 +66,7 @@ corpus.update_occurrences_across_meta(meta_for_occurrences)
 
 # Make sure no units are empty
 corpus.remove_units_without_words()
-corpus.remove_units_without_occurrences()
+#corpus.remove_units_without_occurrences()
 corpus.remove_occurrences_with_frequency(1e-10)
 corpus.remove_words_with_frequency(1e-10)
 
@@ -85,14 +78,16 @@ tfidf_sums = corpus.units_words.sum(axis=1).to_numpy()
 # -------------------------------
 
 # --- Make the NMF model
-n_groups = 10
+n_groups = 20
 
 nmf_model = NMF(n_components=n_groups, init="nndsvd", max_iter=2000)
+#nmf_model = LatentDirichletAllocation(n_components=n_groups)
 nmf_model.fit(corpus.units_words.to_numpy())
 
 # Getting components for units and words
 unit_prob = nmf_model.transform(corpus.units_words.to_numpy())
 word_prob = nmf_model.components_
+word_prob = word_prob / word_prob.sum(axis=1).reshape(-1, 1)
 
 theme_vs_word = pd.DataFrame(word_prob.T, index=corpus.units_words.columns)
 theme_vs_unit = pd.DataFrame(unit_prob)
@@ -102,7 +97,25 @@ char_vs_theme = build_occurrences_vectors(corpus.occurrences, unit_prob)
 
 # Make the regression vectors
 unit_sizes = corpus.units_words.sum(axis=1).to_numpy()
-reg_vs_theme = build_logistic_regression_vectors(corpus.occurrences, unit_prob, tfidf_sums*10)
+reg_vs_theme = build_logistic_regression_vectors(corpus.occurrences, unit_prob, tfidf_sums)
+reg_vs_theme = build_occurrences_vectors(corpus.occurrences, unit_prob)
 reg_vs_theme = pd.DataFrame(reg_vs_theme, list(corpus.occurrences.columns))
-reg_vs_theme_2 = build_logistic_regression_vectors(corpus.occurrences, unit_prob, corpus.n_tokens)
-reg_vs_theme_2 = pd.DataFrame(reg_vs_theme, list(corpus.occurrences.columns))
+theme_vs_reg = reg_vs_theme.transpose()
+theme_vs_reg = theme_vs_reg.reindex(sorted(theme_vs_reg.columns), axis=1)
+
+# Objects to explore
+object_names = ["T1", "T2", "T3", "T4", "T5", "Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean",
+                "Marius-Valjean", "Javert", "Javert-Valjean", "Myriel", "Myriel-Valjean"]
+if meta_for_occurrences is not None:
+    separation_name = list(set(corpus.meta_variables[meta_for_occurrences]))
+    for i in range(len(separation_name)):
+        separation_name.extend([f"{obj}_{i+1}" for obj in object_names])
+    object_names.extend(separation_name)
+
+# The subset of object
+present_object_names = []
+for obj in object_names:
+    if obj in theme_vs_reg.columns:
+        present_object_names.append(obj)
+
+A_regression = theme_vs_reg[present_object_names]
