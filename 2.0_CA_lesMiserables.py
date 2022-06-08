@@ -201,7 +201,7 @@ word_vs_reg.to_csv("word_vs_reg.csv")
 
 
 # -------------------------------
-#  Analyses
+#  Plots
 # -------------------------------
 
 # Selection of axes
