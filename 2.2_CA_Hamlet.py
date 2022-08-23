@@ -1,5 +1,5 @@
-from nltk.corpus import stopwords
 from local_functions import *
+from nltk.corpus import stopwords
 
 # -------------------------------
 #  Parameters

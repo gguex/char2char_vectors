@@ -6,14 +6,15 @@ import re
 # -------------------------------
 
 min_occurrences_threshold = 2
+book_name = "candide"
 
 # -------------------------------
 #   Code
 # -------------------------------
 
 # Load entities and token list
-entities_df = pd.read_csv("corpora/relationship_corpora_characters/candide.entities", sep="\t")
-token_df = pd.read_csv("corpora/relationship_corpora_characters/candide.tokens", sep="\t")
+entities_df = pd.read_csv(f"corpora/relationship_corpora_characters/{book_name}.entities", sep="\t")
+token_df = pd.read_csv(f"corpora/relationship_corpora_characters/{book_name}.tokens", sep="\t")
 
 # Remove -1 entities and keep characters
 entities_df = entities_df.loc[(entities_df.COREF > 0) & (entities_df.cat == "PER")]
@@ -53,4 +54,6 @@ for sentence_id in token_df.sentence_ID.unique():
     row_dict["text"] = text
     output_data.append(row_dict)
 
+# Build dataframe and save it
 results_df = pd.DataFrame(output_data, columns=["paragraph_id", "text"] + characters)
+results_df.to_csv(f"corpora/relationship_preprocessed/{book_name}.tsv", sep="\t")
