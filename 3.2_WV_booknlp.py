@@ -17,11 +17,11 @@ min_word_frequency = 5
 # Max interactions
 max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
-min_occurrences = 2
+min_occurrences = 5
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
 # Regularization parameter
-regularization_parameter = 0.01
+regularization_parameter = 1
 
 # -------------------------------
 #  Loading
@@ -155,4 +155,14 @@ words_vs_regressions = words_vs_regressions.reindex(sorted(words_vs_regressions.
 
 # ---- Explore the list of words
 
-word_to_check = ["friend", "enemy", "acquaintance", "lovers", "rivals", "employer", "employee"]
+# List of word to check
+word_to_check = ["familial", "social", "professional"]
+
+# Making vectors for these words
+word_to_check_coord = np.zeros((len(word_to_check), wv_dim))
+for i, word in enumerate(word_to_check):
+    word_to_check_coord[i, :] = wv_model.get_vector(word)
+
+# Compute the cosine sim between occurrences_coord and word_coord
+words_vs_check = pd.DataFrame(compute_cosine(word_to_check_coord, regression_coord), index=word_to_check,
+                              columns=corpus.occurrences.columns)
