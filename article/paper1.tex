@@ -1,0 +1,104 @@
+%% The first command in your LaTeX source must be the \documentclass command.
+%%
+%% Options:
+%% twocolumn : Two column layout.
+%% hf: enable header and footer.
+\documentclass[
+twocolumn,
+% hf,
+]{ceurart}
+
+%%
+%% One can fix some overfulls
+\sloppy
+
+%%
+%% Minted listings support 
+%% Need pygment <http://pygments.org/> <http://pypi.python.org/pypi/Pygments>
+\usepackage{listings}
+%% auto break lines
+\lstset{breaklines=true}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% Rights management information.
+%% CC-BY is default license.
+\copyrightyear{2022}
+\copyrightclause{Copyright for this paper by its authors.
+  Use permitted under Creative Commons License Attribution 4.0
+  International (CC BY 4.0).}
+
+%%
+%% This command is for the conference information
+\conference{COMHUM 2022: Workshop on Computational Methods in the Humanities,
+  June 9--10, 2022, Lausanne, Switzerland}
+
+%%
+%% The "title" command^
+\title{Refining character relationships using embeddings of textual units}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+\author[1]{Guillaume Guex}[%s
+orcid=0000-0003-1001-9525,
+email=guillaume.guex@unil.ch]
+\address[1]{Departement of Language and Information Sciences, University of Lausanne, Switzerland}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+  A clear and well-documented \LaTeX{} document is presented as an
+  article formatted for publication by CEUR-WS in a conference
+  proceedings. Based on the ``ceurart'' document class, this article
+  presents and explains many of the common variations, as well as many
+  of the formatting elements an author may use in the preparation of
+  the documentation of their work.
+\end{abstract}
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\begin{keywords}
+  LaTeX class \sep
+  paper template \sep
+  paper formatting \sep
+  CEUR-WS
+\end{keywords}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\section{Introduction}
+
+Distant reading tools allow researchers, from various fields, to quickly gain knowledge on textual corpora without actually reading them. Purposes of these methods are various, but can be mainly categorized into two groups: in the first case, these methods are used in order to tag, classify, or summary large quantities of texts, in order to quickly structure information or to deliver a speech over the whole studied corpus. Methods in this case rely heavily on Big Data and make an extensive use of Machine Learning algorithms. In the second case, researchers use these methods to underline hidden structures in a particular text, helping them to refine their understanding of it and reinforce stated hypotheses. Methods in this setting can also rely on Machine Learning, but must typically be build with more caution and attention to details: corpus are smaller, analyses are closer to the work, and methods must be more transparent in order to appropriately interpret results. \\
+Automatic extraction and analysis of \emph{character networks} from literacy works typically belong in the latter group. These methods aim at representing various interactions occurring between fictional characters found in a textual narrative with a graph, thus showing explicitly the hidden structure of character relationships constructed by the author. This structure might allow to find hidden pattern within book, which can highlight a particular genre or author style and help to understand a part of the "flavor" given by the author to the text. 
+
+\section{Methods}
+
+
+When building character networks from a textual narrative, the most widespread method consists in dividing the studied work into $n$ textual units $u_1, \ldots, u_n$, which can be, e.g., sentences, paragraphs, or chapters, and counting characters co-occurrences in these units. Usually, the text constituting these units is discarded and the resulting network displays edges which roughly represent an aggregated number of interactions between characters. However, by doing so, the aggregation occurs on various type of interactions and will give little information about the type of relationship which exist between characters. In this paper, we propose a data organization, leading to various type of analyses, which permits the use of the text contained in the unit in order to characterize relationship
+
+\subsection{Data organization}
+
+A textual narrative divided in $n$ textual units $u_1, \ldots, u_n$ can be represented in a $n \times (p+1)$ table $N$, where $p$ is the number of characters found in the narrative. Each line represent a textual unit, the first column is the text composing this unit, and the remaining $p$ columns contains the number of character 
+
+
+\section{Results}
+
+\section{Conclusion}
+
+%%
+%% Define the bibliography file to be used
+\bibliography{charnet}
+
+\end{document}
+
+%%
+%% End of file
