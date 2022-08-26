@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.30)  24 AUG 2022 16:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.30)  26 AUG 2022 15:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1170,79 +1170,136 @@ LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/b/n' aliased to
 (Font)              `T1/LibertinusSans-TLF/bold/n' on input line 88.
 LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/bold/n' will be
 (Font)              scaled to size 10.79997pt on input line 88.
-(./paper1.bbl
+LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/m/n' aliased to
+(Font)              `T1/LibertinusSans-TLF/regular/n' on input line 92.
+LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/regular/n' will be
+(Font)              scaled to size 8.21255pt on input line 92.
+LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/m/n' aliased to
+(Font)              `T1/LibertinusSans-TLF/regular/n' on input line 93.
+LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/regular/n' will be
+(Font)              scaled to size 4.5pt on input line 93.
+LaTeX Font Info:    Calculating math sizes for size <4.5> on input line 94.
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <4.5> not available
+(Font)              size <5> substituted on input line 94.
+
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <3.14998> not available
+(Font)              size <5> substituted on input line 94.
+
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <2.25> not available
+(Font)              size <5> substituted on input line 94.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <4.5> not available
+(Font)              size <5> substituted on input line 94.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <3.14998> not available
+(Font)              size <5> substituted on input line 94.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <2.25> not available
+(Font)              size <5> substituted on input line 94.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <4.5> not available
+(Font)              size <5> substituted on input line 94.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <3.14998> not available
+(Font)              size <5> substituted on input line 94.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <2.25> not available
+(Font)              size <5> substituted on input line 94.
+
+LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/b/n' aliased to
+(Font)              `T1/LibertinusSans-TLF/bold/n' on input line 109.
+LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/bold/n' will be
+(Font)              scaled to size 8.21255pt on input line 109.
+LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/m/it' aliased to
+(Font)              `T1/LibertinusSans-TLF/regular/it' on input line 109.
+LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/regular/it' will be
+(Font)              scaled to size 8.21255pt on input line 109.
+LaTeX Font Info:    Calculating math sizes for size <8.21255> on input line 109
+.
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <4.10628> not available
+(Font)              size <5> substituted on input line 109.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <4.10628> not available
+(Font)              size <5> substituted on input line 109.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <4.10628> not available
+(Font)              size <5> substituted on input line 109.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+LaTeX Font Info:    Font shape `T1/LibertinusSerif-TLF/m/n' aliased to
+(Font)              `T1/LibertinusSerif-TLF/regular/n' on input line 115.
+LaTeX Font Info:    Font shape `T1/LibertinusSerif-TLF/regular/n' will be
+(Font)              scaled to size 8.21255pt on input line 115.
+[1
+
+
+ <./cc-by.pdf> <./ceur-ws-logo.pdf>] (./paper1.bbl
 
 Package natbib Warning: Empty `thebibliography' environment on input line 15.
 
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 101.
-LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/m/n' aliased to
-(Font)              `T1/LibertinusSans-TLF/regular/n' on input line 101.
-LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/regular/n' will be
-(Font)              scaled to size 8.21255pt on input line 101.
-LaTeX Font Info:    Calculating math sizes for size <8.21255> on input line 101
-.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 130.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 130.
+ [2
 
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <4.10628> not available
-(Font)              size <5> substituted on input line 101.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <4.10628> not available
-(Font)              size <5> substituted on input line 101.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <4.10628> not available
-(Font)              size <5> substituted on input line 101.
-
-LaTeX Font Info:    Font shape `T1/LibertinusSerif-TLF/m/n' aliased to
-(Font)              `T1/LibertinusSerif-TLF/regular/n' on input line 101.
-LaTeX Font Info:    Font shape `T1/LibertinusSerif-TLF/regular/n' will be
-(Font)              scaled to size 8.21255pt on input line 101.
-[1
-
-
- <./cc-by.pdf> <./ceur-ws-logo.pdf>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 101.
- (./paper1.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 101.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 101.
+] (./paper1.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 130.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 130.
 Package rerunfilecheck Info: File `paper1.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
 
 LaTeX Font Warning: Size substitutions with differences
-(Font)              up to 1.24995pt have occurred.
+(Font)              up to 2.75pt have occurred.
 
  ) 
 Here is how much of TeX's memory you used:
- 27905 strings out of 481239
- 496984 string characters out of 5920377
- 868415 words of memory out of 5000000
- 42591 multiletter control sequences out of 15000+600000
- 656099 words of font info for 147 fonts, out of 8000000 for 9000
+ 28023 strings out of 481239
+ 500278 string characters out of 5920377
+ 874507 words of memory out of 5000000
+ 42653 multiletter control sequences out of 15000+600000
+ 677032 words of font info for 185 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 63i,20n,81p,10122b,2526s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_oeoa22.e
-nc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5brands1.enc}{
-/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5free1.enc}{/usr/s
-hare/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_nufysp.enc}{/usr/
-share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_75t36g.enc}{/usr
-/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_mfadfl.enc}</us
-r/share/texlive/texmf-dist/fonts/type1/public/fontawesome5/FontAwesome5Brands-R
-egular.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/fontawesome5/FontA
-wesome5Free-Regular.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/liber
-tinus-type1/LibertinusSans-Bold.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/libertinus-type1/LibertinusSerif-Italic.pfb></usr/share/texlive/texmf-di
-st/fonts/type1/public/libertinus-type1/LibertinusSerif-Regular.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-
-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1
-/public/amsfonts/cm/cmsy9.pfb>
-Output written on paper1.pdf (1 page, 273502 bytes).
+ 59i,20n,70p,10122b,2526s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_hvvyjb.e
+nc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_mfadfl.
+enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_oeoa22
+.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5brands1.enc
+}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5free1.enc}{/usr
+/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_nufysp.enc}{/us
+r/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_75t36g.enc}</u
+sr/share/texlive/texmf-dist/fonts/type1/public/fontawesome5/FontAwesome5Brands-
+Regular.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/fontawesome5/Font
+Awesome5Free-Regular.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/libe
+rtinus-type1/LibertinusSans-Bold.pfb></usr/share/texlive/texmf-dist/fonts/type1
+/public/libertinus-type1/LibertinusSans-Italic.pfb></usr/share/texlive/texmf-di
+st/fonts/type1/public/libertinus-type1/LibertinusSans-Regular.pfb></usr/share/t
+exlive/texmf-dist/fonts/type1/public/libertinus-type1/LibertinusSerif-Italic.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/libertinus-type1/Libertinus
+Serif-Regular.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb>
+Output written on paper1.pdf (2 pages, 331920 bytes).
 PDF statistics:
- 130 PDF objects out of 1000 (max. 8388607)
- 8 named destinations out of 1000 (max. 500000)
- 17509 words of extra memory for PDF output out of 20736 (max. 10000000)
+ 161 PDF objects out of 1000 (max. 8388607)
+ 11 named destinations out of 1000 (max. 500000)
+ 19053 words of extra memory for PDF output out of 20736 (max. 10000000)
 
