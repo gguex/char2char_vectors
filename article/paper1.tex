@@ -87,36 +87,69 @@ When building character networks from a textual narrative, the most widespread m
 
 \subsection{Data organization}
 
-A textual narrative divided in $n$ textual units $u_1, \ldots, u_n$ can be represented in a $n \times (1 + p + p^2)$ table, as shown in Table \ref{raw_table}, where $p$ is the number of characters found in the narrative. Each line represent a textual unit, the first column is the text composing this unit, and the next $p$ columns contains variables $O_1, \ldots, O_p$ counting occurrences of each character in the unit. The $p \times p$ remaining columns contains variables $C_{ij}$, which count characters co-occurrences and can be defined with $C_{ij} = \min(O_i, O_j)$. Note that higher order co-occurrences could also be considered (e.g. variables denoting the co-occurrences of three characters), but it remains outside the scope of this article.
+A textual narrative divided in $n$ textual units $u_1, \ldots, u_n$ is represented in this article by two tables. The first one is well known in the field of textual analysis, and consists in the $n \times v$ contingency table $\mathbf{N}$, as represented by Table \ref{cont_table}, where $v$ is the vocabulary size. In this table, each row is an unit, and each columns contain a variable $V_i$, which counts the number of times the word $i$ appears in the unit. Using this table typically denotes a \emph{Bag-of-Words} approach to our analyses. \\
+The second table is a $n \times (p + p^2)$ table $\mathbf{C}$, as shown in Table \ref{char_table}, where $p$ is the number of characters found in the narrative. Each row represents a textual unit, the first column is the text composing this unit, and the next $p$ columns contains variables $O_1, \ldots, O_p$ counting occurrences of each character in the unit. The $p \times p$ remaining columns contains variables $C_{ij}$, which count characters co-occurrences and can be defined with $C_{ij} = \min(O_i, O_j)$. Note that higher order co-occurrences could also be considered (e.g. variables denoting the co-occurrences of three characters), but it remains outside the scope of this article. \\
+
 
 \begin{table}[h]
-	\tiny
-	\begin{tabular}{|l|c|c|c|c|c|c|}
+	\scriptsize
+	\begin{tabular}{|c||c|c|c|c|c|c|}
 		\hline
-		 text & Azelma & Babet & Brujon & ... & Babet-Brujon & ... \\
-		 \hline
-		 \hline 
-		 Il arriva [...] & 1 & 0 & 0 & ... & 0 & ... \\
-		 \hline
-		 Quand Éponine [...] & 0 & 1 & 1 & ... & 1 & ... \\
-		 \hline
-		 Éponine alla [...] & 0 & 1 & 0 & ... & 0 & ... \\
-		 \hline
-		 Si bien qu'en [...] & 0 & 2 & 2 & ... & 2 & ... \\
-		 \hline
+		& a & alarme & alerte & ... & est & ... \\
+		\hline
+		\hline 
+		$u_{4756}$ & 1 & 0 & 0 & ... & 0 & ... \\
+		\hline
+		$u_{4757}$ & 0 & 1 & 1 & ... & 1 & ... \\
+		\hline
+		$u_{4758}$ & 0 & 1 & 0 & ... & 0 & ... \\
+		\hline
+		$u_{4759}$ & 0 & 2 & 2 & ... & 2 & ... \\
+		\hline
 	\end{tabular}
-	\label{raw_table}
-	\caption{A snippet of the data table extracted from \emph{les Misérables}. Rows are paragraphs, the first column contains the text of these paragraphs, the next $p$ columns counts character occurrences, and the last $p \times p$ columns character co-occurrences.}
+	\label{cont_table}
+	\caption{A snippet of the contingency table $\mathbf{N}$ extracted from \emph{les Misérables}. Rows are paragraphs, columns are words in the vocabulary, and cells count the number of time each word appear in the unit.}
 \end{table}
 
+\begin{table}[h]
+	\scriptsize
+	\begin{tabular}{|c||c|c|c|c|c|c|}
+		\hline
+		  & Azelma & Babet & Brujon & ... & Babet-Brujon & ... \\
+		 \hline
+		 \hline 
+		 $u_{4756}$ & 1 & 0 & 0 & ... & 0 & ... \\
+		 \hline
+		 $u_{4757}$ & 0 & 1 & 1 & ... & 1 & ... \\
+		 \hline
+		 $u_{4758}$ & 0 & 1 & 0 & ... & 0 & ... \\
+		 \hline
+		 $u_{4759}$ & 0 & 2 & 2 & ... & 2 & ... \\
+		 \hline
+	\end{tabular}
+	\label{char_table}
+	\caption{A snippet of the character table $\mathbf{C}$ extracted from \emph{les Misérables}. Rows are paragraphs, the first $p$ columns counts character occurrences, and the last $p \times p$ columns character co-occurrences.}
+\end{table}
 
-This data organization can seem trivial, but it already gives an orientation to the subsequent analyses and should be kept in mind of the practitioner. As a matter of fact, textual unit are now considered as \emph{individuals} (in the statistical terminology), defined by their \emph{variables} contained in the different columns. Of course, the whole information is contained in the text column, but, for the moment, this column is raw and improper to any kind of statistical analysis. Its treatment will come later in sections (REF) and (REF). The current digression aims at showing that this dataset is oriented in way to see how the last $p + p^2$ variables, i.e. character occurrences and co-occurrences, have an influence over the text contained in the first variable. While the author uses its characters and character interactions in order to build its narrative, we, to a certain extent, work backward: we are searching how character appearances in the textual unit influence her or his choice of words. The choice to include character co-occurrences along with character occurrences is motivated by the fact that the interaction between two (or more) characters should be considered as an object of its own: this interaction is not necessarily the sum of its parts and gives a particular flavor to the unit.
-As stated before, for the moment, the column containing the text of the unit is improper for statistical analysis. Different approaches could be made in order to extract workable information from this column, such as sentiment analysis (REF), textometry (REF), or even Deep Learning methods. Here, we will restrain ourselves to methods using a \emph{Bag-of-Path} approach.
+This data organization can seem trivial, but it already gives an orientation to the subsequent analyses and should be kept in mind of the practitioner. Textual unit are now considered as \emph{individuals} (in the statistical terminology), defined by their \emph{variables} contained in the different columns of both tables. Moreover, subsequent analyses are oriented in searching how the character table $\mathbf{C}$ have an influence over the contingency table $\mathbf{N}$, i.e. searching which words are over-represented or under-represented knowing the characters composition in the unit. While authors use characters in order to build the narrative, we, to a certain extent, work backward: we are searching how character appearances in the textual unit influence her or his choice of words. The choice to include character co-occurrences along with occurrences is motivated by the fact that the interaction between two (or more) characters should be considered as an object of its own: this interaction is not necessarily the sum of its parts and gives a particular flavor to the unit. \\
+The use of a contingency table to represent the textual resource present in the units denotes a \emph{Bag-of-Words} approach. Using this is approach loses the information relative to the order of words in the units, but permits to transform a chain of characters, improper to statistical analyses, into a contingency table, an well studied mathematical object which permits the use of various kind of statistical methods. \\
+This data organization also highlight the importance of chose a proper size for the units. These units should be large enough to contain enough words in order the properly capture the textual specificity of each unit, but not too large, as each unit should ideally capture a particular kind of state of characters in the narrative, or a particular interaction between them. Unfortunately, it is impossible to define an ideal size for all kind of textual resource, and this size should be balanced regarding knowledge of the studied work.  
 
-\subsection{The Bag-of-Path approach}
+\subsection{Methods}
 
+Various methods can be performed using the previously stated data organization, such as Sentiment Analysis (REF), Textometry (REF), or even Deep Learning methods. Here, we make to choice to extract a lower dimensional, numeric representation of each units, in other words, an \emph{embedding}. Following the guideline stated in the previous section, the approach here is to use the contingency table $N$ in order to embedded the textual units, which will help to see how resulting vectors depends on character occurrences and co-occurrences. Various kind embeddings can be performed, and we will focus here on two methods. Section (REF) describes \emph{Correspondence Analysis (CA)}, and section (REF) focuses on \emph{Pre-trained, static, word vectors (WV)}. In section (REF), we show two different way to use the table $\mathcal{C}$ in order to further embed characters and character pairs into the same spaces. 
 
-detecting how character interactions gives 
+\subsubsection{Correspondence Analysis}
+
+Using Correspondence Analysis in order to analyse textual resources has a long tradition (REF). It has the advantage to provide an embedding space, the factorial map, where units are placed alongside words, allowing to analyse or represent the different units in terms of word specificities. Moreover, units and words placement in the embedding space have a direct interpretation in terms of chi2 distance and profiles, which is desirable when interpreting results. \\
+By performing the Correspondence Analysis, we get $n$ vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ corresponding to units (rows) of table $\mathbf{N}$ and $v$ vectors $\mathbf{w}_1, \ldots, \mathbf{w}_v$ corresponding to words (columns). Each of these vectors has a size of $\min(n, v) - 1$, which will generally be $n - 1$.  (MORE EXPLANATION ON CA ? SEE MQ IV).  \\
+Note that vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$  obtained from CA reflect textual unit profile (in terms of words)  regarding the mean profile. This mean that this analysis is in fact \emph{contrastive}: we highlight unit variations among the studied text. This could therefore becomes problematic if we would like to build our dataset on multiple work: units belonging to the same text have a great chance to be close from each other, and the displayed variance might be largely composed by differences of style between text.   
+
+\subsubsection{Pre-trained word vector}
+
+Pre-trained word vectors, based on Word2Vec (REF), Glove (REF), or Fasttext (REF), have recently received great attention from various fields (REFS). The generally originate from a training of very large corpora, such as Wikipedia (REF) or Common Crawl (REF) and results in a embedding containing a large quantities of word vectors.
+
+\subsubsection{Character and character pairs embeddings}
 
 
 \section{Results}

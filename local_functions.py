@@ -616,6 +616,36 @@ def compute_cosine(vectors_1, vectors_2):
     # Return the matrix of cosine
     return norm_vectors_1 @ norm_vectors_2.T
 
+def get_largest_smallest_indices(df, column_list=None, n=5, option="both"):
+    """
+    A function to get the n largest and smallest index from a dataframe
+    :param column_list: The list of columns to get (None correspond to all)
+    :param n: the number of indices to get (in each direction)
+    :param option: either "both", "largest", or "smallest", defines the direction.
+    """
+
+    # Get the df columns
+    if column_list is not None:
+        df = df[column_list]
+
+    # Loop on the columns
+    result_df = pd.DataFrame(index=range(10))
+    for column_name in df.columns:
+        object_largest = df[column_name].nlargest()
+        object_smallest = df[column_name].nsmallest()
+        indices_col = []
+
+        for i in range(object_largest.shape[0]):
+            indices_col.append(f"{object_largest.index[i]} ({np.round(object_largest.iloc[i], 2)})")
+        for i in range(object_smallest.shape[0]):
+            indices_col.append(f"{object_smallest.index[i]} ({np.round(object_smallest.iloc[i], 2)})")
+        object_df = pd.DataFrame({column_name: indices_col})
+        result_df = pd.concat([result_df, object_df], axis=1)
+
+    # Return resulting dataframe
+    return result_df
+
+
 
 def display_char_o_network(interact_list, edge_polarity_list, edge_weight_list, color="polarity", width="weight",
                            width_rank=False, node_min_width=50, node_max_width=1000, edge_min_width=0.2, edge_max_width=5,
