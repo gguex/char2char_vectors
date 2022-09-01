@@ -83,61 +83,73 @@ Automatic extraction and analysis of \emph{character networks} from literacy wor
 \section{Methodology}
 
 
-When building character networks from a textual narrative, the most widespread method consists in dividing the studied work into $n$ textual units $u_1, \ldots, u_n$, which can be, e.g., sentences, paragraphs, or chapters, and counting characters co-occurrences in these units. Usually, the text constituting these units is discarded and the resulting network displays edges which roughly represent an aggregated number of interactions between characters. However, by doing so, the aggregation occurs on various type of interactions and will give little information about the type of relationship which exist between characters. In this paper, we propose a data organization leading to various methods which takes into consideration the text contained in the unit, helping to refine understanding of characters and their relationships.
+When building character networks from a textual narrative, the most widespread method consists in dividing the studied work into $n$ textual units $u_1, \ldots, u_n$, which can be, e.g., sentences, paragraphs, or chapters, and then counting characters co-occurrences in these units. Usually, the text constituting these units is discarded and the resulting network displays edges which roughly represent an aggregated number of interactions between characters. However, by doing so, the aggregation occurs on various type of interactions and will give little information about the type of relationship which exist between characters. In this paper, we propose a data organization leading to various methods which takes into consideration the text contained in the unit, helping to refine understanding of characters and their relationships.
 
 \subsection{Data organization}
 
-A textual narrative divided in $n$ textual units $u_1, \ldots, u_n$ is represented in this article by two tables. The first one is well known in the field of textual analysis, and consists in the $n \times v$ contingency table $\mathbf{N}$, as represented by Table \ref{cont_table}, where $v$ is the vocabulary size. In this table, each row is an unit, and each columns contain a variable $V_i$, which counts the number of times the word $i$ appears in the unit. Using this table typically denotes a \emph{Bag-of-Words} approach to our analyses. \\
-The second table is a $n \times (p + p^2)$ table $\mathbf{C}$, as shown in Table \ref{char_table}, where $p$ is the number of characters found in the narrative. Each row represents a textual unit, the first column is the text composing this unit, and the next $p$ columns contains variables $O_1, \ldots, O_p$ counting occurrences of each character in the unit. The $p \times p$ remaining columns contains variables $C_{ij}$, which count characters co-occurrences and can be defined with $C_{ij} = \min(O_i, O_j)$. Note that higher order co-occurrences could also be considered (e.g. variables denoting the co-occurrences of three characters), but it remains outside the scope of this article. \\
-
-
+In this article, the data representation for a textual narrative, divided in $n$ textual units $u_1, \ldots, u_n$, is made through two tables. The first one is well known in the field of textual analysis, and consists in the $n \times v$ contingency table $\mathbf{N}$, as represented by Table \ref{cont_table}, where $v$ is the vocabulary size. In this table, each row represents an unit, each column a word, and cells $n_{ij}$ counts the number of times the word $i$ appears in the unit. Using this table typically denotes a \emph{Bag-of-Words} approach in our analyses. \\
 \begin{table}[h]
 	\scriptsize
 	\begin{tabular}{|c||c|c|c|c|c|c|}
 		\hline
-		& a & alarme & alerte & ... & est & ... \\
+		& aller & allumer & apercevoir & bas & bon & ... \\
 		\hline
 		\hline 
-		$u_{4756}$ & 1 & 0 & 0 & ... & 0 & ... \\
+		$u_{100}$ & 23 & 2 & 6 & 11 & 6 & ... \\
 		\hline
-		$u_{4757}$ & 0 & 1 & 1 & ... & 1 & ... \\
+		$u_{7795}$ & 12 & 1 & 0 & 3 & 9 & ... \\
 		\hline
-		$u_{4758}$ & 0 & 1 & 0 & ... & 0 & ... \\
+		$u_{7796}$ & 10 & 0 & 5 & 1 & 5 & ... \\
 		\hline
-		$u_{4759}$ & 0 & 2 & 2 & ... & 2 & ... \\
+		$u_{7797}$ & 0 & 0 & 1 & 0 & 0 & ... \\
 		\hline
 	\end{tabular}
 	\label{cont_table}
-	\caption{A snippet of the contingency table $\mathbf{N}$ extracted from \emph{les Misérables}. Rows are paragraphs, columns are words in the vocabulary, and cells count the number of time each word appear in the unit.}
+	\caption{A snippet of the contingency table $\mathbf{N}$ extracted from \emph{les Misérables}. Rows are chapters, columns are words in the vocabulary, and cell $n_{ij}$ counts the number of time word $j$ appear in chapter $i$.}
 \end{table}
+The second table, denoted by $\mathbf{O}$, has a size of $n \times p$ where $p$ is the number of \emph{character-based objects} found in the narrative and cells $o_{ij}$ counts occurrences of object $j$ in unit $i$. A character-based object can be loosely defined in order to be flexible for various types of narrative or analyses, but can be roughly seen as a countable recurring narrative entity, containing one or more characters. For example, it can be a character occurrence, a character co-occurrence, an oriented character interaction (e.g. a dialog), or even a particular recurring event containing multiple characters (e.g. a lecture). In this article, we mostly consider character occurrences and pair of characters co-occurrences, as shown in Table \ref{occ_table}. 
 
 \begin{table}[h]
 	\scriptsize
-	\begin{tabular}{|c||c|c|c|c|c|c|}
+	\begin{tabular}{|c||c|c|c|c|}
 		\hline
-		  & Azelma & Babet & Brujon & ... & Babet-Brujon & ... \\
-		 \hline
-		 \hline 
-		 $u_{4756}$ & 1 & 0 & 0 & ... & 0 & ... \\
-		 \hline
-		 $u_{4757}$ & 0 & 1 & 1 & ... & 1 & ... \\
-		 \hline
-		 $u_{4758}$ & 0 & 1 & 0 & ... & 0 & ... \\
-		 \hline
-		 $u_{4759}$ & 0 & 2 & 2 & ... & 2 & ... \\
-		 \hline
+		& Cosette & Thénardier & Valjean & ... \\
+		\hline
+		\hline 
+		$u_{101}$ & 66 & 78 & 0 & ... \\
+		\hline
+		$u_{102}$ & 21 & 26 & 0 & ... \\
+		\hline
+		$u_{103}$ & 12 & 25 & 0 & ... \\
+		\hline
+		$u_{104}$ & 12 & 0 & 5 & ... \\
+		\hline
 	\end{tabular}
-	\label{char_table}
-	\caption{A snippet of the character table $\mathbf{C}$ extracted from \emph{les Misérables}. Rows are paragraphs, the first $p$ columns counts character occurrences, and the last $p \times p$ columns character co-occurrences.}
+	\begin{tabular}{|c||c|c|c|c|}
+		\hline
+		& ... & Cosette-Thénardier & Cosette-Valjean & ... \\
+		\hline
+		\hline 
+		$u_{101}$  	& ... & 66 & 0 &  ... \\
+		\hline
+		$u_{102}$ 	& ... & 21 & 0 & ... \\
+		\hline
+		$u_{103}$  	& ... & 12 & 0 & ... \\
+		\hline
+		$u_{104}$ 	& ... & 0 & 5 & ... \\
+		\hline
+	\end{tabular}
+	\label{occ_table}
+	\caption{A snippet of the character-based objects table $\mathbf{O}$ extracted from \emph{les Misérables}. Rows are chapters, columns are character occurrences (top) and character co-occurrences (bottom), and cell $o_{ij}$ counts the number of times object $j$ appear in chapter $i$. Character co-occurrences are computed here as $o_{ij} = \min(o_{ik}, o_{il})$, where $\{k, l\}$ are characters constituting $j$.}
 \end{table}
 
-This data organization can seem trivial, but it already gives an orientation to the subsequent analyses and should be kept in mind of the practitioner. Textual unit are now considered as \emph{individuals} (in the statistical terminology), defined by their \emph{variables} contained in the different columns of both tables. Moreover, subsequent analyses are oriented in searching how the character table $\mathbf{C}$ have an influence over the contingency table $\mathbf{N}$, i.e. searching which words are over-represented or under-represented knowing the characters composition in the unit. While authors use characters in order to build the narrative, we, to a certain extent, work backward: we are searching how character appearances in the textual unit influence her or his choice of words. The choice to include character co-occurrences along with occurrences is motivated by the fact that the interaction between two (or more) characters should be considered as an object of its own: this interaction is not necessarily the sum of its parts and gives a particular flavor to the unit. \\
-The use of a contingency table to represent the textual resource present in the units denotes a \emph{Bag-of-Words} approach. Using this is approach loses the information relative to the order of words in the units, but permits to transform a chain of characters, improper to statistical analyses, into a contingency table, an well studied mathematical object which permits the use of various kind of statistical methods. \\
-This data organization also highlight the importance of chose a proper size for the units. These units should be large enough to contain enough words in order the properly capture the textual specificity of each unit, but not too large, as each unit should ideally capture a particular kind of state of characters in the narrative, or a particular interaction between them. Unfortunately, it is impossible to define an ideal size for all kind of textual resource, and this size should be balanced regarding knowledge of the studied work.  
+This data organization already gives an orientation to the subsequent analyses and should be kept in mind of the practitioner. Textual unit are now considered as \emph{individuals} (in the statistical terminology), defined by their \emph{variables} contained in the different columns of both tables. Moreover, subsequent analyses are oriented in searching how the object table $\mathbf{O}$ has an influence over the contingency table $\mathbf{N}$, i.e. searching which words are over-represented or under-represented knowing the character-based objects in the unit. While authors use characters in order to build the narrative, we, to a certain extent, work backward: we are searching how character appearances and interactions in the textual unit act on her/his choice of words. If extraction methods permit it, a practitioner should include all character-based objects which she/he desire to study. Here, for example, the choice to include character co-occurrences along with occurrences is motivated by the fact that we are interested in studying character relationships. A character co-occurrence can roughly be seen as an interaction between two characters, and an interaction between two characters (or more, but higher order interactions are outside the scope of this article) should be considered as an object of its own: this interaction is not necessarily the sum of its parts and gives a particular flavor to the unit. \\
+This data organization also highlight the importance of choosing a proper size for the units. These units should be large enough to contain enough words in order the properly capture the textual specificity of each unit, but not too large, as each unit should ideally capture particularities about one of the character-based objects. Unfortunately, it is impossible to define an ideal size for all types of analysis, and this size should be balanced regarding the level of analysis, text size, selected character-based objects, and previous knowledge of the studied work. \\
+The use of a contingency table to represent the textual resource present in the units denotes a \emph{Bag-of-Words} approach. Using this approach loses the information relative to the order of words in the units, but permits to transform a chain of characters, improper to statistical analyses, into a contingency table, a well studied mathematical object which permits the use of various kind of statistical methods. The next section shows two methods of analysis based on this table. \\
 
-\subsection{Methods}
+\subsection{Embedding of textual units}
 
-Various methods can be performed using the previously stated data organization, such as Sentiment Analysis (REF), Textometry (REF), or even Deep Learning methods. Here, we make to choice to extract a lower dimensional, numeric representation of each units, in other words, an \emph{embedding}. Following the guideline stated in the previous section, the approach here is to use the contingency table $N$ in order to embedded the textual units, which will help to see how resulting vectors depends on character occurrences and co-occurrences. Various kind embeddings can be performed, and we will focus here on two methods. Section (REF) describes \emph{Correspondence Analysis (CA)}, and section (REF) focuses on \emph{Pre-trained, static, word vectors (WV)}. In section (REF), we show two different way to use the table $\mathcal{C}$ in order to further embed characters and character pairs into the same spaces. 
+Various methods can be performed on the contingency table $\mathbf{N}$ in order to extract information from it, such as Sentiment Analysis (REF), Textometry (REF), or even Deep Learning methods. Here, we make to choice to extract a lower dimensional, numeric representation of each units, in other words, an \emph{embedding of textual units}. In section (REF) These embeddings will help to see how resulting vectors depends on character occurrences and co-occurrences. Various kind embeddings can be performed, and we will focus here on two methods. Section (REF) describes \emph{Correspondence Analysis (CA)} and section (REF) focuses on \emph{Pre-trained, static, word vectors (WV)}. 
 
 \subsubsection{Correspondence Analysis}
 

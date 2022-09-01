@@ -17,7 +17,7 @@ max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
 min_occurrences = 1
 # Use a meta variable to build occurrences (None for original)
-meta_for_occurrences = "tome"
+meta_for_occurrences = None
 # Regularization parameter (0.1)
 regularization_parameter = 1
 
@@ -64,7 +64,7 @@ interaction_occurrences = build_interactions(corpus.occurrences, max_interaction
 corpus.occurrences = pd.concat([corpus.occurrences, interaction_occurrences], axis=1)
 
 # Make occurrences binary
-corpus.occurrences = 1*(corpus.occurrences >= min_occurrences)
+#corpus.occurrences = 1*(corpus.occurrences >= min_occurrences)
 
 # Make the occurrences across a meta
 corpus.update_occurrences_across_meta(meta_for_occurrences)
