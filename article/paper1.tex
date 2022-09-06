@@ -100,13 +100,13 @@ In this article, the data representation for a textual narrative, divided in $n$
 		& aller & allumer & apercevoir & bas & bon & ... \\
 		\hline
 		\hline 
-		$u_{100}$ & 23 & 2 & 6 & 11 & 6 & ... \\
+		$u_{101}$ & 23 & 2 & 6 & 11 & 6 & ... \\
 		\hline
-		$u_{7795}$ & 12 & 1 & 0 & 3 & 9 & ... \\
+		$u_{102}$ & 12 & 1 & 0 & 3 & 9 & ... \\
 		\hline
-		$u_{7796}$ & 10 & 0 & 5 & 1 & 5 & ... \\
+		$u_{103}$ & 10 & 0 & 5 & 1 & 5 & ... \\
 		\hline
-		$u_{7797}$ & 0 & 0 & 1 & 0 & 0 & ... \\
+		$u_{104}$ & 0 & 0 & 1 & 0 & 0 & ... \\
 		\hline
 	\end{tabular}
 	\label{cont_table}
@@ -156,32 +156,56 @@ This data organization also highlight the importance of choosing a proper size f
 The use of a contingency table to represent the textual resource present in the units denotes a \emph{Bag-of-Words} approach. Using this approach loses the information relative to the order of words in the units, but permits to transform a chain of characters, improper to statistical analyses, into a contingency table, a well studied mathematical object which permits the use of various kind of statistical methods. The next section shows two methods of analysis based on this table.
 
 \subsection{Embedding of textual units}
+\label{unit_embeddings}
 
 Various methods can be performed on the contingency table $\mathbf{N}$ in order to extract information from it, such as Sentiment Analysis (REF), Textometry (REF), or even Deep Learning methods. Here, we make to choice to extract a lower dimensional, numeric representation of each units, in other words, an \emph{embedding of textual units}. \\
 In section (REF), these vectors of textual units are used as anchor points in order to also embed character-based objects in the same space. Therefore, it is crucial that an interpretation about the directions, or the regions, of this embedding is possible in order to properly extract information about the localization of character-based objects vectors (the relative position of these vectors is insufficient). For that reason, we focus on embeddings of textual units which also contain \emph{vectors of words}: by examining the positions of character-based objects relatively to word vectors, these objects can be characterized.
 
-We propose here two embeddings verifying this condition: Section (REF) describes \emph{Correspondence Analysis (CA)} and section (REF) focuses on \emph{Pre-trained word vectors (WV)}. 
+We propose here two embeddings verifying this condition: Section \ref{ca_method} describes \emph{Correspondence Analysis (CA)} and section \ref{wv_method} focuses on \emph{Pre-trained Word Vectors (WV)}. 
 
 \subsubsection{Correspondence Analysis (CA)}
+\label{ca_method}
 
 Using Correspondence Analysis in order to analyze textual resources has a long tradition in literature (REF). It has the advantage to naturally provide an embedding space, the factorial map, where units are placed alongside word vectors, allowing to analyze or represent the different units in terms of word frequency profiles. Moreover, units and words placement in the embedding space have a direct interpretation in terms of chi2 distance between profiles, which is desirable when interpreting results.
 
-By performing a Correspondence Analysis on table $\mathbf{N}$, we get $n$ vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ corresponding to units (rows) and $v$ vectors $\mathbf{w}_1, \ldots, \mathbf{w}_v$ corresponding to words (columns). Each of these vectors has a size of $\min(n, v) - 1$, which will generally be $n - 1$. For detailed computations of quantities given by the CA, see Appendix \ref{ca_details}. The position of a unit vector $\mathbf{x}_i$ can be interpreted by mutliple approaches, but we mainly use two here.
+By performing a Correspondence Analysis on table $\mathbf{N}$, we directly get $n$ vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ corresponding to units (rows) and $v$ vectors $\mathbf{w}_1, \ldots, \mathbf{w}_v$ corresponding to words (columns). Each of these vectors has a size of $\min(n, v) - 1$, which will generally be $n - 1$. For detailed computations of quantities given by the CA, see Appendix \ref{ca_details}. The position of a unit vector $\mathbf{x}_i$ can be interpreted by mutliple approaches, but we mainly use two here.
 
-The first way to interpret it is to look at the unit-vector position on a particular axis $\alpha$, i.e. looking at the component $x_{i\alpha}$. This component gives the position of the unit on a particular found "contrast" between units, depending on the chosen $\alpha$, and this contrast will be strong if $p_\alpha$, i.e. \emph{the proportion of inertia expressed in $\alpha$}, is high. It can further be interpreted by observing the \emph{contribution of each word $j$} composing the axis $\alpha$, i.e. $c^w_{j\alpha}$ and looking at the sign of $w_{j\alpha}$. Hopefully, by extracting and interpreting the most positive and negative contributing words, the chosen axis can express a particular duality which operates inside the studied text (e.g. love-hatred, action-description, lightness-darkness). The second method is to directly look at the \emph{similarities} $s_{ij}$ between an unit $i$ and a word $j$, as defined by the scalar product between their vectors $s_{ij} := \mathbf{x}^\top_i \mathbf{w}_j$. A positive (resp. negative) similarity denotes a over-representation (resp. under-representation) of the word $j$ in $i$, which permit to find lists of words characterizing the different units. Observe that in this article, both methods are rather applied to character-based object vectors defined in section (REF), as they lay in the same space as unit vectors. 
+The first way to interpret it is to look at the unit-vector position on a particular axis $\alpha$, i.e. looking at the component $x_{i\alpha}$. This component gives the position of the unit on a particular found "contrast" between units, depending on the chosen $\alpha$, and this contrast will be strong if $p_\alpha$, i.e. \emph{the proportion of inertia expressed in $\alpha$}, is high. It can further be interpreted by observing the \emph{contribution of each word $j$} composing the axis $\alpha$, i.e. $c^w_{j\alpha}$ and looking at the sign of $w_{j\alpha}$. Hopefully, by extracting and interpreting the most positive and negative contributing words, the chosen axis can express a particular duality which operates inside the studied text (e.g. love-hatred, action-description, lightness-darkness). The second method is to directly look at the \emph{similarities} $s_{ij}$ between an unit $i$ and a word $j$, as defined by the scalar product between their vectors $s_{ij} := \mathbf{x}^\top_i \mathbf{w}_j$. A positive (resp. negative) similarity denotes a over-representation (resp. under-representation) of the word $j$ in $i$, which permit to find lists of words characterizing the different units. Observe that in this article, both methods are rather applied to character-based object vectors defined in section (REF), as they lie in the same space as unit vectors. 
 
 Using CA to embedded units however comes with some limitations. First, note that vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ obtained from CA reflect textual unit profile (in terms of words) regarding the mean profile. This analysis is therefore \emph{contrastive}: it highlights unit variations among the studied text. This could becomes problematic in order to study a dataset containing multiple texts: units belonging to the same text will have a greater chance to be close from each other, and the displayed variance might be largely composed by differences of style between text. Another limitation with this approach is that the words helping the interpretation of units (and character-based objects) are contained in the studied text. Approaches requiring to study the position of units and objects relatively to a predefined list of words (e.g., friends, enemies, family) might therefore be impossible.
 
-\subsubsection{Pre-trained word vector (WV)}
+\subsubsection{Pre-trained Word Vectors (WV)}
+\label{wv_method}
 
 Pre-trained word vectors, based on Word2Vec (REF), Glove (REF), or fastText (REF), have recently received great attention from various fields (REFS). They are generally obtained through a training on a very large corpora, such as Wikipedia (REF) or Common Crawl (REF), and the resulting embedding contains a large quantity of word vectors. As shown by multiple studies (REF), these vectors are placed in order to reflect semantic and syntactic similarities between words, and are used in mutliple applications (REF). 
 
-There exists various ways to use these pre-trained word vectors in order to find vectors for a \emph{group of words}, such as sentences (REF), paragraphs (REF), or documents (REF). These vectors are often used to apply a classification or clustering algorithm on the newly embedded objects (REF), or to query information (REF). These methods often use the frequencies of words found in the objects, i.e. a table similar to $\mathbf{N}$, but apply various weighting scheme and normalization in order to reduce the effects of frequent words and align vectors. In the present article, we use a recent methodology proposed in (REF) as it is compatible with multiple unit size and gives state-of-the-art results in multiple tasks. 
+There exists various ways to use these pre-trained word vectors in order to find vectors for a \emph{group of words}, such as sentences (REF), paragraphs (REF), or documents (REF). These vectors are often used to apply a classification or clustering algorithm on the newly embedded objects (REF), or to query information (REF). These methods often use the frequencies of words found in the objects, i.e. a table similar to $\mathbf{N}$, but apply various weighting scheme and normalization in order to reduce the effects of frequent words and to align vectors. In the present article, we use a recent methodology proposed in (REF) as it is compatible with multiple unit size and gives state-of-the-art results in multiple tasks. 
 
-More precisely, we use a pre-trained word vectors $\mathbf{w}_1, \ldots, \mathbf{w}_m$ trained on Common Crawl and Wikipedia using fastText.\footnote{\url{ https://fasttext.cc/docs/en/crawl-vectors.html}, accessed September 2022.} For French, the number of word-vectors $m$ is 2 millions and the dimension of vectors are $300$. Textual units vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ are obtained through the table $\mathbf{N}$ and with the method detailed in Appendix \ref{wv_details}.
+More precisely, we use a pre-trained word vectors $\mathbf{w}_1, \ldots, \mathbf{w}_m$ trained on Common Crawl and Wikipedia using fastText.\footnote{\url{ https://fasttext.cc/docs/en/crawl-vectors.html}, accessed September 2022.} For French, the number of word-vectors $m$ is 2 millions and the dimension of vectors are $300$. Textual units vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ are obtained through the table $\mathbf{N}$ and with the method detailed in Appendix \ref{wv_details}. The main way to interpret units with this method is to use the cosine similarity between its corresponding vector $\mathbf{x}_i$ and every word-vectors $\mathbf{w}_j$, as defined by $s_{ij} := \frac{\mathbf{x}_i^\top \mathbf{w}_j}{\sqrt{\mathbf{x}_i^\top \mathbf{x}_i \mathbf{w}_j^\top \mathbf{w}_j}}$. The cosine similarity also permits to compare units between themselves.
+
+With the pre-trained word vector method, the unit vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ (and character-based objects vectors in section REF) lie in an \emph{absolute space} defined by the used word vectors. Comparison between different texts are therefore more pertinent in this space and comparison with words absent from the corpus can be made. However, it is possible that all units from a given text, if the author style is particularly marked, are located in the same region of the space. In this case, the list of most associated word-vectors might be similar for every unit, and the analysis might not give usable results. This effect is fortunately limited by the centration of unit-vectors which occurs in the method describe in Appendix \ref{wv_details}.
 
 \subsection{Character-based object embeddings}
 
+The main goal of this article is not to analyze units, but rather the character-based objects, i.e. the $p$ columns of table $\mathbf{O}$. While we used the table $\mathbf{N}$ to build our embeddings of units, we now use the table $\mathbf{O}$ in order to build the character-based vectors $\mathbf{y}_1, \ldots, \mathbf{y}_p$ which lie in the same space as units. 
+
+Two propositions of method are made: the \emph{centroids} method (CENT) is describe in section \ref{centroid} and the \emph{regressions} method (REG) is explained in section \ref{regression}. Both methods work with the proposed embeddings of units.
+
+\subsubsection{Centroids (CENT)}
+\label{centroid}
+
+This method is the most trivial and is based on the following intuition: a character-based object is characterized by the different units in which it appears. In other words, we can define the vector $\mathbf{y}_k$ for character-object object $k$ as
+\begin{equation}
+\mathbf{y}_k = \sum_{i=1}^n \frac{o_{ik}}{o_{\bullet k}} \mathbf{x}_i
+\end{equation}
+i.e. the center of mass, or \emph{centroid}, of the units containing the character-based object, weighted by the relative weight of its occurrences $\frac{o_{ik}}{o_{\bullet k}}$. This way of building character-based vectors is very closely related to the treatment of \emph{supplementary variables} found in CA (REF): these variables do not act in the choice of factorial axis, but can still be represented afterward. However, by contrast to supplementary variables, no dilatation is made after computing centroids, which means that character-objects in fact lie in the same space as units (row). \\
+An important remark about the centroid method, is that character-objects vectors positions are \emph{additive}, which means that we have
+\begin{equation}
+o_{ic} = \sum_{g \in \mathcal{G}} o_{ig}, \forall i \implies \mathbf{y}_c = \sum_{g \in \mathcal{G}} \frac{o_{ig}}{o_{ic}} \mathbf{y}_g
+\end{equation}
+
+\subsubsection{Regressions (REG)}
+\label{regression}
 
 \section{Results}
 
@@ -229,12 +253,12 @@ This methods is justified and detailed in (REF). Let $\mathbf{w}_1, \ldots, \mat
 \begin{equation}
 \widetilde{\mathbf{x}}_i = \sum_{j = 1}^v \frac{n_{ij}}{n_{i \bullet}} \frac{a}{a + \frac{n_{\bullet j}}{n_{\bullet \bullet}}} \mathbf{w}_j,
 \end{equation}
-where $a > 0$ is an hyperparameter which gives less importance to frequent words as $a \to 0$. Let $\widetilde{\mathbf{X}}$ be the matrix whose columns are vectors $\widetilde{\mathbf{x}}_i$, and $\mathbf{u}$ be its first singular vector. We find \emph{vectors} $\mathbf{x}_i$ of each units $i$ with
+where $a > 0$ is an hyperparameter which gives less importance to frequent words as $a \to 0$. Let $\widetilde{\mathbf{X}}$ be the matrix whose columns are vectors $\widetilde{\mathbf{x}}_i$, and $\mathbf{u}$ be its first singular vector. We compute \emph{vectors} $\mathbf{x}_i$ of each units $i$ with
 \begin{equation}
 \mathbf{x}_i = \widetilde{\mathbf{x}}_i - \mathbf{u}\mathbf{u}^\top \widetilde{\mathbf{x}}_i.
 \end{equation}
-This last equation act like a \emph{centration} of unit vectors.
-%%
+This last equation act like a \emph{centration} of unit vectors in the direction of the first singular vector $\mathbf{u}$.
+
 %% Define the bibliography file to be used
 \bibliography{charnet}
 
