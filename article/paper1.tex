@@ -176,9 +176,9 @@ Using CA to embedded units however comes with some limitations. First, note that
 
 Pre-trained word vectors, based on Word2Vec (REF), Glove (REF), or fastText (REF), have recently received great attention from various fields (REFS). They are generally obtained through a training on a very large corpora, such as Wikipedia (REF) or Common Crawl (REF), and the resulting embedding contains a large quantity of word vectors. As shown by multiple studies (REF), these vectors are placed in order to reflect semantic and syntactic similarities between words, and are used in mutliple applications (REF). 
 
-There exists various ways to use these pre-trained word vectors in order to find vectors for a \emph{group of words}, such as sentences (REF), paragraphs (REF), or documents (REF), which are often used to apply a classification or clustering algorithm on the newly embedded objects (REF). Here, we use a recent methodology proposed in (REF), in order to obtain textual unit vectors laying in the same space as words. 
+There exists various ways to use these pre-trained word vectors in order to find vectors for a \emph{group of words}, such as sentences (REF), paragraphs (REF), or documents (REF). These vectors are often used to apply a classification or clustering algorithm on the newly embedded objects (REF), or to query information (REF). These methods often use the frequencies of words found in the objects, i.e. a table similar to $\mathbf{N}$, but apply various weighting scheme and normalization in order to reduce the effects of frequent words and align vectors. In the present article, we use a recent methodology proposed in (REF) as it is compatible with multiple unit size and gives state-of-the-art results in multiple tasks. 
 
-More precisely, we use a pre-trained word vectors $w_1, \ldots, w_m$ trained on Common Crawl and Wikipedia using fastText.\footnote{\url{ https://fasttext.cc/docs/en/crawl-vectors.html}, accessed September 2022.} For French, the number of word-vectors $m$ is 
+More precisely, we use a pre-trained word vectors $\mathbf{w}_1, \ldots, \mathbf{w}_m$ trained on Common Crawl and Wikipedia using fastText.\footnote{\url{ https://fasttext.cc/docs/en/crawl-vectors.html}, accessed September 2022.} For French, the number of word-vectors $m$ is 2 millions and the dimension of vectors are $300$. Textual units vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ are obtained through the table $\mathbf{N}$ and with the method detailed in Appendix \ref{wv_details}.
 
 \subsection{Character-based object embeddings}
 
@@ -222,7 +222,18 @@ h^w_{j \alpha} &:= \frac{w_{j\alpha}^2}{\sum_{\alpha} w_{j\alpha}^2} : \text{\sm
 \end{align*}
 For a detailed interpretation of these different quantities, see (REF). 
 
+\subsection{Unit embedding based of pre-trained word vectors}
+\label{wv_details}
 
+This methods is justified and detailed in (REF). Let $\mathbf{w}_1, \ldots, \mathbf{w}_v$ be pre-trained word vectors which appear in the studied corpus, and the $(n \times v)$ table $\mathbf{N}$ counting the frequency of these words in the $n$ textual units. We first construct the \emph{uncentered vectors} $\widetilde{\mathbf{x}}_i$ of each unit $i$ with
+\begin{equation}
+\widetilde{\mathbf{x}}_i = \sum_{j = 1}^v \frac{n_{ij}}{n_{i \bullet}} \frac{a}{a + \frac{n_{\bullet j}}{n_{\bullet \bullet}}} \mathbf{w}_j,
+\end{equation}
+where $a > 0$ is an hyperparameter which gives less importance to frequent words as $a \to 0$. Let $\widetilde{\mathbf{X}}$ be the matrix whose columns are vectors $\widetilde{\mathbf{x}}_i$, and $\mathbf{u}$ be its first singular vector. We find \emph{vectors} $\mathbf{x}_i$ of each units $i$ with
+\begin{equation}
+\mathbf{x}_i = \widetilde{\mathbf{x}}_i - \mathbf{u}\mathbf{u}^\top \widetilde{\mathbf{x}}_i.
+\end{equation}
+This last equation act like a \emph{centration} of unit vectors.
 %%
 %% Define the bibliography file to be used
 \bibliography{charnet}

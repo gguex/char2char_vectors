@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.30)  6 SEP 2022 11:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.30)  6 SEP 2022 12:26
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1336,13 +1336,13 @@ LaTeX Font Info:    Font shape `T1/LibertinusSerif-TLF/regular/n' will be
 Package natbib Warning: Empty `thebibliography' environment on input line 15.
 
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 230.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 230.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 241.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 241.
  [4
 
 ] (./paper1.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 230.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 230.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 241.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 241.
 Package rerunfilecheck Info: File `paper1.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
@@ -1352,13 +1352,13 @@ LaTeX Font Warning: Size substitutions with differences
 
  ) 
 Here is how much of TeX's memory you used:
- 28309 strings out of 481239
- 505847 string characters out of 5920377
- 878757 words of memory out of 5000000
- 42839 multiletter control sequences out of 15000+600000
+ 28314 strings out of 481239
+ 505903 string characters out of 5920377
+ 878835 words of memory out of 5000000
+ 42841 multiletter control sequences out of 15000+600000
  694120 words of font info for 220 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 59i,21n,72p,10122b,2526s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 59i,21n,71p,10122b,2526s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_hvvyjb.e
 nc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_mfadfl.
 enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_oeoa22
@@ -1388,9 +1388,9 @@ amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
 /cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cms
 y6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb>
-Output written on paper1.pdf (4 pages, 437343 bytes).
+Output written on paper1.pdf (4 pages, 442457 bytes).
 PDF statistics:
- 240 PDF objects out of 1000 (max. 8388607)
- 23 named destinations out of 1000 (max. 500000)
- 22677 words of extra memory for PDF output out of 24883 (max. 10000000)
+ 248 PDF objects out of 1000 (max. 8388607)
+ 26 named destinations out of 1000 (max. 500000)
+ 22685 words of extra memory for PDF output out of 24883 (max. 10000000)
 
