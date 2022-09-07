@@ -208,7 +208,26 @@ where $\mathcal{G}$ is a subset of character-based objects. This property can be
 \subsubsection{Regressions (REG)}
 \label{regression}
 
-\section{Results}
+When building a regression model with multiple explanatory variables, it is possible to include every variables and their \emph{interactions}. By doing so, we suppose that the effect of raising both variables is not the same as raising each variable independently. Regression models seem therefore appropriate to capture specificities of having a particular character-based object in a textual unit: the presence of a character $a$ has a effect on the vocabulary of an unit, the presence of another character $b$ has an other effect, and the presence of the pair $\{a, b\}$ yet a different effect. Now, the dependent variable still need to be defined. In fact, we are doing $d$ regressions, with $d$ the number of dimensions of the chosen unit embeddings, and each regressions is constructed to predict the $\alpha$-th coordinate of each units by using variables in the $\mathbf{O}$. In a matrix notation, all models can be written as
+\begin{align}
+\mathbf{X} = \widetilde{\mathbf{O}} \mathbf{B} + \mathbf{E}, \label{cent_sol}
+\end{align}
+where $\mathbf{X} = (x_{i\alpha})$ is the $(n \times d)$ matrix containing unit-vectors (on rows), $\widetilde{\mathbf{O}}$ the $(n \times (p+1))$ matrix representing $\mathbf{O}$ with an additional column of $1$ for the intercept, $\mathbf{B} = (\beta_{k\alpha})$ is the $((p+1) \times d)$ matrix containing intercepts and regression coefficients (each regression is contained on a column), and $\mathbf{E}$ the $(n \times \alpha)$ error matrix. 
+
+Estimates $\widehat{\mathbf{B}} = (\widehat{\beta}_{k\alpha})$ for the intercept and coefficient regressions are in fact the researched embeddings for character-based objects as well as for the intercept representing the general tone of the studied text. We therefore denote these estimates with $\mathbf{Y} = (y_{k\alpha})$ in the following, with the convention $y_{0\alpha}$ for intercept coefficients. 
+
+As the number of character-objects might be very large, it is a good idea to add a $L^2$ regularization term in the objective function. Moreover, the quadratic error rate should also be weighted by the number of tokens in each unit. Including all this, we find the solution for our character-based vectors $\mathbf{y}_0, \mathbf{y}_1, \ldots, \mathbf{y}_p$ contained in rows of $\mathbf{Y}$ with 
+\begin{equation}
+\mathbf{Y} = (\widetilde{\mathbf{O}}^\top \textbf{Diag}(\mathbf{f}) \widetilde{\mathbf{O}} + \lambda \mathbf{I}_{(p+1)})^{-1} \widetilde{\mathbf{O}}^\top \textbf{Diag}(\mathbf{f}) \mathbf{X}, \label{reg_sol}
+\end{equation}
+where $\textbf{Diag}(\mathbf{f})$ is the diagonal matrix containing weights of units $\mathbf{f} = \left( \frac{n_{i \bullet}}{n_{\bullet \bullet}} \right)$, $\lambda > 1$ is the regularization coefficient, and $\mathbf{I}_{(p+1)}$ is the identity matrix of size $((p+1) \times (p+1))$.
+
+An interesting effect of the regularization coefficient is that if $\lambda$ is high, equation (\ref{reg_sol}) becomes $\mathbf{Y} \approx \frac{1}{\lambda} \widetilde{\mathbf{O}}^\top \textbf{Diag}(\mathbf{f}) \mathbf{X}$, which is similar to equation (\ref{cent_sol}) (with a contraction and a different weighting scheme). In fact, the regressions method with a regularized term interpolate between the hypothesis where we suppose that every character-object should be considered independently (with $\lambda \to 0$), to the hypothesis of additive mixture between character-objects (with $\lambda \to \infty$), as discussed in section \ref{centroid}. Choosing an appropriate $\lambda$ according to the study (how is another, difficult question) might lead to a situation revealing pertinent information about all character-objects.
+
+\section{Case studies}
+\label{case_studies}
+
+\subsection{Datasets}
 
 \section{Conclusion}
 
