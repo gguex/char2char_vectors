@@ -14,7 +14,7 @@ min_word_frequency = 5
 # Max interactions
 max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
-min_occurrences = 1e-10
+min_occurrences = 3
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
 # Regularization parameter

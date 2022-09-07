@@ -14,7 +14,7 @@ min_word_frequency = 5
 # Max interactions
 max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
-min_occurrences = 1e-10
+min_occurrences = 2
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
 # Regularization parameter
@@ -116,8 +116,8 @@ axes_vs_occurrences = axes_vs_occurrences.reindex(sorted(axes_vs_occurrences.col
 # ---- Explore the desired relationships
 
 # Objects to explore
-object_names = ["Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean", "Marius-Valjean", "Javert",
-                "Javert-Valjean", "Myriel", "Myriel-Valjean"]
+object_names = ["hamlet-queen", "queen-hamlet", "hamlet-king", "king-hamlet", "hamlet-ophelia", "ophelia-hamlet",
+                "king-queen", "queen-king"]
 if meta_for_occurrences is not None:
     separation_name = list(set(corpus.meta_variables[meta_for_occurrences]))
     for i in range(len(separation_name)):
