@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.30)  30 SEP 2022 15:56
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.30)  30 SEP 2022 17:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1351,116 +1351,34 @@ Underfull \hbox (badness 2012) in paragraph at lines 234--234
 avoy [][]$http : / / members . unine . ch /
  []
 
-LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/m/n' aliased to
-(Font)              `T1/LibertinusSans-TLF/regular/n' on input line 249.
-LaTeX Font Info:    Font shape `T1/LibertinusSans-TLF/regular/n' will be
-(Font)              scaled to size 4.5pt on input line 249.
-LaTeX Font Info:    Calculating math sizes for size <4.5> on input line 250.
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <4.5> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <3.14998> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <2.25> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <4.5> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <3.14998> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <2.25> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <4.5> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <3.14998> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <2.25> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/bx/n' in size <4.5> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/bx/n' in size <3.14998> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/bx/n' in size <2.25> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/b/it' in size <4.5> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/b/it' in size <3.14998> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/b/it' in size <2.25> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/b/n' in size <4.5> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/b/n' in size <3.14998> not available
-(Font)              size <5> substituted on input line 250.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/b/n' in size <2.25> not available
-(Font)              size <5> substituted on input line 250.
-
-
-Overfull \hbox (47.97926pt too wide) in paragraph at lines 250--264
- [][] 
- []
-
-[5] (./paper1.bbl
+[5] [6] (./paper1.bbl
 
 Package natbib Warning: Empty `thebibliography' environment on input line 15.
 
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 322.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 322.
- [6
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 359.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 359.
+ [7
 
 ] (./paper1.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 322.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 322.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 359.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 359.
 Package rerunfilecheck Info: File `paper1.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
 
 LaTeX Font Warning: Size substitutions with differences
-(Font)              up to 2.75pt have occurred.
+(Font)              up to 1.99998pt have occurred.
 
  ) 
 Here is how much of TeX's memory you used:
- 28450 strings out of 481239
- 508672 string characters out of 5920377
- 885003 words of memory out of 5000000
- 42922 multiletter control sequences out of 15000+600000
- 717159 words of font info for 242 fonts, out of 8000000 for 9000
+ 28374 strings out of 481239
+ 507081 string characters out of 5920377
+ 886354 words of memory out of 5000000
+ 42866 multiletter control sequences out of 15000+600000
+ 710069 words of font info for 231 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 59i,21n,71p,10122b,2526s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 59i,21n,72p,10122b,2526s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_mfadfl.e
 nc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_sfissr.
 enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/libertinus-type1/lbts_hvvyjb
@@ -1496,9 +1414,9 @@ ts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type
 1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
 c/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
 nts/cm/cmsy9.pfb>
-Output written on paper1.pdf (6 pages, 592285 bytes).
+Output written on paper1.pdf (7 pages, 596025 bytes).
 PDF statistics:
- 340 PDF objects out of 1000 (max. 8388607)
- 43 named destinations out of 1000 (max. 500000)
- 24781 words of extra memory for PDF output out of 24883 (max. 10000000)
+ 348 PDF objects out of 1000 (max. 8388607)
+ 46 named destinations out of 1000 (max. 500000)
+ 24269 words of extra memory for PDF output out of 24883 (max. 10000000)
 

@@ -15,11 +15,11 @@ min_word_frequency = 20
 # Max interactions
 max_interaction_degree = 2
 # The minimum occurrences for an object to be considered
-min_occurrences = 1
+min_occurrences = 2
 # Use a meta variable to build occurrences (None for original)
 meta_for_occurrences = None
-# Regularization parameter (0.1)
-regularization_parameter = 1
+# Regularization parameter
+regularization_parameter = 0.01
 
 # -------------------------------
 #  Loading
@@ -64,7 +64,7 @@ interaction_occurrences = build_interactions(corpus.occurrences, max_interaction
 corpus.occurrences = pd.concat([corpus.occurrences, interaction_occurrences], axis=1)
 
 # Make occurrences binary
-corpus.occurrences = corpus.occurrences*(corpus.occurrences >= min_occurrences)
+corpus.occurrences = 1*(corpus.occurrences >= min_occurrences)
 
 # Make the occurrences across a meta
 corpus.update_occurrences_across_meta(meta_for_occurrences)
@@ -189,14 +189,10 @@ for to_explore_word in word_names:
 words_vs_occurrences.to_csv("results/CA_CENT_words_vs_objects.csv")
 # Words vs Objects - centroids (limited char)
 form_lim_words_vs_occurrences.to_csv("results/CA_CENT_words_vs_objects_LIMITED.csv")
-form_lim_words_vs_occurrences.iloc[:, :5].to_csv("results/for_article/CA_CENT_words_vs_objects_LIMITED_1.csv")
-form_lim_words_vs_occurrences.iloc[:, 5:].to_csv("results/for_article/CA_CENT_words_vs_objects_LIMITED_2.csv")
 # Words vs Objects - regression
 words_vs_regressions.to_csv("results/CA_REG_words_vs_objects.csv")
 # Words vs Objects - regression (limited char)
 form_lim_words_vs_regressions.to_csv("results/CA_REG_words_vs_objects_LIMITED.csv")
-form_lim_words_vs_regressions.iloc[:, :5].to_csv("results/for_article/CA_REG_words_vs_objects_LIMITED_1.csv")
-form_lim_words_vs_regressions.iloc[:, 5:].to_csv("results/for_article/CA_REG_words_vs_objects_LIMITED_2.csv")
 
 # Objects vs Words - centroids
 occurrences_vs_words.to_csv("results/CA_CENT_objects_vs_words.csv")
@@ -206,3 +202,14 @@ form_lim_occurrences_vs_words.to_csv("results/CA_CENT_objects_vs_words_LIMITED.c
 regressions_vs_words.to_csv("results/CA_REG_objects_vs_words.csv")
 # Objects vs Words - regression (limited words)
 form_lim_regressions_vs_words.to_csv("results/CA_REG_objects_vs_words_LIMITED.csv")
+
+# -- For article
+
+form_lim_words_vs_occurrences.iloc[:, :5].to_csv("results/for_article/CA_CENT_words_vs_objects_LIMITED_1.csv",
+                                                 index=False)
+form_lim_words_vs_occurrences.iloc[:, 5:].to_csv("results/for_article/CA_CENT_words_vs_objects_LIMITED_2.csv",
+                                                 index=False)
+form_lim_words_vs_regressions.iloc[:, :5].to_csv("results/for_article/CA_REG_words_vs_objects_LIMITED_1.csv",
+                                                 index=False)
+form_lim_words_vs_regressions.iloc[:, 5:].to_csv("results/for_article/CA_REG_words_vs_objects_LIMITED_2.csv",
+                                                 index=False)

@@ -237,30 +237,67 @@ Characters presences were detected using \emph{Flair}\footnote{\url{https://gith
 
 \subsection{Methods}
 
-There are two types of methods for unit embeddings, \textbf{CA} (section \ref{ca_method}) and \textbf{WV} (section \ref{wv_method}), as well as two methods for character-based embedding, \textbf{CENT} (section \ref{centroid}) and \textbf{REG} (section \ref{regression}), making a total of 4 possibles ways for obtaining final embeddings. The \textbf{CA} method is fully automated, and results in vectors in a $364$-dimensional space, while the $\textbf{WV}$ methods is based on French \emph{fastText}\footnote{\url{https://fasttext.cc/docs/en/crawl-vectors.html}} (REF) pre-trained embeddings, giving a $300$-dimensional space. The \textbf{CENT} do not have any hyperparameter and we fixed the hyperparameter of the \textbf{REG} methods to $\lambda = 1$ for all experiments. \\
+There are two types of methods for unit embeddings, \textbf{CA} (section \ref{ca_method}) and \textbf{WV} (section \ref{wv_method}), as well as two methods for character-based embedding, \textbf{CENT} (section \ref{centroid}) and \textbf{REG} (section \ref{regression}), making a total of 4 possibles ways for obtaining final embeddings. The \textbf{CA} method is fully automated, and results in vectors in a $364$-dimensional space, while the $\textbf{WV}$ methods is based on French \emph{fastText}\footnote{\url{https://fasttext.cc/docs/en/crawl-vectors.html}} (REF) pre-trained embeddings, giving a $300$-dimensional space. The \textbf{CENT} do not have any hyperparameter and we fixed the hyperparameter of the \textbf{REG} methods to $\lambda = 0.01$ for all experiments. \\
 Note that, in addition to having 4 variations for the methods, results can be presented in various ways (e.g. most related/unrelated words regarding a character-based object, most related/unrelated character-based object regarding a word), without forgetting that the number of characters, relationships and words in the studied text is considerable. Thus, we chose to show here only some examples of formatted results, and leave the reader the choice to consult an exhaustive list of them on our GitHub repository.\footnote{\url{https://github.com/gguex/char2char_vectors/results}}
 
 \subsection{Results}
 
 \subsubsection{CA unit embeddings}
 
+The first results in this section is to examine the most associated words with a subset of character-based objects, which can be found in Table 3 for \textbf{CA-CENT} and Table 4 for \textbf{CA-REG} with $\lambda = 0.01$. We see that with only 5 words, characters and relationships are summarized accurately. As expected, we see that the \textbf{CA-CENT} reveals its additive nature between characters and relationships: words used to describe a relationship rob off on their characters descriptions (see e.g. Cosette, Cosette-Marius, and Cosette-Valjean). By constrast, the \textbf{CA-REG} method displays more "perpendicular" descriptions of objects, with less words repeating. Note that we did not show here the least associated words with each object, as they are frequently the same and all related to the long description of the Battle of Waterloo in volume 2 ("infanterie", "wellington", "cuirassier", "bridage"), containing no protagonist of the story. 
+
 \begin{table*}[!bh]
 	\centering
-	\tiny
-	\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+	\begin{tabular}{|c|c|c|c|c|}
 		\hline
-		~ & Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean & Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\ \hline \hline
-		0 & poupée (1.99) & noce (1.32) & fauteuil (0.88) & baron (1.24) & maire (0.52) & baron (1.4) & mouchard (1.79) & mouchard (1.81) & conventionnel (5.28) & chandelier (6.19) \\ \hline
-		1 & sabot (0.95) & baron (1.18) & baron (0.82) & assassin (0.79) & assassin (0.52) & assassin (1.18) & préfecture (1.52) & maire (1.71) & évêque (3.81) & couvert (5.07) \\ \hline
-		2 & voyageur (0.81) & mariage (1.05) & glace (0.8) & théodule (0.78) & forçat (0.51) & prisonnier (1.11) & maire (1.5) & préfecture (1.62) & hôpital (3.25) & gendarme (4.94) \\ \hline
-		3 & noce (0.69) & fauteuil (0.96) & plumet (0.67) & ursule (0.72) & preuve (0.47) & ursule (0.98) & agent (1.35) & preuve (1.26) & oratoire (2.71) & panier (4.36) \\ \hline
-		4 & crainte (0.64) & glace (0.96) & noce (0.64) & écriture (0.65) & gervai (0.47) & alouette (0.96) & police (1.11) & agent (1.18) & curé (2.56) & évêque (4.14) \\ \hline \hline
-		5 & infanterie (-0.59) & cuirassier (-0.59) & cuirassier (-0.58) & division (-0.48) & infanterie (-0.54) & cuirassier (-0.52) & infanterie (-0.57) & infanterie (-0.58) & cuirassier (-0.64) & blücher (-0.78) \\ \hline
-		6 & cuirassier (-0.59) & escadron (-0.58) & infanterie (-0.58) & wellington (-0.47) & cuirassier (-0.53) & wellington (-0.51) & cuirassier (-0.53) & cuirassier (-0.54) & infanterie (-0.61) & charte (-0.76) \\ \hline
-		7 & wellington (-0.57) & brigade (-0.58) & wellington (-0.56) & cuirassier (-0.47) & wellington (-0.52) & infanterie (-0.5) & brigade (-0.52) & brigade (-0.53) & assaillant (-0.57) & artillerie (-0.72) \\ \hline
-		8 & blücher (-0.55) & batterie (-0.56) & brigade (-0.53) & infanterie (-0.47) & blücher (-0.49) & hougomont (-0.49) & hougomont (-0.51) & hougomont (-0.52) & bayonnette (-0.55) & infanterie (-0.68) \\ \hline
-		9 & brigade (-0.54) & division (-0.56) & batterie (-0.53) & plateau (-0.46) & brigade (-0.48) & brigade (-0.49) & wellington (-0.51) & wellington (-0.52) & batterie (-0.54) & émeute (-0.67) \\ \hline
+		Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean \\ \hline
+		poupée (0.7) & \textbf{noce} (1.72) & \textbf{noce} (1.0) & théodule (0.61) & \textbf{mestienne} (0.51) \\ \hline
+		\textbf{noce} (0.68) & \textbf{mariage} (1.31) & \textbf{mestienne} (0.97) & jondrette (0.59) & fossoyeur (0.46) \\ \hline
+		\textbf{mestienne} (0.58) & \textbf{marié} (1.21) & \textbf{mariage} (0.71) & \textbf{ursule} (0.56) & \textbf{accusé} (0.45) \\ \hline
+		\textbf{mariage} (0.48) & marier (1.11) & \textbf{marié} (0.68) & vernon (0.53) & maire (0.39) \\ \hline
+		\textbf{marié} (0.48) & baron (1.0) & corbillard (0.65) & tante (0.52) & jean (0.37) \\ 
+		\hline
 	\end{tabular}
+
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\ \hline
+		\textbf{noce} (1.2) & \textbf{accusé} (1.47) & \textbf{accusé} (1.85) & conventionnel (5.03) & chandelier (6.28) \\ \hline
+		\textbf{mariage} (0.85) & arras (1.04) & \textbf{avocat} (1.12) & évêque (3.54) & gendarme (5.06) \\ \hline
+		\textbf{ursule} (0.85) & mouchard (0.97) & \textbf{preuve} (1.1) & oratoire (3.39) & panier (4.72) \\ \hline
+		\textbf{marié} (0.8) & \textbf{avocat} (0.96) & président (1.08) & hôpital (2.57) & couvert (4.64) \\ \hline
+		tableau (0.74) & \textbf{preuve} (0.93) & forçat (1.01) & cathédrale (2.54) & deuil (4.52) \\ \hline
+	\end{tabular}
+	
+	\label{CA_CENT_word_vs_obj}
+	\caption{The 5 most associated words (similarity in parentheses) to objects regarding the \textbf{CA-CENT} method, for a selected set of characters and character pairs. Words appearing at least two times are in bold.}
+\end{table*}
+
+\begin{table*}[!bh]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean \\ \hline
+		seau (1.23) & amant (0.83) & blessure (0.78) & jondrette (1.76) & matelas (1.02) \\ \hline
+		poupée (0.86) & mariage (0.73) & \textbf{noce} (0.76) & réchaud (1.26) & \textbf{chandelier} (0.87) \\ \hline
+		ravissant (0.7) & entraîner (0.7) & file (0.6) & galetas (1.11) & toulon (0.82) \\ \hline
+		source (0.65) & \textbf{noce} (0.67) & corbillard (0.58) & bouge (1.05) & fossoyeur (0.79) \\ \hline
+		rassurer (0.61) & volupté (0.63) & mestienne (0.58) & tableau (0.93) & pelle (0.76) \\ \hline
+	\end{tabular}
+	
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\ \hline
+		égout (1.1) & arras (1.09) & accusé (1.04) & conventionnel (2.99) & deuil (1.14) \\ \hline
+		vase (1.08) & roue (0.89) & nier (0.79) & évêque (1.76) & \textbf{chandelier} (1.07) \\ \hline
+		issue (1.07) & bonjour (0.83) & quai (0.54) & cathédrale (1.14) & aveugle (1.01) \\ \hline
+		sable (1.0) & malle (0.8) & avocat (0.53) & prêtre (1.11) & panier (0.94) \\ \hline
+		couloir (0.98) & cabriolet (0.76) & fonction (0.5) & philosophie (1.06) & gendarme (0.89) \\ 
+		\hline
+	\end{tabular}
+	
+	\label{CA_REG_word_vs_obj}
+	\caption{The 5 most associated words (similarity in parentheses) to objects regarding the \textbf{CA-REG} method ($\lambda = 0.01$), for a selected set of characters and character pairs. Words appearing at least two times are in bold.}
 \end{table*}
 
 
