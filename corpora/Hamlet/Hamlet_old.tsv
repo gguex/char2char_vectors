@@ -1,4 +1,4 @@
-	act	scene	char_from	char_to	sentence
+	act	scene	char_from	char_to	text
 0	1	1	BARNARDO	FRANCISCO	Who’s there?
 1	1	1	FRANCISCO	BARNARDO	Nay, answer me. Stand and unfold yourself.
 2	1	1	BARNARDO	FRANCISCO	Long live the King!
