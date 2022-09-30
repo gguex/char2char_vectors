@@ -69,7 +69,7 @@
   <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"> 
    <dc:format>application/pdf</dc:format> 
    <dc:type><rdf:Bag><rdf:li>journal</rdf:li></rdf:Bag></dc:type>
-   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">Refining character relationships using embeddings of textual units</rdf:li></rdf:Alt></dc:title>
+   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">Refining character relationships using embeddings of textual units : a case study on Les Misérables</rdf:li></rdf:Alt></dc:title>
    <dc:creator><rdf:Seq><rdf:li>Guillaume Guex</rdf:li></rdf:Seq></dc:creator>
    <dc:rights><rdf:Alt><rdf:li xml:lang="x-default">© 2022 Copyright for this paper by its authors. Use permitted under Creative Commons License Attribution 4.0 International (CC BY 4.0).</rdf:li></rdf:Alt></dc:rights>
    <dc:description><rdf:Alt><rdf:li xml:lang="x-default">CEUR Workshop Proceedings (CEUR-WS.org)</rdf:li></rdf:Alt></dc:description>
@@ -90,9 +90,9 @@
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/"> 
    <xmp:CreatorTool>LaTeX with hyperref</xmp:CreatorTool> 
-   <xmp:ModifyDate>2022-09-07T15:58:09+02:00</xmp:ModifyDate> 
-   <xmp:CreateDate>2022-09-07T15:58:09+02:00</xmp:CreateDate> 
-   <xmp:MetadataDate>2022-09-07T15:58:09+02:00</xmp:MetadataDate> 
+   <xmp:ModifyDate>2022-09-30T15:56:32+02:00</xmp:ModifyDate> 
+   <xmp:CreateDate>2022-09-30T15:56:32+02:00</xmp:CreateDate> 
+   <xmp:MetadataDate>2022-09-30T15:56:32+02:00</xmp:MetadataDate> 
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmpRights = "http://ns.adobe.com/xap/1.0/rights/"> 
    <xmpRights:Marked>True</xmpRights:Marked>
@@ -101,7 +101,7 @@
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"> 
    <xmpMM:DocumentID>uuid:FDAA7AA5-A0FE-8D97-DFD4-26BA083B7558</xmpMM:DocumentID> 
-   <xmpMM:InstanceID>uuid:095FF6C2-5F0E-968D-6F57-758856B4D637</xmpMM:InstanceID> 
+   <xmpMM:InstanceID>uuid:474F7446-9E85-ADB4-1C1D-590C69CACC7C</xmpMM:InstanceID> 
   </rdf:Description> 
  </rdf:RDF> 
 </x:xmpmeta> 

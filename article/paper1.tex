@@ -41,7 +41,7 @@ twocolumn,
 
 %%
 %% The "title" command^
-\title{Refining character relationships using embeddings of textual units}
+\title{Refining character relationships using embeddings of textual units : a case study on Les Misérables}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -168,11 +168,11 @@ We propose here two embeddings verifying this condition: Section \ref{ca_method}
 
 Using Correspondence Analysis in order to analyze textual resources has a long tradition in literature (REF). It has the advantage to naturally provide an embedding space, the factorial map, where units are placed alongside word vectors, allowing to analyze or represent the different units in terms of word frequency profiles. Moreover, units and words placement in the embedding space have a direct interpretation in terms of chi2 distance between profiles, which is desirable when interpreting results.
 
-By performing a Correspondence Analysis on table $\mathbf{N}$, we directly get $n$ vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ corresponding to units (rows) and $v$ vectors $\mathbf{w}_1, \ldots, \mathbf{w}_v$ corresponding to words (columns). Each of these vectors has a size of $\min(n, v) - 1$, which will generally be $n - 1$. For a detailed computation of quantities in CA, see Appendix \ref{ca_details}. The position of a unit vector $\mathbf{x}_i$ can be interpreted by mutliple approaches, but we mainly use two here.
+By performing a Correspondence Analysis on table $\mathbf{N}$, we directly get $n$ vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ corresponding to units (rows) and $v$ vectors $\mathbf{w}_1, \ldots, \mathbf{w}_v$ corresponding to words (columns). Each of these vectors has a size of $\min(n, v) - 1$, which will generally be $n - 1$. For a detailed computation of quantities in CA, see Appendix \ref{ca_details}. 
 
-The first way to interpret it is to look at the unit-vector position on a particular axis $\alpha$, i.e. looking at the component $x_{i\alpha}$. This component gives the position of the unit on a particular found "contrast" between units, depending on the chosen $\alpha$, and this contrast will be strong if $p_\alpha$, i.e. \emph{the proportion of inertia expressed in $\alpha$}, is high. It can further be interpreted by observing the \emph{contribution of each word $j$} composing the axis $\alpha$, i.e. $c^w_{j\alpha}$ and looking at the sign of $w_{j\alpha}$. Hopefully, by extracting and interpreting the most positive and negative contributing words, the chosen axis can express a particular duality which operates inside the studied text (e.g. love-hatred, action-description, lightness-darkness). The second method is to directly look at the \emph{similarities} $s_{ij}$ between an unit $i$ and a word $j$, as defined by the scalar product between their vectors $s_{ij} := \mathbf{x}^\top_i \mathbf{w}_j$. A positive (resp. negative) similarity denotes a over-representation (resp. under-representation) of the word $j$ in $i$, which permit to find lists of words characterizing the different units. Observe that in this article, both methods are rather applied to character-based object vectors defined in section (REF), as they lie in the same space as unit vectors. 
+The relationship between a particular unit $i$ and a word $j$ is expressed through the scalar product between their vectors $s_{ij} := \mathbf{x}^\top_i \mathbf{w}_j$. A positive (resp. negative) similarity denotes a over-representation (resp. under-representation) of the word $j$ in $i$, which permit to find lists of words characterizing the different units. Observe that in this article, this similarity is rather computed between word and character-based object vectors, as defined in section (REF), as they lie in the same space as unit vectors. 
 
-Using CA to embedded units however comes with some limitations. First, note that vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ obtained from CA reflect textual unit profile (in terms of words) regarding the mean profile. This analysis is therefore \emph{contrastive}: it highlights unit variations among the studied text. This could becomes problematic in order to study a dataset containing multiple texts: units belonging to the same text will have a greater chance to be close from each other, and the displayed variance might be largely composed by differences of style between text. Another limitation with this approach is that the words helping the interpretation of units (and character-based objects) are contained in the studied text. Approaches requiring to study the position of units and objects relatively to a predefined list of words (e.g., friends, enemies, family) might therefore be impossible.
+Using CA to embedded units however comes with some limitations. First, note that vectors $\mathbf{x}_1, \ldots, \mathbf{x}_n$ obtained from CA reflect textual unit profile (in terms of words) regarding the mean profile. This analysis is thus \emph{contrastive}: it highlights unit variations among the studied text. This could becomes problematic in order to study a dataset containing multiple texts: units belonging to the same text will have a greater chance to be close from each other, and the displayed variance might be largely composed by differences of style between text. Another limitation with this approach is that the words helping the interpretation of units (and character-based objects) are contained in the studied text. Approaches requiring to study the position of units and objects relatively to a predefined list of words (e.g., friends, enemies, family) might therefore be impossible.
 
 \subsubsection{Pre-trained Word Vectors (WV)}
 \label{wv_method}
@@ -224,10 +224,47 @@ where $\textbf{Diag}(\mathbf{f})$ is the diagonal matrix containing weights of u
 
 An interesting effect of the regularization coefficient is that if $\lambda$ is high, equation (\ref{reg_sol}) becomes $\mathbf{Y} \approx \frac{1}{\lambda} \widetilde{\mathbf{O}}^\top \textbf{Diag}(\mathbf{f}) \mathbf{X}$, which is similar to equation (\ref{cent_sol}) (with a contraction and a different weighting scheme). In fact, the regressions method with a regularized term interpolate between the hypothesis where we suppose that every character-object should be considered independently (with $\lambda \to 0$), to the hypothesis of additive mixture between character-objects (with $\lambda \to \infty$), as discussed in section \ref{centroid}. Choosing an appropriate $\lambda$ according to the study (how is another, difficult question) might lead to a situation revealing pertinent information about all character-objects.
 
-\section{Case studies}
-\label{case_studies}
+\section{Case studie : \emph{Les Misérables}}
+\label{case_studie}
 
-\subsection{Datasets}
+For the moment, it is not possible to evaluate the presented methods by the use of some measurements, which would allow to test its validity on various corpora. In order to see if the methods give coherent results, we have to carefully scrutinized and compared them with previous knowledge of the studied work. For this reason, and because of method variations and multiplicity of the results (and lack of place), we chose to present here only one case studies: \emph{Les Misérables} by Victor Hugo. The choice of this work is motivated by the fact that it is a large corpus, immensely studied, and containing various colorful characters and characters relationships. It is therefore a solid choice to clearly illustrate the potential of presented methods.
+
+\subsection{Preprocessing}
+
+The five volumes of \emph{Les Misérables}, in French, were extracted from \emph{Project Gutenberg}\footnote{\url{https://www.gutenberg.org/}}, while headers and footers of each files were manually removed. The whole text was lower cased, lemmatized, and stopwords\footnote{from a list made by Jacques Savoy \url{http://members.unine.ch/jacques.savoy/clef/frenchST.txt}} and punctuation were removed. Volumes, books, and chapters breaking points were kept for later uses. \\
+We chose to use chapter as textual units. The table $\mathbf{N}$ (Figure \ref{cont_table}) was build by considering words appearing at least $20$ times in the text and resulted in a table of size $365$ chapters $\times$ $1974$ words. \\
+Characters presences were detected using \emph{Flair}\footnote{\url{https://github.com/flairNLP/flair}} (REF) NER tools. In order to unify character and to further refine the detected characters list, we used hand-made lists of character and aliases from NER results. It resulted in the detection of 54 characters. The character-based objects considered in table $\mathbf{O}$ (Figure \ref{occ_table}) are single character occurrences (54 objects) and character pair co-occurrences (547 objects), resulting in a table of size $365 \times 601$. The character co-occurrences count is computed as $o_{ij} = \min(o_{ik}, o_{il})$, where $\{k, l\}$ are characters constituting the pair $j$. Note that we also tested experiments with objects consisting in character and character-pairs as found in each volumes (e.g. Cosette-Valjean in volume 1 and Cosette-Valjean in volume 2 are now different objects). This modified table, containing $1124$ character-based objects, permits to see the evolution in characters and relationships. 
+
+\subsection{Methods}
+
+There are two types of methods for unit embeddings, \textbf{CA} (section \ref{ca_method}) and \textbf{WV} (section \ref{wv_method}), as well as two methods for character-based embedding, \textbf{CENT} (section \ref{centroid}) and \textbf{REG} (section \ref{regression}), making a total of 4 possibles ways for obtaining final embeddings. The \textbf{CA} method is fully automated, and results in vectors in a $364$-dimensional space, while the $\textbf{WV}$ methods is based on French \emph{fastText}\footnote{\url{https://fasttext.cc/docs/en/crawl-vectors.html}} (REF) pre-trained embeddings, giving a $300$-dimensional space. The \textbf{CENT} do not have any hyperparameter and we fixed the hyperparameter of the \textbf{REG} methods to $\lambda = 1$ for all experiments. \\
+Note that, in addition to having 4 variations for the methods, results can be presented in various ways (e.g. most related/unrelated words regarding a character-based object, most related/unrelated character-based object regarding a word), without forgetting that the number of characters, relationships and words in the studied text is considerable. Thus, we chose to show here only some examples of formatted results, and leave the reader the choice to consult an exhaustive list of them on our GitHub repository.\footnote{\url{https://github.com/gguex/char2char_vectors/results}}
+
+\subsection{Results}
+
+\subsubsection{CA unit embeddings}
+
+\begin{table*}[!bh]
+	\centering
+	\tiny
+	\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+		\hline
+		~ & Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean & Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\ \hline \hline
+		0 & poupée (1.99) & noce (1.32) & fauteuil (0.88) & baron (1.24) & maire (0.52) & baron (1.4) & mouchard (1.79) & mouchard (1.81) & conventionnel (5.28) & chandelier (6.19) \\ \hline
+		1 & sabot (0.95) & baron (1.18) & baron (0.82) & assassin (0.79) & assassin (0.52) & assassin (1.18) & préfecture (1.52) & maire (1.71) & évêque (3.81) & couvert (5.07) \\ \hline
+		2 & voyageur (0.81) & mariage (1.05) & glace (0.8) & théodule (0.78) & forçat (0.51) & prisonnier (1.11) & maire (1.5) & préfecture (1.62) & hôpital (3.25) & gendarme (4.94) \\ \hline
+		3 & noce (0.69) & fauteuil (0.96) & plumet (0.67) & ursule (0.72) & preuve (0.47) & ursule (0.98) & agent (1.35) & preuve (1.26) & oratoire (2.71) & panier (4.36) \\ \hline
+		4 & crainte (0.64) & glace (0.96) & noce (0.64) & écriture (0.65) & gervai (0.47) & alouette (0.96) & police (1.11) & agent (1.18) & curé (2.56) & évêque (4.14) \\ \hline \hline
+		5 & infanterie (-0.59) & cuirassier (-0.59) & cuirassier (-0.58) & division (-0.48) & infanterie (-0.54) & cuirassier (-0.52) & infanterie (-0.57) & infanterie (-0.58) & cuirassier (-0.64) & blücher (-0.78) \\ \hline
+		6 & cuirassier (-0.59) & escadron (-0.58) & infanterie (-0.58) & wellington (-0.47) & cuirassier (-0.53) & wellington (-0.51) & cuirassier (-0.53) & cuirassier (-0.54) & infanterie (-0.61) & charte (-0.76) \\ \hline
+		7 & wellington (-0.57) & brigade (-0.58) & wellington (-0.56) & cuirassier (-0.47) & wellington (-0.52) & infanterie (-0.5) & brigade (-0.52) & brigade (-0.53) & assaillant (-0.57) & artillerie (-0.72) \\ \hline
+		8 & blücher (-0.55) & batterie (-0.56) & brigade (-0.53) & infanterie (-0.47) & blücher (-0.49) & hougomont (-0.49) & hougomont (-0.51) & hougomont (-0.52) & bayonnette (-0.55) & infanterie (-0.68) \\ \hline
+		9 & brigade (-0.54) & division (-0.56) & batterie (-0.53) & plateau (-0.46) & brigade (-0.48) & brigade (-0.49) & wellington (-0.51) & wellington (-0.52) & batterie (-0.54) & émeute (-0.67) \\ \hline
+	\end{tabular}
+\end{table*}
+
+
+
 
 \section{Conclusion}
 

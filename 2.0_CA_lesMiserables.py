@@ -64,7 +64,7 @@ interaction_occurrences = build_interactions(corpus.occurrences, max_interaction
 corpus.occurrences = pd.concat([corpus.occurrences, interaction_occurrences], axis=1)
 
 # Make occurrences binary
-#corpus.occurrences = 1*(corpus.occurrences >= min_occurrences)
+corpus.occurrences = corpus.occurrences*(corpus.occurrences >= min_occurrences)
 
 # Make the occurrences across a meta
 corpus.update_occurrences_across_meta(meta_for_occurrences)
