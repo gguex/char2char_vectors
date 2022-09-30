@@ -47,5 +47,9 @@ corpus_df = pd.get_dummies(corpus_df, columns=["char_to"], prefix="", prefix_sep
 # Remove empty lines
 corpus_df = corpus_df[corpus_df["text"] != ""]
 
+# Lower columns
+corpus_df["char_from"] = corpus_df["char_from"].str.lower()
+corpus_df.columns = corpus_df.columns.str.lower()
+
 # Save the new corpus
 corpus_df.to_csv(output_tsv_path, sep="\t")

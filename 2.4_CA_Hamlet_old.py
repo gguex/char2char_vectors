@@ -6,7 +6,7 @@ from nltk.corpus import stopwords
 # -------------------------------
 
 # Corpus tsv path
-corpus_tsv_path = "corpora/Hamlet/Hamlet_old.tsv"
+corpus_tsv_path = "corpora/Hamlet/Hamlet_old_tokens.tsv"
 # Word vectors to use
 word_vectors_path = "/home/gguex/Documents/data/pretrained_word_vectors/en_fasttext.model"
 # Minimum occurrences for words
@@ -45,7 +45,9 @@ corpus.build_units_words(CountVectorizer(stop_words=used_stop_words))
 corpus.remove_words_with_frequency(min_word_frequency)
 
 # Build interactions and add them to data
-interaction_occurrences = build_directed_interactions(list(corpus.texts), corpus.occurrences,
+char_from_low = list(corpus.meta_variables.char_from)
+char_from_low = [char_from.lower() for char_from in char_from_low]
+interaction_occurrences = build_directed_interactions(char_from_low, corpus.occurrences,
                                                       max_interaction_degree)
 corpus.occurrences = interaction_occurrences
 
