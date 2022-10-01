@@ -187,3 +187,4 @@ display_char_network(interact_list, interaction_polarity, edge_weights, edge_min
 
 # with open("corpora/LesMiserables_fr/node_pos.pkl", "wb") as pkl_file:
 #     pickle.dump(node_pos, pkl_file)
+

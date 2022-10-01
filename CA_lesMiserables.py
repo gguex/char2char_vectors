@@ -197,11 +197,11 @@ form_lim_words_vs_regressions.to_csv("results/CA_REG_words_vs_objects_LIMITED.cs
 # Objects vs Words - centroids
 occurrences_vs_words.to_csv("results/CA_CENT_objects_vs_words.csv")
 # Objects vs Words - centroids (limited words)
-form_lim_occurrences_vs_words.to_csv("results/CA_CENT_objects_vs_words_LIMITED.csv")
+form_lim_occurrences_vs_words.to_csv("results/CA_CENT_objects_vs_words_LIMITED.csv", index=False)
 # Objects vs Words - regression
 regressions_vs_words.to_csv("results/CA_REG_objects_vs_words.csv")
 # Objects vs Words - regression (limited words)
-form_lim_regressions_vs_words.to_csv("results/CA_REG_objects_vs_words_LIMITED.csv")
+form_lim_regressions_vs_words.to_csv("results/CA_REG_objects_vs_words_LIMITED.csv", index=False)
 
 # -- For article
 
