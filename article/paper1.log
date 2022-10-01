@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.4.21)  1 OCT 2022 14:21
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.4.21)  1 OCT 2022 15:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1314,9 +1314,7 @@ Package textcomp Info: Symbol \textasciidieresis not provided by
 
 Package natbib Warning: Empty `thebibliography' environment on input line 15.
 
-) [7
-
-] (./paper1.aux)
+) [7] (./paper1.aux)
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.99998pt have occurred.
@@ -1371,7 +1369,7 @@ e1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1
 /public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/p
 ublic/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/pub
 lic/cm-super/sfrm0900.pfb>
-Output written on paper1.pdf (7 pages, 963459 bytes).
+Output written on paper1.pdf (7 pages, 964303 bytes).
 PDF statistics:
  340 PDF objects out of 1000 (max. 8388607)
  48 named destinations out of 1000 (max. 500000)
