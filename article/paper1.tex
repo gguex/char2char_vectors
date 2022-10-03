@@ -334,8 +334,19 @@ The first results in this section is to examine the most associated words with a
 	\caption{The 5 most associated character-based objects (similarity in parentheses) to a selected set of words regarding the \textbf{CA-REG} method ($\lambda = 0.01$).}
 \end{table*}
 
-The next results can be found in Table 5 and Table 6. In fact, they are just the transposed results from previous table, with the top 5 characters based objects displayed for a set of words. This type of results can be seen as "queries" an user could make in order to find the most associated objects. We chose here to show the most associated objects to the words "aimer", "rue", "justice" and "guerre", as they represent some of the major topic of the book. Surprisingly, in this task, the \textbf{CA-CENT} method give quite poor results compared to the \textbf{CA-REG}. In the latter, the main love relationship (Cosette-Marius) of the book is the most associated object for "aimer", several "amis de l'ABC" (a revolutionary group) are most associated with "rue", the cop-suspect relationship (Javert-Valjean) is the top object for "justice", and officers or aggressive characters appear massively associated with "guerre". Thus this seems like convincing results.
-	
+The next results can be found in Table 5 and Table 6. In fact, they are just the transposed results from previous table, with the top 5 characters based objects displayed for a set of words. This type of results can be seen as "queries" an user could make in order to find the most associated objects. We chose here to show the most associated objects to words "aimer", "rue", "justice" and "guerre", as they represent some of the major topics of the book. Surprisingly, in this task, the \textbf{CA-CENT} method give quite poor results compared to the \textbf{CA-REG}. In the latter, the main love relationship (Cosette-Marius) of the book is the most associated object for "aimer", several "amis de l'ABC" (a revolutionary group) are most associated with "rue", the cop-suspect relationship (Javert-Valjean) is the top object for "justice", and officers or aggressive characters appear massively associated with "guerre". These type of results can also be represented through weighted signed networks, as found in Figure 1. The network structure represent the number of time characters are detected together, and remains unchanged regarding the word query, and the signed weights (edge color) display similarities between character-pairs (edges) and the studied word (the query). This representation gives a quick visual support in order to explore the studied work.
+
+\begin{figure*}[!bh]
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/aimer.png} \includegraphics[width=0.45\textwidth]{fig/rue.png}
+	\includegraphics[width=0.45\textwidth]{fig/justice.png}
+	\includegraphics[width=0.45\textwidth]{fig/guerre.png}
+	\label{networks}
+	\caption{Resulting weighted networks, between main characters, with examples of word queries ("aimer", "rue", "justice", and "guerre"). These networks are computed with \textbf{CA-REG} method ($\lambda = 0.01$). Red indicate positive affinity, blue negative one, and edge width the number of detected interactions between characters.}
+\end{figure*}
+
+
+
 \section{Conclusion}
 
 \appendix
