@@ -334,8 +334,6 @@ The first results in this section is to examine the most associated words with a
 	\caption{The 5 most associated character-based objects (similarity in parentheses) to a selected set of words regarding the \textbf{CA-REG} method ($\lambda = 0.01$).}
 \end{table*}
 
-The next results can be found in Table 5 and Table 6. In fact, they are just the transposed results from previous table, with the top 5 characters based objects displayed for a set of words. This type of results can be seen as "queries" an user could make in order to find the most associated objects. We chose here to show the most associated objects to words "aimer", "rue", "justice" and "guerre", as they represent some of the major topics of the book. Surprisingly, in this task, the \textbf{CA-CENT} method give quite poor results compared to the \textbf{CA-REG}. In the latter, the main love relationship (Cosette-Marius) of the book is the most associated object for "aimer", several "amis de l'ABC" (a revolutionary group) are most associated with "rue", the cop-suspect relationship (Javert-Valjean) is the top object for "justice", and officers or aggressive characters appear massively associated with "guerre". These type of results can also be represented through weighted signed networks, as found in Figure 1. The network structure represent the number of time characters are detected together, and remains unchanged regarding the word query, and the signed weights (edge color) display similarities between character-pairs (edges) and the studied word (the query). This representation gives a quick visual support in order to explore the studied work.
-
 \begin{figure*}[!bh]
 	\centering
 	\includegraphics[width=0.45\textwidth]{fig/aimer.png} \includegraphics[width=0.45\textwidth]{fig/rue.png}
@@ -345,6 +343,40 @@ The next results can be found in Table 5 and Table 6. In fact, they are just the
 	\caption{Resulting weighted networks, between main characters, with examples of word queries ("aimer", "rue", "justice", and "guerre"). These networks are computed with \textbf{CA-REG} method ($\lambda = 0.01$). Red indicate positive affinity, blue negative one, and edge width the number of detected interactions between characters.}
 \end{figure*}
 
+
+The next results can be found in Table 5 and Table 6. In fact, they are just the transposed results from previous table, with the top 5 characters based objects displayed for a set of words. This type of results can be seen as "queries" an user could make in order to find the most associated objects. We chose here to show the most associated objects to words "aimer", "rue", "justice" and "guerre", as they represent some of the major topics of the book. Surprisingly, in this task, the \textbf{CA-CENT} method give quite poor results compared to the \textbf{CA-REG}. In the latter, the main love relationship (Cosette-Marius) of the book is the most associated object for "aimer", several "amis de l'ABC" (a revolutionary group) are most associated with "rue", the cop-suspect relationship (Javert-Valjean) is the top object for "justice", and officers or aggressive characters appear massively associated with "guerre". These type of results can also be represented through weighted signed networks, as found in Figure 1. The network structure represent the number of time characters are detected together, and remains unchanged regarding the word query, and the signed weights (edge color) display similarities between character-pairs (edges) and the studied word (the query). This representation gives a quick visual support in order to explore the studied work.
+
+\subsubsection{WV unit embeddings}
+
+
+% ----------------------------------------------
+
+\begin{table*}[!bh]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		T1 & T2 & T3 & T4 & T5 \\ \hline
+		huissier (1.4) & cuirassier (3.38) & gamin (1.92) & émeute (1.48) & sable (3.04) \\ \hline
+		hôte (1.11) & infanterie (2.9) & mine (1.38) & révolte (0.86) & berge (2.32) \\ \hline
+		arras (0.92) & sacrement (2.69) & farce (0.81) & bourgeoisie (0.84) & égout (2.16) \\ \hline
+		lampe (0.91) & brigade (2.41) & ignorance (0.74) & populaire (0.82) & voûte (1.9) \\ \hline
+		montreuil (0.81) & division (2.4) & jondrette (0.7) & insurrection (0.81) & vase (1.89) \\ 
+		\hline
+	\end{tabular}
+	
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		Cosette-Valjean\_1 & Cosette-Valjean\_2 & Cosette-Valjean\_3 & Cosette-Valjean\_4 & Cosette-Valjean\_5 \\ \hline
+		maladie (0.49) & façade (0.68) & - & promenade (0.5) & noce (1.27) \\ \hline
+		médecin (0.48) & corbillard (0.66) & - &chaîne (0.47) & marié (0.93) \\ \hline
+		demain (0.33) & mestienne (0.6) & - & blessure (0.46) & mardi (0.89) \\ \hline
+		surprise (0.28) & bâtiment (0.56) & - &tuyau (0.45) & mariage (0.86) \\ \hline
+		auprès (0.28) & cul (0.55) & - &luxembourg (0.44) & file (0.65) \\ \hline
+	\end{tabular}
+	
+	\label{CA_TIME_REG_word_vs_obj}
+	\caption{The 5 most associated words (similarity in parentheses) vs volumes objects (top) and Cosette-Valjean relationship as found in each tome, regarding the \textbf{CA-REG} method ($\lambda = 0.01$). Note that no co-occurrence between Cosette and Valjean were automatically found in volume 3.}
+\end{table*}
 
 
 \section{Conclusion}
