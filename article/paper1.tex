@@ -18,6 +18,8 @@ twocolumn,
 \usepackage{listings}
 \usepackage{bm}
 \usepackage{url}
+\usepackage{array,multirow,graphicx}
+\usepackage{float}
 
 %% auto break lines
 \lstset{breaklines=true}
@@ -238,101 +240,151 @@ Characters presences were detected using \emph{Flair}\footnote{\url{https://gith
 \subsection{Methods}
 
 There are two types of methods for unit embeddings, \textbf{CA} (section \ref{ca_method}) and \textbf{WV} (section \ref{wv_method}), as well as two methods for character-based embedding, \textbf{CENT} (section \ref{centroid}) and \textbf{REG} (section \ref{regression}), making a total of 4 possibles ways for obtaining final embeddings. The \textbf{CA} method is fully automated, and results in vectors in a $364$-dimensional space, while the $\textbf{WV}$ methods is based on French \emph{fastText}\footnote{\url{https://fasttext.cc/docs/en/crawl-vectors.html}} (REF) pre-trained embeddings, giving a $300$-dimensional space. The \textbf{CENT} do not have any hyperparameter and we fixed the hyperparameter of the \textbf{REG} methods to $\lambda = 0.01$ for all experiments. \\
-Note that, in addition to having 4 variations for the methods, results can be presented in various ways (e.g. most related/unrelated words regarding a character-based object, most related/unrelated character-based object regarding a word), without forgetting that the number of characters, relationships and words in the studied text is considerable. Thus, we chose to show here only some examples of formatted results, and leave the reader the choice to consult an exhaustive list of them on our GitHub repository.\footnote{\url{https://github.com/gguex/char2char_vectors/results}}
+Note that, in addition to having 4 variations for the methods and 2 sets of character-based objects (characters and character-pairs for the whole book, or discretized by volumes), results can be presented in various ways (e.g. most related words regarding a character-based object, most related character-based object regarding a word), without forgetting that the number of characters, relationships and words in the studied text is considerable. Thus, we chose to show here only some examples of results, and leave the reader the choice to consult an exhaustive list of them on our GitHub repository.\footnote{\url{https://github.com/gguex/char2char_vectors/results}}
 
 \subsection{Results}
 
-\subsubsection{CA unit embeddings}
+\subsubsection{The most associated words for a subset of characters-based objects}
 
-\begin{table*}[!bh]
+%------------------------------
+
+\begin{table*}[!h]
 	\centering
-	\begin{tabular}{|c|c|c|c|c|}
+	\begin{tabular}{|c|c|c|c|c|c|}
 		\hline
-		Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean \\ \hline
-		poupée (0.7) & \textbf{noce} (1.72) & \textbf{noce} (1.0) & théodule (0.61) & \textbf{mestienne} (0.51) \\ \hline
-		\textbf{noce} (0.68) & \textbf{mariage} (1.31) & \textbf{mestienne} (0.97) & jondrette (0.59) & fossoyeur (0.46) \\ \hline
-		\textbf{mestienne} (0.58) & \textbf{marié} (1.21) & \textbf{mariage} (0.71) & \textbf{ursule} (0.56) & \textbf{accusé} (0.45) \\ \hline
-		\textbf{mariage} (0.48) & marier (1.11) & \textbf{marié} (0.68) & vernon (0.53) & maire (0.39) \\ \hline
-		\textbf{marié} (0.48) & baron (1.0) & corbillard (0.65) & tante (0.52) & jean (0.37) \\ 
+		\parbox[t]{2mm}{\multirow{12}{*}{\rotatebox[origin=c]{90}{\textbf{CA-CENT}}}} & Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean \\ 
+		\cline{2-6}
+		& poupée (0.7) & \textbf{noce} (1.72) & \textbf{noce} (1.0) & théodule (0.61) & \textbf{mestienne} (0.51) \\
+		& \textbf{noce} (0.68) & \textbf{mariage} (1.31) & \textbf{mestienne} (0.97) & jondrette (0.59) & fossoyeur (0.46) \\
+		& \textbf{mestienne} (0.58) & \textbf{marié} (1.21) & \textbf{mariage} (0.71) & \textbf{ursule} (0.56) & \textbf{accusé} (0.45) \\
+		& \textbf{mariage} (0.48) & marier (1.11) & \textbf{marié} (0.68) & vernon (0.53) & maire (0.39) \\
+		& \textbf{marié} (0.48) & baron (1.0) & corbillard (0.65) & tante (0.52) & jean (0.37) \\ 
+		\cline{2-6}
+		& Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\
+		\cline{2-6}
+		& \textbf{noce} (1.2) & \textbf{accusé} (1.47) & \textbf{accusé} (1.85) & conventionnel (5.03) & chandelier (6.28) \\
+		& \textbf{mariage} (0.85) & arras (1.04) & \textbf{avocat} (1.12) & évêque (3.54) & gendarme (5.06) \\
+		& \textbf{ursule} (0.85) & mouchard (0.97) & \textbf{preuve} (1.1) & oratoire (3.39) & panier (4.72) \\
+		& \textbf{marié} (0.8) & \textbf{avocat} (0.96) & président (1.08) & hôpital (2.57) & couvert (4.64) \\
+		& tableau (0.74) & \textbf{preuve} (0.93) & forçat (1.01) & cathédrale (2.54) & deuil (4.52) \\
 		\hline
-	\end{tabular}
-
-	\begin{tabular}{|c|c|c|c|c|}
 		\hline
-		Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\ \hline
-		\textbf{noce} (1.2) & \textbf{accusé} (1.47) & \textbf{accusé} (1.85) & conventionnel (5.03) & chandelier (6.28) \\ \hline
-		\textbf{mariage} (0.85) & arras (1.04) & \textbf{avocat} (1.12) & évêque (3.54) & gendarme (5.06) \\ \hline
-		\textbf{ursule} (0.85) & mouchard (0.97) & \textbf{preuve} (1.1) & oratoire (3.39) & panier (4.72) \\ \hline
-		\textbf{marié} (0.8) & \textbf{avocat} (0.96) & président (1.08) & hôpital (2.57) & couvert (4.64) \\ \hline
-		tableau (0.74) & \textbf{preuve} (0.93) & forçat (1.01) & cathédrale (2.54) & deuil (4.52) \\ \hline
+		\parbox[t]{2mm}{\multirow{12}{*}{\rotatebox[origin=c]{90}{\textbf{CA-REG}}}} & Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean \\ 
+		\cline{2-6}
+		& seau (1.23) & amant (0.83) & blessure (0.78) & jondrette (1.76) & matelas (1.02) \\
+		& poupée (0.86) & mariage (0.73) & \textbf{noce} (0.76) & réchaud (1.26) & \textbf{chandelier} (0.87) \\
+		& ravissant (0.7) & entraîner (0.7) & file (0.6) & galetas (1.11) & toulon (0.82) \\
+		& source (0.65) & \textbf{noce} (0.67) & corbillard (0.58) & bouge (1.05) & fossoyeur (0.79) \\
+		& rassurer (0.61) & volupté (0.63) & mestienne (0.58) & tableau (0.93) & pelle (0.76) \\ 
+		\cline{2-6}
+		& Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\
+		\cline{2-6}
+		& égout (1.1) & arras (1.09) & accusé (1.04) & conventionnel (2.99) & deuil (1.14) \\ 
+		& vase (1.08) & roue (0.89) & nier (0.79) & évêque (1.76) & \textbf{chandelier} (1.07) \\ 
+		& issue (1.07) & bonjour (0.83) & quai (0.54) & cathédrale (1.14) & aveugle (1.01) \\ 
+		& sable (1.0) & malle (0.8) & avocat (0.53) & prêtre (1.11) & panier (0.94) \\
+		& couloir (0.98) & cabriolet (0.76) & fonction (0.5) & philosophie (1.06) & gendarme (0.89) \\ 
+		\hline
+		\hline
+		\hline
+		\parbox[t]{2mm}{\multirow{12}{*}{\rotatebox[origin=c]{90}{\textbf{WV-CENT}}}} & Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean \\ 
+		\cline{2-6}
+		& \textbf{jean} (0.34) & aimer (0.38) & \textbf{jean} (0.6) & embrasser (0.36) & \textbf{jean} (0.56) \\
+		& dormir (0.28) & rêver (0.34) & \textbf{jacques} (0.3) & \textbf{essayer} (0.36) & \textbf{habiller} (0.27) \\ 
+		& regarder (0.26) & \textbf{vouloir} (0.32) & \textbf{philippe} (0.26) & \textbf{avouer} (0.36) & \textbf{poser} (0.26) \\
+		& \textbf{habiller} (0.26) & douter (0.32) & \textbf{habiller} (0.26) & \textbf{vouloir} (0.35) & \textbf{jacques} (0.26) \\
+		& \textbf{voir} (0.25) & \textbf{avouer} (0.32) & \textbf{pantalon} (0.25) & \textbf{voir} (0.35) & \textbf{pantalon} (0.25) \\
+		\cline{2-6}
+		& Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\
+		\cline{2-6}
+		& \textbf{jean} (0.35) & \textbf{saisir} (0.34) & \textbf{jean} (0.54) & \textbf{évêque} (0.59) & \textbf{évêque} (0.55) \\
+		& questionner (0.31) & \textbf{jean} (0.34) & denis (0.31) & \textbf{archevêque} (0.52) & \textbf{archevêque} (0.46) \\
+		& \textbf{essayer} (0.31) & placer (0.31) & \textbf{jacques} (0.3) & \textbf{prêtre} (0.45) & \textbf{prêtre} (0.42) \\
+		& oser (0.31) & retirer (0.29) & \textbf{saisir} (0.3) & \textbf{abbé} (0.39) & âme (0.42) \\
+		& \textbf{poser} (0.29) & dégager (0.29) & \textbf{philippe} (0.28) & souverain (0.38) & \textbf{abbé} (0.39) \\
+		\hline
+		\hline
+		\parbox[t]{2mm}{\multirow{12}{*}{\rotatebox[origin=c]{90}{\textbf{WV-REG}}}} & Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean \\ 
+		\cline{2-6}
+		& contempler (0.29) & éternel (0.35) & \textbf{rue} (0.44) & regarder (0.38) & \textbf{jean} (0.56) \\
+		& emplir (0.29) & \textbf{amour} (0.35) & \textbf{jean} (0.41) & voir (0.36) & pantalon (0.28) \\
+		& doucement (0.27) & humanité (0.34) & faubourg (0.41) & refermer (0.34) & jacques (0.26) \\
+		& envelopper (0.26) & \textbf{âme} (0.32) & \textbf{boulevard} (0.41) & \textbf{glisser} (0.34) & philippe (0.23) \\
+		& illuminer (0.26) & vérité (0.32) & quartier (0.34) & poser (0.31) & \textbf{glisser} (0.23) \\ 
+		\cline{2-6}
+		& Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\
+		\cline{2-6}
+		& \textbf{rue} (0.35) & serrer (0.34) & \textbf{rue} (0.35) & \textbf{évêque} (0.43) & ange (0.37) \\
+		& \textbf{boulevard} (0.35) & \textbf{glisser} (0.34) & \textbf{boulevard} (0.34) & divin (0.4) & \textbf{évêque} (0.31) \\
+		& souterrain (0.35) & forcer (0.34) & autorité (0.33) & humble (0.39) & \textbf{âme} (0.31) \\
+		& bastille (0.35) & bouger (0.33) & civil (0.33) & bonté (0.38) & \textbf{amour} (0.29) \\
+		& carrefour (0.34) & aller (0.32) & loi (0.33) & archevêque (0.37) & aurore (0.28) \\
+		\hline
 	\end{tabular}
 	
-	\label{CA_CENT_word_vs_obj}
-	\caption{The 5 most associated words (similarity in parentheses) to a selected set of characters and character pairs, regarding the \textbf{CA-CENT} method. Words appearing at least two times are in bold.}
+	\label{word_vs_obj}
+	\caption{The 5 most associated words (similarity in parentheses) to a selected set of characters and character pairs, regarding \textbf{CA-CENT}, \textbf{CA-REG}, \textbf{WV-CENT}, and \textbf{WV-REG} methods. Words appearing at least two times within the same method are in bold.}
 \end{table*}
+	
+%------------------------------
+
+The first results in this section is to examine the most associated words with a subset of character-based objects, as measured by the similarities defined in section \ref{unit_embeddings}. Results can be found in Table 3 for all methods.
+
+We can first observe that \textbf{CA} methods seems to summarize objects with a vocabulary closer to the work, while \textbf{WV} methods tend to use more general concepts, with notably more verbs. This behavior can be traced back to the nature of embeddings: in the \textbf{WV} embedding, word-vectors are fixed and do not consider the actual frequencies of words found in the studied corpora. A character could be highly similar to a word appearing only a few times in the corpus if this word is located near the vocabulary associated with this character. By contrast, \textbf{CA} will generally takes into account word frequencies, and balance them with specificities, in order to describe a character.
+
+Another remark can be made about the difference between \textbf{CENT} methods and \textbf{REG} methods. As expected, we see that the \textbf{CENT} methods reveal their additive construction between characters and relationships: words used to describe a relationship rob off on their characters descriptions (see e.g. Cosette, Cosette-Marius, and Cosette-Valjean). By constrast, the \textbf{REG} methods display more "perpendicular" descriptions of objects, with less words repeating. While   
+
+Note that we did not show here the least associated words with each object, as they are frequently the same for all methods and all related to the long description of the Battle of Waterloo in volume 2 ("infanterie", "wellington", "cuirassier", "bridage"), containing no protagonist of the story. 
+
+Overall, we find that the \textbf{CA-REG} method gives the most satisfying results, with pertinent words associated with each character-based object, and an high variety in the choice of words. 
+	
+\subsubsection{The most associated characters-based objects for a subset of words}
+
+%------------------------------
 
 \begin{table*}[!bh]
 	\centering
+	\scalebox{0.82}{	
 	\begin{tabular}{|c|c|c|c|c|}
 		\hline
-		Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean \\ \hline
-		seau (1.23) & amant (0.83) & blessure (0.78) & jondrette (1.76) & matelas (1.02) \\ \hline
-		poupée (0.86) & mariage (0.73) & \textbf{noce} (0.76) & réchaud (1.26) & \textbf{chandelier} (0.87) \\ \hline
-		ravissant (0.7) & entraîner (0.7) & file (0.6) & galetas (1.11) & toulon (0.82) \\ \hline
-		source (0.65) & \textbf{noce} (0.67) & corbillard (0.58) & bouge (1.05) & fossoyeur (0.79) \\ \hline
-		rassurer (0.61) & volupté (0.63) & mestienne (0.58) & tableau (0.93) & pelle (0.76) \\ \hline
-	\end{tabular}
-	
-	\begin{tabular}{|c|c|c|c|c|}
+		& aimer & rue & justice & guerre \\ \hline
 		\hline
-		Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\ \hline
-		égout (1.1) & arras (1.09) & accusé (1.04) & conventionnel (2.99) & deuil (1.14) \\ \hline
-		vase (1.08) & roue (0.89) & nier (0.79) & évêque (1.76) & \textbf{chandelier} (1.07) \\ \hline
-		issue (1.07) & bonjour (0.83) & quai (0.54) & cathédrale (1.14) & aveugle (1.01) \\ \hline
-		sable (1.0) & malle (0.8) & avocat (0.53) & prêtre (1.11) & panier (0.94) \\ \hline
-		couloir (0.98) & cabriolet (0.76) & fonction (0.5) & philosophie (1.06) & gendarme (0.89) \\ 
+		\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\textbf{CA-CENT}}}} & Dahlia-Fameuil (1.12) & Courfeyrac-Fauchelevent (0.79) & Azelma-Babet (1.09) & Combeferre-Fauchelevent (1.35) \\
+		& Dahlia-Listolier (1.12) & Courfeyrac-Toussaint (0.79) & Azelma-Brujon (1.09) & Feuilly-Valjean (1.27) \\
+		& Fameuil-Zéphine (1.12) & Eponine-Fauchelevent (0.79) & Azelma-Claquesous (1.09) & Feuilly-Marius (1.22) \\
+		& Listolier-Zéphine (1.12) & Eponine-Gavroche (0.79) & Azelma-Magnon (1.09) & Lesgle-Valjean (1.15) \\
+		& Gillenormand-Toussaint (1.11) & Eponine-Pontmercy (0.79) & Azelma-Montparnasse (1.09) & Mabeuf-Valjean (1.15) \\ 
 		\hline
-	\end{tabular}
-	
-	\label{CA_REG_word_vs_obj}
-	\caption{The 5 most associated words (similarity in parentheses) to a selected set of characters and character pairs, regarding the \textbf{CA-REG} method ($\lambda = 0.01$). Words appearing at least two times are in bold.}
-\end{table*}
-¨
-The first results in this section is to examine the most associated words with a subset of character-based objects, which can be found in Table 3 for \textbf{CA-CENT} and Table 4 for \textbf{CA-REG} with $\lambda = 0.01$. We see that with only 5 words, characters and relationships are summarized accurately. As expected, we see that the \textbf{CA-CENT} reveals its additive nature between characters and relationships: words used to describe a relationship rob off on their characters descriptions (see e.g. Cosette, Cosette-Marius, and Cosette-Valjean). By constrast, the \textbf{CA-REG} method displays more "perpendicular" descriptions of objects, with less words repeating. Note that we did not show here the least associated words with each object, as they are frequently the same and all related to the long description of the Battle of Waterloo in volume 2 ("infanterie", "wellington", "cuirassier", "bridage"), containing no protagonist of the story. 
-
-\begin{table*}[!bh]
-	\centering
-	\scalebox{0.9}{	
-	\begin{tabular}{|c|c|c|c|}
 		\hline
-		aimer & rue & justice & guerre \\ \hline
-		Dahlia-Fameuil (1.12) & Courfeyrac-Fauchelevent (0.79) & Azelma-Babet (1.09) & Combeferre-Fauchelevent (1.35) \\ \hline
-		Dahlia-Listolier (1.12) & Courfeyrac-Toussaint (0.79) & Azelma-Brujon (1.09) & Feuilly-Valjean (1.27) \\ \hline
-		Fameuil-Zéphine (1.12) & Eponine-Fauchelevent (0.79) & Azelma-Claquesous (1.09) & Feuilly-Marius (1.22) \\ \hline
-		Listolier-Zéphine (1.12) & Eponine-Gavroche (0.79) & Azelma-Magnon (1.09) & Lesgle-Valjean (1.15) \\ \hline
-		Gillenormand-Toussaint (1.11) & Eponine-Pontmercy (0.79) & Azelma-Montparnasse (1.09) & Mabeuf-Valjean (1.15) \\ \hline
+		\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\textbf{CA-REG}}}} & Cosette-Marius (0.35) & Courfeyrac (0.37) & Javert-Valjean (0.37) & Grantaire-Pontmercy (0.94) \\
+		& Myriel (0.31) & Grantaire-Prouvaire (0.29) & Champmathieu-Valjean (0.37) & Grantaire (0.56) \\
+		& Basque-Fauchelevent (0.25) & Cosette-Javert (0.26) & Myriel (0.21) & Marius-Pontmercy (0.55) \\
+		& Myriel-Valjean (0.22) & Marius-Prouvaire (0.22) & Grantaire (0.18) & Pontmercy (0.55) \\
+		& Fauchelevent-Gillenormand (0.21) & Enjolras (0.22) & Grantaire-Javert (0.16) & Enjolras (0.49) \\ 
+		\hline
+		\hline
+		\hline
+		\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\textbf{WV-CENT}}}} & Cosette-Marius (0.38) & Grantaire-Prouvaire (0.57) & Azelma-Babet (0.34) & Grantaire (0.32) \\
+		& Fantine-Marius (0.34) & Marius-Prouvaire (0.54) & Azelma-Brujon (0.34) & Combeferre-Lesgle (0.32) \\
+		& Fantine-Pontmercy (0.34) & Cosette-Javert (0.43) & Azelma-Claquesous (0.34) & Feuilly-Lesgle (0.25) \\
+		& Basque-Fauchelevent (0.34) & Magnon-Monsieur Thénardier (0.37) & Azelma-Magnon (0.34) & Combeferre-Marius (0.25) \\
+		& Prouvaire-Valjean (0.33) & Gavroche (0.36) & Azelma-Montparnasse (0.34) & Combeferre-Grantaire (0.25) \\ 
+		\hline
+		\hline
+		\parbox[t]{2mm}{\multirow{5}{*}{\rotatebox[origin=c]{90}{\textbf{WV-REG}}}} & Prouvaire-Valjean (0.34) & Grantaire-Prouvaire (0.8) & Champmathieu-Valjean (0.38) & Grantaire-Pontmercy (0.39) \\
+		& Champmathieu-Chenildieu (0.31) & Marius-Prouvaire (0.77) & Azelma-Brujon (0.35) & Enjolras-Marius (0.35) \\
+		& Brevet-Chenildieu (0.31) & Courfeyrac (0.66) & Azelma-Claquesous (0.35) & Grantaire (0.31) \\
+		& Brevet-Cochepaille (0.31) & Cosette-Javert (0.64) & Azelma-Magnon (0.35) & Combeferre-Lesgle (0.31) \\
+		& Champmathieu-Cochepaille (0.31) & Prouvaire (0.63) & Azelma-Montparnasse (0.35) & Cosette-Gavroche (0.27) \\ \hline
 	\end{tabular}
 	}
 	\label{CA_CENT_obj_words}
-	\caption{The 5 most associated character-based objects (similarity in parentheses) to a selected set of words regarding the \textbf{CA-CENT} method.}
+	\caption{The 5 most associated character-based objects (similarity in parentheses) to a selected set of words, regarding \textbf{CA-CENT}, \textbf{CA-REG}, \textbf{WV-CENT}, and \textbf{WV-REG} methods.}
 \end{table*}
 
-\begin{table*}[!bh]
-	\centering
-	\scalebox{0.9}{	
-		\begin{tabular}{|c|c|c|c|}
-			\hline
-			aimer & rue & justice & guerre \\ \hline
-			Cosette-Marius (0.35) & Courfeyrac (0.37) & Javert-Valjean (0.37) & Grantaire-Pontmercy (0.94) \\ \hline
-			Myriel (0.31) & Grantaire-Prouvaire (0.29) & Champmathieu-Valjean (0.37) & Grantaire (0.56) \\ \hline
-			Basque-Fauchelevent (0.25) & Cosette-Javert (0.26) & Myriel (0.21) & Marius-Pontmercy (0.55) \\ \hline
-			Myriel-Valjean (0.22) & Marius-Prouvaire (0.22) & Grantaire (0.18) & Pontmercy (0.55) \\ \hline
-			Fauchelevent-Gillenormand (0.21) & Enjolras (0.22) & Grantaire-Javert (0.16) & Enjolras (0.49) \\ \hline
-		\end{tabular}
-	}
-	\label{CA_REG_obj_words}
-	\caption{The 5 most associated character-based objects (similarity in parentheses) to a selected set of words regarding the \textbf{CA-REG} method ($\lambda = 0.01$).}
-\end{table*}
+%------------------------------
+
+%------------------------------
 
 \begin{figure*}[!bh]
 	\centering
@@ -343,11 +395,13 @@ The first results in this section is to examine the most associated words with a
 	\caption{Resulting weighted networks, between main characters, with examples of word queries ("aimer", "rue", "justice", and "guerre"). These networks are computed with \textbf{CA-REG} method ($\lambda = 0.01$). Red indicate positive affinity, blue negative one, and edge width the number of detected interactions between characters.}
 \end{figure*}
 
+%------------------------------
 
-The next results can be found in Table 5 and Table 6. In fact, they are just the transposed results from previous table, with the top 5 characters based objects displayed for a set of words. This type of results can be seen as "queries" an user could make in order to find the most associated objects. We chose here to show the most associated objects to words "aimer", "rue", "justice" and "guerre", as they represent some of the major topics of the book. Surprisingly, in this task, the \textbf{CA-CENT} method give quite poor results compared to the \textbf{CA-REG}. In the latter, the main love relationship (Cosette-Marius) of the book is the most associated object for "aimer", several "amis de l'ABC" (a revolutionary group) are most associated with "rue", the cop-suspect relationship (Javert-Valjean) is the top object for "justice", and officers or aggressive characters appear massively associated with "guerre". These type of results can also be represented through weighted signed networks, as found in Figure 1. The network structure represent the number of time characters are detected together, and remains unchanged regarding the word query, and the signed weights (edge color) display similarities between character-pairs (edges) and the studied word (the query). This representation gives a quick visual support in order to explore the studied work.
+These results are extracted from the transposed table from the last, and display the most associated character-based objects to a selected set of words. They can be found in Table 4. This type of results can be seen as "queries", made from a single word, which output the highest objects in the work related to that query. We chose here to show the most associated objects to words "aimer", "rue", "justice" and "guerre", as they represent some of the major topics of the book. In this task, the \textbf{CA-REG} again seems to display the most satifying results: the main love relationship (Cosette-Marius) of the book is the most associated object for "aimer", several "amis de l'ABC" (a revolutionary group) are most associated with "rue", the cop-suspect relationship (Javert-Valjean) is the top object for "justice", and officers or aggressive characters appear massively associated with "guerre". 
 
-\subsubsection{WV unit embeddings}
+Note that another way to represent these results is through weighted signed networks, as found in Figure 1 (for \textbf{CA-REG}). The network structure represent the number of time characters are detected together, and remains unchanged regarding the word query, and the signed weights (edge color) display similarities between character-pairs (edges) and the studied word (the query). This representation gives a quick visual support in order to explore the studied work.
 
+While somewhat inferior with the select set of queries, \textbf{WV} methods have the advantage to be able to query words outside the scope of the book, as the pre-trained word embedding possess a very large vocabulary. 
 
 % ----------------------------------------------
 
