@@ -122,8 +122,7 @@ regressions_vs_words = words_vs_regressions.transpose()
 # ---- Limited char and words
 
 # Objects to explore
-object_names = ["T1", "T2", "T3", "T4", "T5", "Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean",
-                "Marius-Valjean", "Javert", "Javert-Valjean", "Myriel", "Myriel-Valjean"]
+object_names = ["T1", "T2", "T3", "T4", "T5", "Cosette", "Cosette-Marius", "Cosette-Valjean", "Marius", "Valjean"]
 if meta_for_occurrences is not None:
     separation_name = list(set(corpus.meta_variables[meta_for_occurrences]))
     for i in range(len(separation_name)):
@@ -192,33 +191,34 @@ for to_explore_word in word_names:
 
 # Words vs Objects - centroids
 words_vs_occurrences.to_csv("results/CA_TIME_CENT_words_vs_objects.csv")
-# Words vs Objects - centroids (limited char)
-form_lim_words_vs_occurrences.to_csv("results/CA_TIME_CENT_words_vs_objects_LIMITED.csv")
 # Words vs Objects - regression
 words_vs_regressions.to_csv("results/CA_TIME_REG_words_vs_objects.csv")
-# Words vs Objects - regression (limited char)
-form_lim_words_vs_regressions.to_csv("results/CA_TIME_REG_words_vs_objects_LIMITED.csv")
-
 # Objects vs Words - centroids
 occurrences_vs_words.to_csv("results/CA_TIME_CENT_objects_vs_words.csv")
-# Objects vs Words - centroids (limited words)
-form_lim_occurrences_vs_words.to_csv("results/CA_TIME_CENT_objects_vs_words_LIMITED.csv", index=False)
 # Objects vs Words - regression
 regressions_vs_words.to_csv("results/CA_TIME_REG_objects_vs_words.csv")
-# Objects vs Words - regression (limited words)
-form_lim_regressions_vs_words.to_csv("results/CA_TIME_REG_objects_vs_words_LIMITED.csv", index=False)
 
 # -- For article
 
 # extra_limited
 part_1 = ["T1", "T2", "T3", "T4", "T5"]
-part_2 = ["Cosette-Valjean_1", "Cosette-Valjean_2", "Cosette-Valjean_4", "Cosette-Valjean_5"]
+part_2 = ["Valjean_1", "Valjean_2", "Valjean_3", "Valjean_4", "Valjean_5"]
+part_3 = ["Cosette_1", "Cosette_2", "Cosette_4", "Cosette_5"]
+part_4 = ["Cosette-Valjean_1", "Cosette-Valjean_2", "Cosette-Valjean_4", "Cosette-Valjean_5"]
 
 form_lim_words_vs_occurrences.loc[:, part_1].to_csv("results/for_article/CA_TIME_CENT_words_vs_objects_LIMITED_1.csv",
                                                     index=False)
 form_lim_words_vs_occurrences.loc[:, part_2].to_csv("results/for_article/CA_TIME_CENT_words_vs_objects_LIMITED_2.csv",
                                                     index=False)
+form_lim_words_vs_occurrences.loc[:, part_3].to_csv("results/for_article/CA_TIME_CENT_words_vs_objects_LIMITED_3.csv",
+                                                    index=False)
+form_lim_words_vs_occurrences.loc[:, part_4].to_csv("results/for_article/CA_TIME_CENT_words_vs_objects_LIMITED_4.csv",
+                                                    index=False)
 form_lim_words_vs_regressions.loc[:, part_1].to_csv("results/for_article/CA_TIME_REG_words_vs_objects_LIMITED_1.csv",
                                                     index=False)
 form_lim_words_vs_regressions.loc[:, part_2].to_csv("results/for_article/CA_TIME_REG_words_vs_objects_LIMITED_2.csv",
+                                                    index=False)
+form_lim_words_vs_regressions.loc[:, part_3].to_csv("results/for_article/CA_TIME_REG_words_vs_objects_LIMITED_3.csv",
+                                                    index=False)
+form_lim_words_vs_regressions.loc[:, part_4].to_csv("results/for_article/CA_TIME_REG_words_vs_objects_LIMITED_4.csv",
                                                     index=False)

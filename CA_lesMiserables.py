@@ -187,21 +187,12 @@ for to_explore_word in word_names:
 
 # Words vs Objects - centroids
 words_vs_occurrences.to_csv("results/CA_CENT_words_vs_objects.csv")
-# Words vs Objects - centroids (limited char)
-form_lim_words_vs_occurrences.to_csv("results/CA_CENT_words_vs_objects_LIMITED.csv")
 # Words vs Objects - regression
 words_vs_regressions.to_csv("results/CA_REG_words_vs_objects.csv")
-# Words vs Objects - regression (limited char)
-form_lim_words_vs_regressions.to_csv("results/CA_REG_words_vs_objects_LIMITED.csv")
-
 # Objects vs Words - centroids
 occurrences_vs_words.to_csv("results/CA_CENT_objects_vs_words.csv")
-# Objects vs Words - centroids (limited words)
-form_lim_occurrences_vs_words.to_csv("results/CA_CENT_objects_vs_words_LIMITED.csv", index=False)
 # Objects vs Words - regression
 regressions_vs_words.to_csv("results/CA_REG_objects_vs_words.csv")
-# Objects vs Words - regression (limited words)
-form_lim_regressions_vs_words.to_csv("results/CA_REG_objects_vs_words_LIMITED.csv", index=False)
 
 # -- For article
 

@@ -233,18 +233,23 @@ For the moment, it is not possible to evaluate the presented methods by the use 
 
 \subsection{Preprocessing}
 
-The five volumes of \emph{Les Misérables}, in French, were extracted from \emph{Project Gutenberg}\footnote{\url{https://www.gutenberg.org/}}, while headers and footers of each files were manually removed. The whole text was lower cased, lemmatized, and stopwords\footnote{from a list made by Jacques Savoy \url{http://members.unine.ch/jacques.savoy/clef/frenchST.txt}} and punctuation were removed. Volumes, books, and chapters breaking points were kept for later uses. \\
-We chose to use chapter as textual units. The table $\mathbf{N}$ (Figure \ref{cont_table}) was build by considering words appearing at least $20$ times in the text and resulted in a table of size $365$ chapters $\times$ $1974$ words. \\
-Characters presences were detected using \emph{Flair}\footnote{\url{https://github.com/flairNLP/flair}} (REF) NER tools. In order to unify character and to further refine the detected characters list, we used hand-made lists of character and aliases from NER results. It resulted in the detection of 54 characters. The character-based objects considered in table $\mathbf{O}$ (Figure \ref{occ_table}) are single character occurrences (54 objects) and character pair co-occurrences (547 objects), resulting in a table of size $365 \times 601$. The character co-occurrences count is computed as $o_{ij} = \min(o_{ik}, o_{il})$, where $\{k, l\}$ are characters constituting the pair $j$. Note that we also tested experiments with objects consisting in character and character-pairs as found in each volumes (e.g. Cosette-Valjean in volume 1 and Cosette-Valjean in volume 2 are now different objects). This modified table, containing $1124$ character-based objects, permits to see the evolution in characters and relationships. 
+The five volumes of \emph{Les Misérables}, in French, were extracted from \emph{Project Gutenberg}\footnote{\url{https://www.gutenberg.org/}}, while headers and footers of each files were manually removed. The whole text was lower cased, lemmatized, and stopwords\footnote{from a list made by Jacques Savoy \url{http://members.unine.ch/jacques.savoy/clef/frenchST.txt}} and punctuation were removed. Volumes, books, and chapters breaking points were kept for later uses. 
+
+We chose to use chapter as textual units. The table $\mathbf{N}$ (Figure \ref{cont_table}) was build by considering words appearing at least $20$ times in the text and resulted in a table of size $365$ chapters $\times$ $1974$ words.
+
+Characters presences were detected using \emph{Flair}\footnote{\url{https://github.com/flairNLP/flair}} (REF) NER tools. In order to unify character and to further refine the detected characters list, we used hand-made lists of character and aliases from NER results. It resulted in the detection of 54 characters. The character-based objects considered in table $\mathbf{O}$ (Figure \ref{occ_table}) are single character occurrences (54 objects) and character pair co-occurrences (547 objects), resulting in a table of size $365 \times 601$. The character co-occurrences count is computed as $o_{ij} = \min(o_{ik}, o_{il})$, where $\{k, l\}$ are characters constituting the pair $j$. 
+
+Note that, in section \ref{diachronic}, we also tested experiments with objects consisting in character and character-pairs as found in each volumes (e.g. Cosette-Valjean in volume one and Cosette-Valjean in volume two are now two different objects) with the addition of volume constants ($V_i=1$ in volume $i$, $V_i=0$ in the other volumes) in order to isolate specific volume vocabulary. This new table $\mathbf{O}_\text{vol}$, containing $1124$ character-based objects, permits to see a diachronic evolution of words describing volumes, characters, and character relationships. 
 
 \subsection{Methods}
 
 There are two types of methods for unit embeddings, \textbf{CA} (section \ref{ca_method}) and \textbf{WV} (section \ref{wv_method}), as well as two methods for character-based embedding, \textbf{CENT} (section \ref{centroid}) and \textbf{REG} (section \ref{regression}), making a total of 4 possibles ways for obtaining final embeddings. The \textbf{CA} method is fully automated, and results in vectors in a $364$-dimensional space, while the $\textbf{WV}$ methods is based on French \emph{fastText}\footnote{\url{https://fasttext.cc/docs/en/crawl-vectors.html}} (REF) pre-trained embeddings, giving a $300$-dimensional space. The \textbf{CENT} do not have any hyperparameter and we fixed the hyperparameter of the \textbf{REG} methods to $\lambda = 0.01$ for all experiments. \\
-Note that, in addition to having 4 variations for the methods and 2 sets of character-based objects (characters and character-pairs for the whole book, or discretized by volumes), results can be presented in various ways (e.g. most related words regarding a character-based object, most related character-based object regarding a word), without forgetting that the number of characters, relationships and words in the studied text is considerable. Thus, we chose to show here only some examples of results, and leave the reader the choice to consult an exhaustive list of them on our GitHub repository.\footnote{\url{https://github.com/gguex/char2char_vectors/results}}
+Note that, in addition to having two table 4 variations for the methods, 2 tables $\mathbf{O}$ and $\mathbf{O}_\text{vol}$, and a considerable number of characters and character relationships, results can also be presented in various ways (similarities between character-based objects, between words, between objects and words, etc.). Thus, we chose to show here a selection of results for the each method: the 5 most associated words regarding character-based objects (section \ref{words}), the 5 most related character-based object regarding a subset of words (section \ref{objects})), and a diachronic study of top associated words for a subset of character-based objects (section \ref{diachronic}). We invite curious readers to consult these results for all words and objects, which can be found in our GitHub repository.\footnote{\url{https://github.com/gguex/char2char_vectors/results}}
 
 \subsection{Results}
 
 \subsubsection{The most associated words for a subset of characters-based objects}
+\label{words}
 
 %------------------------------
 
@@ -332,13 +337,14 @@ The first results in this section is to examine the most associated words with a
 
 We can first observe that \textbf{CA} methods seems to summarize objects with a vocabulary closer to the work, while \textbf{WV} methods tend to use more general concepts, with notably more verbs. This behavior can be traced back to the nature of embeddings: in the \textbf{WV} embedding, word-vectors are fixed and do not consider the actual frequencies of words found in the studied corpora. A character could be highly similar to a word appearing only a few times in the corpus if this word is located near the vocabulary associated with this character. By contrast, \textbf{CA} will generally takes into account word frequencies, and balance them with specificities, in order to describe a character.
 
-Another remark can be made about the difference between \textbf{CENT} methods and \textbf{REG} methods. As expected, we see that the \textbf{CENT} methods reveal their additive construction between characters and relationships: words used to describe a relationship rob off on their characters descriptions (see e.g. Cosette, Cosette-Marius, and Cosette-Valjean). By constrast, the \textbf{REG} methods display more "perpendicular" descriptions of objects, with less words repeating. While   
+Another remark can be made about the difference between \textbf{CENT} methods and \textbf{REG} methods. As expected, we see that the \textbf{CENT} methods reveal their additive construction between characters and relationships: words used to describe a relationship rob off on their characters descriptions (see e.g. Cosette, Cosette-Marius, and Cosette-Valjean). By constrast, the \textbf{REG} methods display more "perpendicular" descriptions of objects, with less words repeating.   
 
 Note that we did not show here the least associated words with each object, as they are frequently the same for all methods and all related to the long description of the Battle of Waterloo in volume 2 ("infanterie", "wellington", "cuirassier", "bridage"), containing no protagonist of the story. 
 
 Overall, we find that the \textbf{CA-REG} method gives the most satisfying results, with pertinent words associated with each character-based object, and an high variety in the choice of words. 
 	
 \subsubsection{The most associated characters-based objects for a subset of words}
+\label{objects}
 
 %------------------------------
 
@@ -392,16 +398,15 @@ Overall, we find that the \textbf{CA-REG} method gives the most satisfying resul
 	\includegraphics[width=0.45\textwidth]{fig/justice.png}
 	\includegraphics[width=0.45\textwidth]{fig/guerre.png}
 	\label{networks}
-	\caption{Resulting weighted networks, between main characters, with examples of word queries ("aimer", "rue", "justice", and "guerre"). These networks are computed with \textbf{CA-REG} method ($\lambda = 0.01$). Red indicate positive affinity, blue negative one, and edge width the number of detected interactions between characters.}
+	\caption{Resulting weighted and signed networks between main characters, with examples of word queries ("aimer", "rue", "justice", and "guerre"). These networks are computed with \textbf{CA-REG} method ($\lambda = 0.01$). Red indicate positive affinity, blue negative affinity, and edge width is proportional to the number of detected interactions between characters.}
 \end{figure*}
 
 %------------------------------
 
-These results are extracted from the transposed table from the last, and display the most associated character-based objects to a selected set of words. They can be found in Table 4. This type of results can be seen as "queries", made from a single word, which output the highest objects in the work related to that query. We chose here to show the most associated objects to words "aimer", "rue", "justice" and "guerre", as they represent some of the major topics of the book. In this task, the \textbf{CA-REG} again seems to display the most satifying results: the main love relationship (Cosette-Marius) of the book is the most associated object for "aimer", several "amis de l'ABC" (a revolutionary group) are most associated with "rue", the cop-suspect relationship (Javert-Valjean) is the top object for "justice", and officers or aggressive characters appear massively associated with "guerre". 
+These results are extracted from the transposed table from the last, and display the most associated character-based objects to a selected set of words. They can be found in Table 4. This type of results can be seen as "queries", made from a single word, which output the highest objects in the work related to that query. We chose here to show the most associated objects to words "aimer", "rue", "justice" and "guerre", as they represent some of the major topics of the book. In this task, the \textbf{CA-REG} again seems to display the most satifying results: the main love relationship (Cosette-Marius) of the book is the most associated object for "aimer", several "amis de l'ABC" (a revolutionary group) are most associated with "rue", the cop-suspect relationship (Javert-Valjean) is the top object for "justice", and officers or aggressive characters appear massively associated with "guerre". While somewhat inferior with the select set of queries, \textbf{WV} methods have the advantage to be able to query words outside the scope of the book, as the pre-trained word embedding possess a very large vocabulary. It should also give interesting results when comparing different corpora, due to the fixed nature of word-vectors, but case studies concerning multiple corpora are outside the scope of this article.
 
-Note that another way to represent these results is through weighted signed networks, as found in Figure 1 (for \textbf{CA-REG}). The network structure represent the number of time characters are detected together, and remains unchanged regarding the word query, and the signed weights (edge color) display similarities between character-pairs (edges) and the studied word (the query). This representation gives a quick visual support in order to explore the studied work.
+Note that another way to represent these results is through weighted signed networks, as found in Figure 1 (for \textbf{CA-REG}). The network structure represent the number of time characters are detected together (which do not depend on the query), and the signed weights (edge color) display similarities between character relationship (edges) and the queried word. This representation gives a quick visual support in order to explore the studied work and could be implemented as a standalone program.
 
-While somewhat inferior with the select set of queries, \textbf{WV} methods have the advantage to be able to query words outside the scope of the book, as the pre-trained word embedding possess a very large vocabulary. 
 
 % ----------------------------------------------
 
@@ -432,6 +437,34 @@ While somewhat inferior with the select set of queries, \textbf{WV} methods have
 	\caption{The 5 most associated words (similarity in parentheses) vs volumes objects (top) and Cosette-Valjean relationship as found in each tome, regarding the \textbf{CA-REG} method ($\lambda = 0.01$). Note that no co-occurrence between Cosette and Valjean were automatically found in volume 3.}
 \end{table*}
 
+
+\subsubsection{A diachronic study of the most associated words for a subset of character-based objects}
+\label{diachronic}
+
+\begin{table*}[!h]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		\parbox[t]{2mm}{\multirow{12}{*}{\rotatebox[origin=c]{90}{\textbf{CA-CENT}}}} & Cosette & Cosette-Marius & Cosette-Valjean & Marius & Valjean \\ 
+		\cline{2-6}
+		& poupée (0.7) & \textbf{noce} (1.72) & \textbf{noce} (1.0) & théodule (0.61) & \textbf{mestienne} (0.51) \\
+		& \textbf{noce} (0.68) & \textbf{mariage} (1.31) & \textbf{mestienne} (0.97) & jondrette (0.59) & fossoyeur (0.46) \\
+		& \textbf{mestienne} (0.58) & \textbf{marié} (1.21) & \textbf{mariage} (0.71) & \textbf{ursule} (0.56) & \textbf{accusé} (0.45) \\
+		& \textbf{mariage} (0.48) & marier (1.11) & \textbf{marié} (0.68) & vernon (0.53) & maire (0.39) \\
+		& \textbf{marié} (0.48) & baron (1.0) & corbillard (0.65) & tante (0.52) & jean (0.37) \\ 
+		\cline{2-6}
+		& Marius-Valjean & Javert & Javert-Valjean & Myriel & Myriel-Valjean \\
+		\cline{2-6}
+		& \textbf{noce} (1.2) & \textbf{accusé} (1.47) & \textbf{accusé} (1.85) & conventionnel (5.03) & chandelier (6.28) \\
+		& \textbf{mariage} (0.85) & arras (1.04) & \textbf{avocat} (1.12) & évêque (3.54) & gendarme (5.06) \\
+		& \textbf{ursule} (0.85) & mouchard (0.97) & \textbf{preuve} (1.1) & oratoire (3.39) & panier (4.72) \\
+		& \textbf{marié} (0.8) & \textbf{avocat} (0.96) & président (1.08) & hôpital (2.57) & couvert (4.64) \\
+		& tableau (0.74) & \textbf{preuve} (0.93) & forçat (1.01) & cathédrale (2.54) & deuil (4.52) \\
+		\hline
+	\end{tabular}
+	\label{CA_TIME_REG_word_vs_obj}
+	\caption{The 5 most associated words (similarity in parentheses) vs volumes objects (top) and Cosette-Valjean relationship as found in each tome, regarding the \textbf{CA-REG} method ($\lambda = 0.01$). Note that no co-occurrence between Cosette and Valjean were automatically found in volume 3.}
+\end{table*}
 
 \section{Conclusion}
 
