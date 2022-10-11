@@ -69,7 +69,7 @@
   <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"> 
    <dc:format>application/pdf</dc:format> 
    <dc:type><rdf:Bag><rdf:li>journal</rdf:li></rdf:Bag></dc:type>
-   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">Refining character relationships using embeddings of textual units : a case study on Les Misérables</rdf:li></rdf:Alt></dc:title>
+   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">Characterizing narrative entities with embeddings : a case study of character relationships in Les Misérables</rdf:li></rdf:Alt></dc:title>
    <dc:creator><rdf:Seq><rdf:li>Guillaume Guex</rdf:li></rdf:Seq></dc:creator>
    <dc:rights><rdf:Alt><rdf:li xml:lang="x-default">© 2022 Copyright for this paper by its authors. Use permitted under Creative Commons License Attribution 4.0 International (CC BY 4.0).</rdf:li></rdf:Alt></dc:rights>
    <dc:description><rdf:Alt><rdf:li xml:lang="x-default">CEUR Workshop Proceedings (CEUR-WS.org)</rdf:li></rdf:Alt></dc:description>
@@ -90,9 +90,9 @@
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/"> 
    <xmp:CreatorTool>LaTeX with hyperref</xmp:CreatorTool> 
-   <xmp:ModifyDate>2022-10-10T17:05:21+02:00</xmp:ModifyDate> 
-   <xmp:CreateDate>2022-10-10T17:05:21+02:00</xmp:CreateDate> 
-   <xmp:MetadataDate>2022-10-10T17:05:21+02:00</xmp:MetadataDate> 
+   <xmp:ModifyDate>2022-10-11T14:39:08+02:00</xmp:ModifyDate> 
+   <xmp:CreateDate>2022-10-11T14:39:08+02:00</xmp:CreateDate> 
+   <xmp:MetadataDate>2022-10-11T14:39:08+02:00</xmp:MetadataDate> 
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmpRights = "http://ns.adobe.com/xap/1.0/rights/"> 
    <xmpRights:Marked>True</xmpRights:Marked>
@@ -101,7 +101,7 @@
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"> 
    <xmpMM:DocumentID>uuid:FDAA7AA5-A0FE-8D97-DFD4-26BA083B7558</xmpMM:DocumentID> 
-   <xmpMM:InstanceID>uuid:53261E66-0DDE-883E-A71B-98ECB5DD718E</xmpMM:InstanceID> 
+   <xmpMM:InstanceID>uuid:FDE23BB5-63AB-20CF-CDD3-43D29EDBA72A</xmpMM:InstanceID> 
   </rdf:Description> 
  </rdf:RDF> 
 </x:xmpmeta> 
