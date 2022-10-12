@@ -117,7 +117,10 @@ corpus.remove_units_without_words()
 corpus.remove_occurrences_with_frequency(1e-10)
 
 # Compute the unit vectors
+# choice 1
+#unit_coord = build_occurrences_vectors(dt_matrix.T, word_coord)
 
+# choice 2
 weighting_param = 0.01
 word_weights = corpus.units_words.to_numpy().sum(axis=0)
 word_weights = word_weights / sum(word_weights)
@@ -232,20 +235,18 @@ for to_explore_word in word_names:
 
 # Words vs Objects - centroids
 words_vs_occurrences.to_csv("results/WV_CENT_words_vs_objects.csv")
+# Words vs Objects - centroids (limited char)
+form_lim_words_vs_occurrences.to_csv("results/WV_CENT_words_vs_objects_LIMITED.csv")
 # Words vs Objects - regression
 words_vs_regressions.to_csv("results/WV_REG_words_vs_objects.csv")
+# Words vs Objects - regression (limited char)
+form_lim_words_vs_regressions.to_csv("results/WV_REG_words_vs_objects_LIMITED.csv")
+
 # Objects vs Words - centroids
 occurrences_vs_words.to_csv("results/WV_CENT_objects_vs_words.csv")
+# Objects vs Words - centroids (limited words)
+form_lim_occurrences_vs_words.to_csv("results/WV_CENT_objects_vs_words_LIMITED.csv", index=False)
 # Objects vs Words - regression
 regressions_vs_words.to_csv("results/WV_REG_objects_vs_words.csv")
-
-# -- For article
-
-form_lim_words_vs_occurrences.iloc[:, :5].to_csv("results/for_article/WV_CENT_words_vs_objects_LIMITED_1.csv",
-                                                 index=False)
-form_lim_words_vs_occurrences.iloc[:, 5:].to_csv("results/for_article/WV_CENT_words_vs_objects_LIMITED_2.csv",
-                                                 index=False)
-form_lim_words_vs_regressions.iloc[:, :5].to_csv("results/for_article/WV_REG_words_vs_objects_LIMITED_1.csv",
-                                                 index=False)
-form_lim_words_vs_regressions.iloc[:, 5:].to_csv("results/for_article/WV_REG_words_vs_objects_LIMITED_2.csv",
-                                                 index=False)
+# Objects vs Words - regression (limited words)
+form_lim_regressions_vs_words.to_csv("results/WV_REG_objects_vs_words_LIMITED.csv", index=False)
