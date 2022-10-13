@@ -20,7 +20,7 @@ In this article, we propose a general and flexible framework in order to study *
 <img src="results/for_git/networks.png" alt="types" style="width:100%">
 </p>
 
-#### Evolution of word associations regarding depending on the volumes
+#### Evolution of word associations in volumes
 
 <p>
 <img src="results/for_git/timeline.png" alt="nmi_results" style="width:100%">
