@@ -30,7 +30,7 @@ In this article, we propose a general and flexible framework in order to study *
 
 - All classes and functions needed to run algorithms, compute statistics, and more, are found in the `local_functions.py` 
 script. These functions are documented by docstrings.
-- The "CA_\*" and the "WV_\*" scripts are the one who produced results in the article.
+- The `CA_\*` and the `WV_\*` scripts are the one who produced results in the article.
 - The folder **results** contains extensive results on *Les Misérables*
 - The folder **corpora** contains corpora.
 - The folder **other_scripts** contains scripts which help to produced other results.
