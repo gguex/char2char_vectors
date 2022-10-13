@@ -1,5 +1,0 @@
-\frametitle{References}
-\begin{multicols}{2}
-^^I^^I^^I\bibliographystyle{apalike}
-^^I^^I^^I\bibliography{charnet}
-^^I^^I\end{multicols}
