@@ -1,6 +1,6 @@
 # A Framework for Embedding Entities in a Textual Narrative: a Case Study on *Les Misérables*
 
-Welcome to the GitHub repository for the (upcoming) article *A Framework for Embedding Entities in a Textual Narrative: a Case Study on Les Misérables*.
+Welcome to the GitHub repository for the article <a href=https://ceur-ws.org/Vol-3602/paper4.pdf>*A Framework for Embedding Entities in a Textual Narrative: a Case Study on Les Misérables*</a>.
 
 ## Abstract 
 
